@@ -35,7 +35,14 @@ ga('set', 'page', pathname);
 {% block header_class %}instance-header{% endblock %}
 
 {% block instancetopnav %}
-{% if request.instance|feature_enabled:'add_plot' and last_effective_instance_user %}
+<li class="explore-map {% block activeexplore %}active{% endblock %}">
+    <a href="{% url 'map' instance_url_name=request.instance.url_name %}{% block map_query %}{% endblock %}"
+       {% if embed %}target="_blank"{% endif %}>
+    <span class="hidden-xs">{% trans "Explore Map" %}</span>
+    <span class="visible-xs-inline">{{ request.instance.name }}</span>
+  </a>
+</li>
+{% if request.instance|feature_enabled:'add_plot' and last_effective_instance_user and request.user.is_authenticated %}
   {% if request.instance.has_resources %}
     <li class="add-menu dropdown" data-feature="add_plot">
       <a class="dropdown-toggle" data-toggle="dropdown">
@@ -58,16 +65,6 @@ ga('set', 'page', pathname);
     </li>
   {% endif %}
 {% endif %}
-
-<li class="explore-map {% block activeexplore %}active{% endblock %}">
-    <a href="{% url 'map' instance_url_name=request.instance.url_name %}{% block map_query %}{% endblock %}"
-       {% if embed %}target="_blank"{% endif %}>
-    <span class="hidden-xs">{% trans "Explore Map" %}</span>
-    <!-- We hide the logo on mobile, so we show the instance name instead of "Explore Map" to give context about which map you are on -->
-    <span class="visible-xs-inline">{{ request.instance.name }}</span>
-  </a>
-</li>
-
 {% if last_effective_instance_user|has_permission:'modeling' %}
   <li class="{% block activemodeling %}{% endblock %} hidden-xs">
     <a href="{% url 'model_trees' instance_url_name=request.instance.url_name %}">
@@ -76,7 +73,7 @@ ga('set', 'page', pathname);
   </li>
 {% endif %}
 
-{% if request.instance|feature_enabled:'recent_edits_report' %}
+{% if request.instance|feature_enabled:'recent_edits_report' and request.user.is_authenticated %}
 <li class="hidden-xs {% block activerecentedits %}{% endblock %}">
   <a href="{% url 'edits' instance_url_name=request.instance.url_name %}">{% trans "View Edits" %}</a>
 </li>
