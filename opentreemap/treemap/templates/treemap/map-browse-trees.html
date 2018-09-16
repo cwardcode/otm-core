@@ -10,7 +10,7 @@
       <div class="panel-body-buttons-wrapper">
         <div class="panel-body-buttons" id="map-plot-details-button">
           <a class="btn" data-class="display" id="full-details-button">{% trans "More Details" %}</a>
-          {% if not embed %}
+          {% if not embed and request.user.is_authenticated %}
           <button class="btn"
                   data-class="display"
                   id="quick-edit-button"
