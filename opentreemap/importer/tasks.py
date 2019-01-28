@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from __future__ import division
 
 import json
+import rollbar 
 
 from celery import shared_task, chord
 from celery.result import GroupResult
@@ -70,12 +71,14 @@ def _create_rows(ie, reader):
 
 @shared_task()
 def run_import_event_validation(import_type, import_event_id, file_obj):
+    rollbar.report_message("inside run_import_event_validation", "info")
     ie = _get_import_event(import_type, import_event_id)
 
     try:
         ie.status = GenericImportEvent.LOADING
         ie.update_progress_timestamp_and_save()
         success = _create_rows_for_event(ie, file_obj)
+        rollbar.report_message("created rows_for_event", "info")
     except Exception as e:
         ie.append_error(errors.GENERIC_ERROR, data=[str(e)])
         ie.status = GenericImportEvent.FAILED_FILE_VERIFICATION
@@ -90,24 +93,31 @@ def run_import_event_validation(import_type, import_event_id, file_obj):
         return
 
     ie.status = GenericImportEvent.PREPARING_VERIFICATION
+    rollbar.report_message("update_progress_timestamp_and_save", "info")
     ie.update_progress_timestamp_and_save()
 
     try:
+        rollbar.report_message("start validation", "info")
         validation_tasks = []
         for i in xrange(0, ie.row_count, settings.IMPORT_BATCH_SIZE):
-            validation_tasks.append(_validate_rows.s(import_type, ie.id, i))
+            rollbar.report_message("adding validation task", "info")
+            _validate_rows(import_type, ie.id, i)
 
-        final_task = _finalize_validation.si(import_type, import_event_id)
+        rollbar.report_message("rows validated. calling finalize validation.si", "info")
+        _finalize_validation(import_type, import_event_id)
 
-        async_result = chord(validation_tasks, final_task).delay()
-        async_result_parent = async_result.parent
-        if async_result_parent:  # Has value None when run in unit tests
+        #rollbar.report_message("running chord", "info")
+        #async_result = chord(validation_tasks, final_task)
+        #rollbar.report_message("call parent", "info")
+        #async_result_parent = async_result.parent
+        #if async_result_parent:  # Has value None when run in unit tests
             # Celery 4 converts a chord with only one task in the head into
             # a simple chain, which does not have a savable parent GroupResult
-            if isinstance(async_result_parent, GroupResult):
-                async_result_parent.save()
-            ie.task_id = async_result_parent.id
+        #    if isinstance(async_result_parent, GroupResult):
+        #        async_result_parent.save()
+        #    ie.task_id = async_result_parent.id
 
+        rollbar.report_message("call assure_status_is_at_least_verifying", "info")
         _assure_status_is_at_least_verifying(ie)
 
     except Exception as e:
@@ -163,12 +173,12 @@ def commit_import_event(import_type, import_event_id):
     ie = _get_import_event(import_type, import_event_id)
 
     commit_tasks = [
-        _commit_rows.s(import_type, import_event_id, i)
+        _commit_rows(import_type, import_event_id, i)
         for i in xrange(0, ie.row_count, settings.IMPORT_BATCH_SIZE)]
 
-    finalize_task = _finalize_commit.si(import_type, import_event_id)
+    finalize_task = _finalize_commit(import_type, import_event_id)
 
-    async_result = chord(commit_tasks, finalize_task).delay()
+    async_result = chord(commit_tasks, finalize_task)
     # Protect against a race condition where finalize_task's ie
     # may have already been updated to FINISHED_CREATING and saved to the db,
     # rendering this instance of the ie model obsolete.

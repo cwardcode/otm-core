@@ -5,6 +5,7 @@ from __future__ import division
 
 import csv
 import logging
+import rollbar
 
 from contextlib import contextmanager
 from functools import wraps
@@ -135,6 +136,7 @@ def async_users_export(job, data_format):
 @shared_task
 @_job_transaction
 def async_csv_export(job, model, query, display_filters):
+    rollbar.report_message("inside async_csv_export", "info")
     instance = job.instance
 
     select = OrderedDict()
@@ -142,10 +144,12 @@ def async_csv_export(job, model, query, display_filters):
     field_header_map = {}
     field_serializer_map = {}
     if model == 'species':
+        rollbar.report_message("inside async_csv_export model is species", "info", instance)
         initial_qs = (Species.objects.
                       filter(instance=instance))
         values = _values_for_model(instance, job, 'treemap_species',
                                    'Species', select, select_params)
+        rollbar.report_message("inside async_csv_export values are", "info", values)
         field_names = values + select.keys()
         limited_qs = (initial_qs
                       .extra(select=select,

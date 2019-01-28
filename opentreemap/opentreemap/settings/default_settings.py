@@ -1,5 +1,9 @@
 import os
+import rollbar
+import djcelery
+
 from omgeo import postprocessors
+djcelery.setup_loader()
 
 # Django settings for opentreemap project.
 OTM_VERSION = 'dev'
@@ -17,9 +21,9 @@ UITEST_SETUP_FUNCTION = None
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # This email is shown in various contact/error pages throughout the site
-SUPPORT_EMAIL_ADDRESS = 'support@yoursite.com'
+SUPPORT_EMAIL_ADDRESS = 'support@cwardcode.com'
 # This email is used as the "from" address when sending messages
-DEFAULT_FROM_EMAIL = 'noreply@yoursite.com'
+DEFAULT_FROM_EMAIL = 'noreply@otm.wcu.edu'
 SYSTEM_USER_ID = -1
 
 #
@@ -232,7 +236,7 @@ MIDDLEWARE = (
 )
 
 # Settings for Rollbar exception reporting service
-ROLLBAR_SERVER_ACCESS_TOKEN = os.environ.get(
+ROLLBAR_SERVER_ACCESS_TOKEN = ROLLBAR_SERVER_ACCESS_TOKEN = os.environ.get(
     'ROLLBAR_SERVER_SIDE_ACCESS_TOKEN', None)
 ROLLBAR_CLIENT_ACCESS_TOKEN = os.environ.get(
     'ROLLBAR_POST_CLIENT_ITEM_ACCESS_TOKEN', None)
@@ -245,7 +249,7 @@ if ROLLBAR_SERVER_ACCESS_TOKEN is not None:
     }
     MIDDLEWARE += (
         'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',)
-
+    rollbar.init(**ROLLBAR)
 # Settings for StatsD metrics aggregation
 # TODO: Enable when django-statsd is compatible with Django > 1.8
 # STATSD_CLIENT = 'django_statsd.clients.normal'
@@ -284,6 +288,7 @@ INSTALLED_APPS = (
     'exporter',
     'otm1_migrator',
     'threadedcomments',
+    'djcelery',
     'django_comments',
     'otm_comments',
     'importer',

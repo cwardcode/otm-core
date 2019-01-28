@@ -6,6 +6,7 @@ from __future__ import division
 import json
 import io
 import csv
+import rollbar
 
 from copy import copy
 from celery.result import GroupResult, AsyncResult
@@ -61,7 +62,6 @@ def _find_similar_species(target, instance):
 def start_import(request, instance):
     if not getattr(request, 'FILES'):
         return HttpResponseBadRequest("No attachment received")
-
     import_type = request.POST['type']
     if import_type == TreeImportEvent.import_type:
         table = TABLE_ACTIVE_TREES
@@ -699,7 +699,7 @@ def commit(request, instance, import_type, import_event_id):
         ie.update_progress_timestamp_and_save()
         ie.rows().update(status=GenericImportRow.WAITING)
 
-    commit_import_event.delay(import_type, import_event_id)
+    commit_import_event(import_type, import_event_id)
 
     return list_imports(request, instance)
 
@@ -711,6 +711,7 @@ def process_csv(request, instance, import_type, **kwargs):
 
     file_obj = io.BytesIO(decode(file_obj.read()).encode('utf-8'))
 
+
     owner = request.user
     ImportEventModel = get_import_event_model(import_type)
     ie = ImportEventModel(file_name=filename,
@@ -718,11 +719,10 @@ def process_csv(request, instance, import_type, **kwargs):
                           instance=instance,
                           **kwargs)
     ie.save()
-
-    run_import_event_validation.delay(import_type, ie.pk, file_obj)
+    rollbar.report_message("run_import_event_validation", "info")
+    run_import_event_validation(import_type, ie.pk, file_obj)
 
     return ie.pk
-
 
 # http://stackoverflow.com/a/8898439/362702
 def decode(s):
