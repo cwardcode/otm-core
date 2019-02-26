@@ -12,7 +12,9 @@
         <div class="search-fields-title">{{ title }}</div>
     {% endif %}
 
-    {% for field in fields %}
-        {% search from field for request.user in request.instance withtemplate "treemap/field/search.html" %}
-    {% endfor %}
+    {% if users %}
+        {% for field in fields %}
+            {% search from field for request.user in request.instance withtemplate "treemap/field/search.html" %}
+        {% endfor %}
+    {% endif %}
 </div>

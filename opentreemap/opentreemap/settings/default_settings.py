@@ -1,9 +1,7 @@
 import os
 import rollbar
-import djcelery
 
 from omgeo import postprocessors
-djcelery.setup_loader()
 
 # Django settings for opentreemap project.
 OTM_VERSION = 'dev'
@@ -236,8 +234,7 @@ MIDDLEWARE = (
 )
 
 # Settings for Rollbar exception reporting service
-ROLLBAR_SERVER_ACCESS_TOKEN = ROLLBAR_SERVER_ACCESS_TOKEN = os.environ.get(
-    'ROLLBAR_SERVER_SIDE_ACCESS_TOKEN', None)
+ROLLBAR_SERVER_ACCESS_TOKEN = '022203b887374c9aae5e722fd6e3651c'
 ROLLBAR_CLIENT_ACCESS_TOKEN = os.environ.get(
     'ROLLBAR_POST_CLIENT_ITEM_ACCESS_TOKEN', None)
 STACK_TYPE = os.environ.get('OTM_STACK_TYPE', 'Unknown')
@@ -288,7 +285,6 @@ INSTALLED_APPS = (
     'exporter',
     'otm1_migrator',
     'threadedcomments',
-    'djcelery',
     'django_comments',
     'otm_comments',
     'importer',
