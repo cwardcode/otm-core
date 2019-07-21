@@ -157,15 +157,15 @@ class TreeImportRow(GenericImportRow):
         })
 
         plot_id = data.get(self.model_fields.OPENTREEMAP_PLOT_ID, None)
-        tree_id = data.get(self.model_fields.OPENTREEMAP_TREE_ID, None)
+        #tree_id = data.get(self.model_fields.OPENTREEMAP_TREE_ID, None)
 
         # Check for an existing plot, use it if we're not already:
         if plot_id and (self.plot is None or self.plot.pk != plot_id):
             plot = Plot.objects.get(pk=plot_id)
         elif self.plot is not None:
             plot = self.plot
-        elif tree_id:
-            plot = Tree.objects.get(pk=tree_id).plot
+        #elif tree_id:
+        #    plot = Tree.objects.get(pk=tree_id).plot
         else:
             plot = Plot(instance=self.import_event.instance)
 
@@ -288,21 +288,21 @@ class TreeImportRow(GenericImportRow):
     def validate_plot_id_and_tree_id(self):
         result = True
         plot_id = self.cleaned.get(fields.trees.OPENTREEMAP_PLOT_ID, None)
-        tree_id = self.cleaned.get(fields.trees.OPENTREEMAP_TREE_ID, None)
-
-        if tree_id:
-            tree = Tree.objects.filter(pk=tree_id,
-                                       instance=self.import_event.instance)
-            if not tree.exists():
-                self.append_error(errors.INVALID_TREE_ID,
-                                  fields.trees.OPENTREEMAP_TREE_ID)
-                result = False
-            elif plot_id:
-                if tree[0].plot_id != plot_id:
-                    self.append_error(errors.PLOT_TREE_MISMATCH,
-                                      (fields.trees.OPENTREEMAP_PLOT_ID,
-                                       fields.trees.OPENTREEMAP_TREE_ID))
-                    result = False
+        #tree_id = self.cleaned.get(fields.trees.OPENTREEMAP_TREE_ID, None)
+#TODO CHANGED
+        #if tree_id:
+        #    tree = Tree.objects.filter(pk=tree_id,
+        #                               instance=self.import_event.instance)
+        #    if not tree.exists():
+        #        self.append_error(errors.INVALID_TREE_ID,
+        #                          fields.trees.OPENTREEMAP_TREE_ID)
+        #        result = False
+        #    elif plot_id:
+        #        if tree[0].plot_id != plot_id:
+        #            self.append_error(errors.PLOT_TREE_MISMATCH,
+        #                              (fields.trees.OPENTREEMAP_PLOT_ID,
+        #                               fields.trees.OPENTREEMAP_TREE_ID))
+        #            result = False
 
         if plot_id:
             has_plot = Plot.objects \
@@ -322,45 +322,46 @@ class TreeImportRow(GenericImportRow):
         # row includes an OTM plot id or tree id. Proximity validation can
         # prevent instance admins from correcting the locations of
         # previously uploaded trees in bulk.
-        plot_id = self.cleaned.get(fields.trees.OPENTREEMAP_PLOT_ID, None)
-        tree_id = self.cleaned.get(fields.trees.OPENTREEMAP_TREE_ID, None)
-        if plot_id is not None or tree_id is not None:
-            return True
+        #plot_id = self.cleaned.get(fields.trees.OPENTREEMAP_PLOT_ID, None)
+        #tree_id = self.cleaned.get(fields.trees.OPENTREEMAP_TREE_ID, None)
+        #if plot_id is not None or tree_id is not None:
+        #    return True
 
-        offset = 3.048  # 10ft in meters
-        nearby_bbox = Polygon(((point.x - offset, point.y - offset),
-                               (point.x - offset, point.y + offset),
-                               (point.x + offset, point.y + offset),
-                               (point.x + offset, point.y - offset),
-                               (point.x - offset, point.y - offset)))
+        #offset = 3.048  # 10ft in meters
+        #nearby_bbox = Polygon(((point.x - offset, point.y - offset),
+        #                       (point.x - offset, point.y + offset),
+        #                       (point.x + offset, point.y + offset),
+        #                       (point.x + offset, point.y - offset),
+        #                       (point.x - offset, point.y - offset)))
 
         # This gets called while committing each row.
         # Assume that the creator of the csv knows best,
         # and avoid proximity checks against other plots in the same csv.
-        already_committed = self.import_event.rows()\
-            .filter(plot_id__isnull=False)\
-            .values_list('plot_id')
+        #already_committed = self.import_event.rows()\
+        #    .filter(plot_id__isnull=False)\
+        #    .values_list('plot_id')
 
         # Using MapFeature directly avoids a join between the
         # treemap_plot and treemap_mapfeature tables.
-        nearby = MapFeature.objects\
-                           .filter(instance=self.import_event.instance)\
-                           .filter(feature_type='Plot')\
-                           .exclude(pk__in=already_committed)\
-                           .filter(geom__intersects=nearby_bbox)
+        #nearby = MapFeature.objects\
+        #                   .filter(instance=self.import_event.instance)\
+        #                   .filter(feature_type='Plot')\
+        #                   .exclude(pk__in=already_committed)\
+        #                   .filter(geom__intersects=nearby_bbox)
 
-        nearby = nearby.distance(point).order_by('distance')[:5]
+        #nearby = nearby.distance(point).order_by('distance')[:5]
 
-        if len(nearby) > 0:
-            flds = (fields.trees.POINT_X, fields.trees.POINT_Y)
-            if nearby[0].distance.m < 0.001:
-                self.append_error(errors.DUPLICATE_TREE, flds)
-            else:
-                self.append_error(errors.NEARBY_TREES, flds,
-                                  [p.pk for p in nearby])
-            return False
-        else:
-            return True
+        #if len(nearby) > 0:
+        #    flds = (fields.trees.POINT_X, fields.trees.POINT_Y)
+        #    if nearby[0].distance.m < 0.001:
+        #        self.append_error(errors.DUPLICATE_TREE, flds)
+        #    else:
+        #        self.append_error(errors.NEARBY_TREES, flds,
+        #                          [p.pk for p in nearby])
+        #    return False
+        #else:
+        #    return True
+        return True
 
     def validate_species_max(self, field, value_name, max_val, err):
         inputval = self.cleaned.get(field, None)

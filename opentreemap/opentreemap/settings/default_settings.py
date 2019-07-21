@@ -333,7 +333,8 @@ ACCOUNT_ACTIVATION_DAYS = 7
 # Django-registration-redux sends HTML emails by default as of version 1.2
 # Disabling them for now until we add some new email templates
 REGISTRATION_EMAIL_HTML = False
-
+# Disable registration
+REGISTRATION_OPEN = False
 #
 # Units and decimal digits for fields and eco values
 #
