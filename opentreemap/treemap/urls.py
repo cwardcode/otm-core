@@ -75,5 +75,6 @@ urlpatterns = [
         name='benefit_search'),
     url(r'^users/%s/$' % USERNAME_PATTERN, routes.instance_user_page,
         name="user_profile"),
-    url(r'^users/%s/edits/$' % USERNAME_PATTERN, routes.instance_user_audits)
+    url(r'^users/%s/edits/$' % USERNAME_PATTERN, routes.instance_user_audits),
+    url(r'^users/$', routes.users, name="users")
 ]
