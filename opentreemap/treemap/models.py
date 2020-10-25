@@ -1092,10 +1092,24 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
 
     objects = models.GeoManager()
 
-    _stewardship_choices = ['Watered',
+    _stewardship_choices = [
+                            'Watered',
+                            'Fertilized',
+                            'Air-spaded',
                             'Pruned',
+                            'Growth Regulator',
+                            'Cabling',
+                            'Root Pruned',
+                            'Lightning Protection',
+                            'Pest Scouting',
+                            'Pest Treatment',
+                            'Storm Damaged',
+                            'Risk Assessment',
+                            'Failure',
+                            'Death',
                             'Mulched, Had Compost Added, or Soil Amended',
-                            'Cleared of Trash or Debris']
+                            'Cleared of Trash or Debris'
+		           ]
 
     udf_settings = {
         'Stewardship': {
