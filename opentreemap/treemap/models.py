@@ -1004,7 +1004,7 @@ class Plot(MapFeature, ValidationMixin):
             'warning_message': _(
                 "Marking a planting site with an alert does not serve as a "
                 "way to report problems with that site. If you have any "
-                "emergency concerns, please contact your city directly."),
+                "emergency concerns, please contact facilities directly."),
             'range_field_key': 'Date Noticed',
             'action_field_key': 'Action Needed',
             'action_verb': _('with open alerts for'),
@@ -1092,10 +1092,24 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
 
     objects = models.GeoManager()
 
-    _stewardship_choices = ['Watered',
-                            'Pruned',
+    _stewardship_choices = [
+                            'Watered',
+                            'Fertilized',
+                            'Air-spaded', 
+                            'Pruned', 
+                            'Growth Regulator', 
+                            'Cabling', 
+                            'Root Pruned', 
+                            'Lightning Protection', 
+                            'Pest Scouting', 
+                            'Pest Treatment', 
+                            'Storm Damaged', 
+                            'Risk Assessment', 
+                            'Failure', 
+                            'Death',
                             'Mulched, Had Compost Added, or Soil Amended',
-                            'Cleared of Trash or Debris']
+                            'Cleared of Trash or Debris'
+			   ]
 
     udf_settings = {
         'Stewardship': {
@@ -1115,7 +1129,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
             'warning_message': _(
                 "Marking a tree with an alert does not serve as a way to "
                 "report problems with a tree. If you have any emergency "
-                "tree concerns, please contact your city directly."),
+                "tree concerns, please contact facilities directly."),
             'range_field_key': 'Date Noticed',
             'action_field_key': 'Action Needed',
             'action_verb': _('with open alerts for'),
