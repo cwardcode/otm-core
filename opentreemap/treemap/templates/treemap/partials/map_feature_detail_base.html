@@ -101,7 +101,7 @@
         {% endblock subclass_details %}
 
     </form>
-
+  {% if request.user.is_authenticated %}
     <!-- Commenting -->
     <h3>{% trans "Comments" %}</h3>
     <div id="comments-container">
@@ -152,5 +152,6 @@
             </em>
         </p>
     </div>
+  {% endif %}
 
 </div>

@@ -22,7 +22,7 @@
   </ul>
 </div>
 
-{% if recent_activity %}
+{% if recent_activity and request.user.is_authenticated %}
 <div class="well">
   <h3>{% trans "Recent Edits" %}</h3>
   {% for user, created, audits in recent_activity %}
