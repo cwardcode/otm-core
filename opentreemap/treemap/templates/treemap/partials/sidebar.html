@@ -1,5 +1,6 @@
 {% load humanize %}
 {% load i18n %}
+{% load tagging_tags %}
 
 <div class="well">
   {% if latest_update %}
@@ -35,7 +36,30 @@
   </ul>
   {% endfor %}
 </div>
+<div class="well">
+  <div>
+    <h3 class="pull-left">{% trans "Tags" %}</h3>
+  </div>
+  <div id="tags-container">
+      {% if has_tree %}
+      <button data-toggle="modal"
+      data-target="#edit-tags-panel"
+      data-href="{{ request.get_full_path }}"
+      class="btn btn-sm pull-right">
+      <i class="icon-pencil"></i>
+      {% trans "Edit Tags" %}
+    </button>
+          {% tags_for_object tree as tag_list %}
+          {% for tag in tag_list %}
+          <p>{{tag}}</p>
+          {% endfor %}
+      {% else %}
+          {% trans "Tags are not available on empty planting sites." %}
+      {% endif %}
+  </div>
+</div>
 {% endif %}
+
 
 {% if feature.is_plot %}
 <div class="well">

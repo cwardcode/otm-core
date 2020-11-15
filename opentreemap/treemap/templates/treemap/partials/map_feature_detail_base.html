@@ -8,20 +8,6 @@
 {% load comment_sequence %}
 
 <div class="detail-header">
-    {% if request.instance.is_public %}
-        <div class="js-container pull-right" style="display: none">
-            <a target="_blank" href="http://www.facebook.com/sharer/sharer.php?u={{ share.url }}">
-                <img src="/static/img/facebook_32.png">
-            </a>
-            <a target="_blank" href="http://twitter.com/share?url={{ share.url }}&text={{ share.title }}">
-                <img src="/static/img/twitter_32.png">
-            </a>
-            <a target="_blank" href="https://plus.google.com/share?url={{ share.url }}">
-                <img src="/static/img/googleplus_32.png">
-            </a>
-        </div>
-        <button class="btn share">Share</button>
-    {% endif %}
     <h2 class="common-name" id="map-feature-title">
         {{ title }}
         <a id="favorite-link"

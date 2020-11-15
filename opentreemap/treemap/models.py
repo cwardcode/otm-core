@@ -24,6 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import (UserManager, AbstractBaseUser,
                                         PermissionsMixin)
 from django.template.loader import get_template
+from tagging.registry import register
 
 from treemap.species.codes import ITREE_REGIONS, get_itree_code
 from treemap.audit import Auditable, Role, Dictable, Audit, PendingAuditable
@@ -1247,6 +1248,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
         self.instance.update_universal_rev()
         super(Tree, self).delete_with_user(user, *args, **kwargs)
 
+register(Tree)
 
 class Favorite(models.Model):
     user = models.ForeignKey(User)

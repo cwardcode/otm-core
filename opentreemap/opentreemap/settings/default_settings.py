@@ -286,6 +286,7 @@ INSTALLED_APPS = (
     'stormwater',
     'manage_treemap',
     'modeling',
+    'tagging',
     'registration',
     'django.contrib.sessions',
     'django.contrib.messages',
