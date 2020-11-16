@@ -17,6 +17,7 @@ var $ = require('jquery'),
     statePrompter = require('treemap/lib/statePrompter.js'),
     csrf = require('treemap/lib/csrf.js'),
     uploadPanel = require('treemap/lib/uploadPanel.js'),
+    editTagsPanel = require('treemap/lib/editTagsPanel.js'),
     imageLightbox = require('treemap/lib/imageLightbox.js'),
     socialMediaSharing = require('treemap/lib/socialMediaSharing.js'),
     reverseGeocodeStreamAndUpdateAddressesOnForm =
@@ -92,6 +93,10 @@ function init() {
         errorCallback: alerts.errorCallback,
         onSaveBefore: function (data) { currentMover.onSaveBefore(data); },
         dontUpdateOnSaveOk: true
+    });
+
+    var tagsPanelStream = editTagsPanel.init({
+        updateUrl: detailUrl
     });
 
     function initDetailAfterRefresh() {

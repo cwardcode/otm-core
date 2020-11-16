@@ -14,11 +14,11 @@
         </p>
         {% tags_for_object tree as tag_list %}
         {% for tag in tag_list %}
-        <p>{{tag}} <i class="icon-trash"></i></p>
+        <p>{{tag}} <button id="delete-tag-button"><i class="icon-trash"></i></button></p>
         {% endfor %}
         <div>
           <p>Add new tag:</p>
-          <div style="display: inline-flex;flex-direction: row;align-items: center;"><input class="pull-left" type="text" id="add-tag-input">  <i class="icon-plus pull-right"></i></div>
+          <div style="display: inline-flex;flex-direction: row;align-items: center;"><input class="pull-left" type="text" id="add-tag-input">  <button><i id="add-tag-button" class="icon-plus pull-right"></i></button></div>
         </div>
       </div>
       <div class="modal-footer">
