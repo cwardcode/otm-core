@@ -53,6 +53,9 @@
           {% for tag in tag_list %}
           <p>{{tag}}</p>
           {% endfor %}
+          {% if not tag_list %}
+            <p class="text-muted"><em>{% trans "No tags exist for tree" %}</em></p>
+          {% endif %}
       {% else %}
           {% trans "Tags are not available on empty planting sites." %}
       {% endif %}

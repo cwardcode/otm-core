@@ -27,7 +27,10 @@ var $ = require('jquery'),
     reverse = require('reverse'),
     alerts = require('treemap/lib/alerts.js'),
     buttonEnabler = require('treemap/lib/buttonEnabler.js'),
-    comments = require('otm_comments/lib/comments.js');
+    comments = require('otm_comments/lib/comments.js'),
+    $editPanel = '#edit-tags-panel',
+    addTagInput = '#add-tag-input',
+    $addTagInputSection = $(addTagInput);
 
 // Placed onto the jquery object
 require('bootstrap-datepicker');
@@ -98,6 +101,41 @@ function init() {
     var tagsPanelStream = editTagsPanel.init({
         updateUrl: detailUrl
     });
+
+    tagsPanelStream.saveStream.onValue((data) => {
+        if($addTagInputSection.val()) {
+            var data = $addTagInputSection.val();
+            const req = { "name": data };
+            return Bacon.fromPromise($.ajax({
+                url: '/api/v4/instance/wcu/tags/feature/1',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify(req)
+            }))
+            .onValue((resp)=>{
+                const respArry = [];
+                resp.forEach((element) => {
+                    respArry.push(element.name)
+                })
+                return respArry;
+            });
+        }
+    })
+
+    tagsPanelStream.deleteStream.onValue((event) => {
+        const tagToDelete =  event.currentTarget.id.split('delete-button-')[1];
+        return Bacon.fromPromise($.ajax({
+            url: `/api/v4/instance/wcu/tags/feature/1/${tagToDelete}`,
+            type: 'DELETE'
+        }))
+        .onValue((resp)=>{
+            const respArry = [];
+            resp.forEach((element) => {
+                respArry.push(element.name)
+            })
+            return respArry;
+        });
+    })
 
     function initDetailAfterRefresh() {
         buttonEnabler.run();

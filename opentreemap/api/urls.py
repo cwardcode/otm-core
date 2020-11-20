@@ -16,7 +16,8 @@ from api.views import (status_view, version_view, public_instances_endpoint,
                        instance_info_endpoint, add_photo_endpoint,
                        export_users_csv_endpoint, export_users_json_endpoint,
                        update_profile_photo_endpoint,
-                       instances_closest_to_point_endpoint)
+                       instances_closest_to_point_endpoint,
+                       tags_endpoint, related_tags_endpoint, modify_tags_endpoint)
 
 from treemap.instance import URL_NAME_PATTERN
 
@@ -69,4 +70,9 @@ urlpatterns = [
         export_users_csv_endpoint, name='user_csv'),
     url(instance_pattern + r'/users.json',
         export_users_json_endpoint, name='user_json'),
+
+    # Tagging Endpoints
+    url(instance_pattern + r'/tags/feature/(?P<plot_id>\d+)$', tags_endpoint),
+    url(instance_pattern + r'/tags/feature/(?P<plot_id>\d+)/(?P<tag>[a-zA-Z0-9]+)$', modify_tags_endpoint),
+    url(instance_pattern + r'/tags/related/(?P<plot_id>\d+)$', related_tags_endpoint),
 ]

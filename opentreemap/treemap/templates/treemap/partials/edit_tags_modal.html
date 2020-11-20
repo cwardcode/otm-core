@@ -14,7 +14,7 @@
         </p>
         {% tags_for_object tree as tag_list %}
         {% for tag in tag_list %}
-        <p>{{tag}} <button id="delete-tag-button"><i class="icon-trash"></i></button></p>
+        <p>{{tag}} <button id="delete-button-{{tag}}"><i class="icon-trash"></i></button></p>
         {% endfor %}
         <div>
           <p>Add new tag:</p>

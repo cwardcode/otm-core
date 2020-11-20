@@ -40,6 +40,8 @@ from api.decorators import (check_signature, check_signature_and_require_login,
                             login_required, set_api_version)
 from api.instance import (instance_info, instances_closest_to_point,
                           public_instances, transform_instance_info_response)
+from api.tags import (get_tags_by_plot_id, get_related_tags, create_tag, remove_tag)
+
 from api.plots import (plots_closest_to_point, get_plot, update_or_create_plot,
                        transform_plot_update_dict)
 from api.user import (user_info, create_user, update_user,
@@ -321,6 +323,24 @@ plot_endpoint = instance_api_do(
                       PUT=do(return_400_if_validation_errors,
                              update_or_create_plot),
                       DELETE=remove_plot))))
+modify_tags_endpoint = instance_api_do(
+    do(login_required,
+       creates_instance_user,
+        route(
+            POST=do(create_tag),
+            DELETE=remove_tag
+        )))
+
+tags_endpoint = instance_api_do(
+    route(GET=get_tags_by_plot_id,
+          ELSE=do(login_required,
+                  creates_instance_user,
+                  route(
+                      POST=do(create_tag)
+                  ))))
+
+related_tags_endpoint = instance_api_do(
+    route(GET=get_related_tags))
 
 species_list_endpoint = instance_api_do(
     route(GET=species_list))
