@@ -12,7 +12,7 @@ from treemap.udf import UserDefinedCollectionValue
 from treemap.util import (get_filterable_audit_models, to_model_name,
                           safe_get_model_class, num_format as util_num_format)
 from treemap.units import Convertible
-
+from tagging.models import TaggedItem
 
 _external_tree_id_url_re = re.compile(r'#{tree.id}')
 
@@ -22,6 +22,17 @@ register = template.Library()
 
 register.filter('get', lambda a, b: a[b])
 
+def context_dict_for_tree(tree):
+    tag_dict = {
+        "id": tree.id,
+        "species": tree.species
+    }
+    return tag_dict
+
+@register.simple_tag(name='related_tags_for_object')
+def related_objects(tree_object, limit=10):
+    objects = TaggedItem.objects.get_related(tree_object,tree_object.__class__)
+    return {"related_trees": objects[:limit]}
 
 # From https://djangosnippets.org/snippets/545/
 # Found from http://bit.ly/2c37Fgz on stackoverflow

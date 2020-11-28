@@ -1,5 +1,6 @@
 {% load humanize %}
 {% load i18n %}
+{% load util %}
 {% load tagging_tags %}
 
 <div class="well">
@@ -36,6 +37,9 @@
   </ul>
   {% endfor %}
 </div>
+{% endif %}
+
+{% if request.user.is_authenticated %}
 <div class="well">
   <div>
     <h3 class="pull-left">{% trans "Tags" %}</h3>
@@ -63,8 +67,28 @@
       {% endif %}
   </div>
 </div>
-{% endif %}
 
+<div class="well">
+  <div>
+    <h3 class="pull-left">{% trans "Related Trees" %}</h3>
+  </div>
+  <div id="related-trees-container">
+      {% if has_tree %}
+        <div id="relatedTreeList">
+          {% related_tags_for_object tree as related_tree_list %}
+          {% for tree in related_tree_list.related_trees %}
+          <p><a href='../{{tree.id}}'>{{tree.species}}</a></p>
+          {% endfor %}
+        </div>
+          {% if not related_tree_list.related_trees %}
+            <p class="text-muted"><em>{% trans "No related trees found" %}</em></p>
+          {% endif %}
+      {% else %}
+          {% trans "Related Trees is not available on empty planting sites." %}
+      {% endif %}
+  </div>
+</div>
+{% endif %}
 
 {% if feature.is_plot %}
 <div class="well">
