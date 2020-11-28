@@ -64,7 +64,7 @@ def create_tag(request, instance, plot_id):
     tree = Tree.objects.get(plot_id=plot_id)
     tree_dict = context_dict_for_tree(request, tree)
     Tag.objects.add_tag(tree, request_dict['name'])
-    return context_dict_for_tags_list(request, TaggedItem.objects.filter(object_id=tree_dict['id']))
+    return request_dict['name'] #context_dict_for_tags_list(request, TaggedItem.objects.filter(object_id=tree_dict['id']))
 
 
 def remove_tag(request, instance, plot_id, tag):
@@ -76,4 +76,4 @@ def remove_tag(request, instance, plot_id, tag):
     diffset = strset - tagset
     truncated_tags = ' '.join(diffset)    
     Tag.objects.update_tags(tree, truncated_tags)
-    return truncated_tags
+    return tag #truncated_tags

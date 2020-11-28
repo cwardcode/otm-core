@@ -49,10 +49,12 @@
       <i class="icon-pencil"></i>
       {% trans "Edit Tags" %}
     </button>
+        <div id="tagListSidebarDiv">
           {% tags_for_object tree as tag_list %}
           {% for tag in tag_list %}
           <p>{{tag}}</p>
           {% endfor %}
+        </div>
           {% if not tag_list %}
             <p class="text-muted"><em>{% trans "No tags exist for tree" %}</em></p>
           {% endif %}

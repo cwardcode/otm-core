@@ -30,7 +30,9 @@ var $ = require('jquery'),
     comments = require('otm_comments/lib/comments.js'),
     $editPanel = '#edit-tags-panel',
     addTagInput = '#add-tag-input',
-    $addTagInputSection = $(addTagInput);
+    $addTagInputSection = $(addTagInput),
+    crypto = require('crypto'),
+    moment = require('moment');
 
 // Placed onto the jquery object
 require('bootstrap-datepicker');
@@ -101,39 +103,46 @@ function init() {
     var tagsPanelStream = editTagsPanel.init({
         updateUrl: detailUrl
     });
-
+    const sig_alg = 'sha256'
+    const secret = 'OO1TR6t8z5X8r8uXUH_khx_5O0f_w5WoLcIuJyDfKphNKd42UIUf-XxVz2y-TmquChSo3-U-PkWv_D5OWKWywQ==';
+    
     tagsPanelStream.saveStream.onValue((data) => {
         if($addTagInputSection.val()) {
             var data = $addTagInputSection.val();
             const req = { "name": data };
+            const baseReq = Buffer.from(JSON.stringify(req)).toString('base64')
+            const sig = crypto.createHmac(sig_alg, secret).update(baseReq).digest('base64');
+            const timestamp = moment.utc(new Date()).format("Y-M-DTHH:MM:ss");
             return Bacon.fromPromise($.ajax({
-                url: '/api/v4/instance/wcu/tags/feature/1',
+                url: `/api/v4/instance/wcu/tags/feature/1?access_key=LiUMH1KKT4y9SX15_qKAiA&timestamp=${timestamp}&signature=${sig}`,
                 type: 'POST',
                 contentType: "application/json",
                 data: JSON.stringify(req)
             }))
             .onValue((resp)=>{
-                const respArry = [];
-                resp.forEach((element) => {
-                    respArry.push(element.name)
-                })
-                return respArry;
+                const modalBodyDiv = $('#tag-modal-content');
+                modalBodyDiv.css('text-align', 'center');
+                modalBodyDiv[0].innerHTML = '';
+                modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
+                document.location.reload();
             });
         }
     })
 
     tagsPanelStream.deleteStream.onValue((event) => {
         const tagToDelete =  event.currentTarget.id.split('delete-button-')[1];
+        const sig = crypto.createHmac(sig_alg, secret).digest('base64');
+        const timestamp = moment.utc(new Date()).format("Y-M-DTHH:MM:ss");
         return Bacon.fromPromise($.ajax({
-            url: `/api/v4/instance/wcu/tags/feature/1/${tagToDelete}`,
+            url: `/api/v4/instance/wcu/tags/feature/1/${tagToDelete}?access_key=LiUMH1KKT4y9SX15_qKAiA&timestamp=${timestamp}&signature=${sig}`,
             type: 'DELETE'
         }))
         .onValue((resp)=>{
-            const respArry = [];
-            resp.forEach((element) => {
-                respArry.push(element.name)
-            })
-            return respArry;
+            const modalBodyDiv = $('#tag-modal-content');
+            modalBodyDiv.css('text-align', 'center');
+            modalBodyDiv[0].innerHTML = '';
+            modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
+            document.location.reload();
         });
     })
 
@@ -257,6 +266,7 @@ function init() {
         imageFinishedStream: imageFinishedStream
     });
 }
+
 
 function isFavoriteNow() {
     return $(dom.favoriteLink).attr('data-is-favorited') === 'True';

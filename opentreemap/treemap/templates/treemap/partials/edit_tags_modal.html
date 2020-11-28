@@ -8,21 +8,23 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3>{% trans "Edit Tags" %}</h3>
       </div>
-      <div class="modal-body">
-        <p>
-            {% trans "Current Tags:" %}
-        </p>
-        {% tags_for_object tree as tag_list %}
-        {% for tag in tag_list %}
-        <p>{{tag}} <button id="delete-button-{{tag}}"><i class="icon-trash"></i></button></p>
-        {% endfor %}
+      <div id="tag-modal-content" class="modal-body">
         <div>
-          <p>Add new tag:</p>
+          <p>{% trans "Add a new tag:" %}</p>
           <div style="display: inline-flex;flex-direction: row;align-items: center;"><input class="pull-left" type="text" id="add-tag-input">  <button><i id="add-tag-button" class="icon-plus pull-right"></i></button></div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:;" class="btn" data-dismiss="modal">{% trans "Close" %}</a>
+        <p style="padding-top: 1rem">
+            {% trans "Current Tags:" %}
+        </p>
+        <div id="tagListDiv">
+          {% tags_for_object tree as tag_list %}
+          {% for tag in tag_list %}
+          <p id="{{tag}}-list-item">{{tag}} <button id="delete-button-{{tag}}"><i class="icon-trash"></i></button></p>
+          {% endfor %}
+          {% if not tag_list %}
+            <p class="text-muted"><em>{% trans "No tags exist for tree" %}</em></p>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>

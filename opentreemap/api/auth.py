@@ -34,6 +34,7 @@ def get_signature_for_request(request, secret_key):
     paramstr = '&'.join(['%s=%s' % (k, urllib.quote_plus(str(v)))
                          for (k, v) in params
                          if k.lower() != "signature"])
+    
 
     sign_string = '\n'.join([httpverb, hostheader, request_uri, paramstr])
 
@@ -43,11 +44,8 @@ def get_signature_for_request(request, secret_key):
     except:
         body_encoded = base64.b64encode(request.read())
 
-    if body_encoded:
-        sign_string += body_encoded
-
     sig = base64.b64encode(
-        hmac.new(secret_key, sign_string, hashlib.sha256).digest())
+        hmac.new(secret_key, body_encoded, hashlib.sha256).digest())
 
     return sig
 
