@@ -500,6 +500,28 @@ class Instance(models.Model):
             return self.url_name
 
     @property
+    def tag_thumbprint(self):
+        # Tag autocomplete data lives in browser local storage.
+        # It must be invalidated when a different instance is loaded,
+        # or when the current instance's tag are updated.
+        #
+        # To get a unique thumbprint across instances and tag updates
+        # we use the instance's url_name, latest tag update time, and
+        # tag count (to handle deletions).
+
+        from tagging.models import Tag
+        my_tags = Tag.objects \
+            .filter(id=self.id) \
+            .order_by('name')
+        version = 1
+        if my_tags.exists():
+            return "%s_%s_%s_%s" % (
+                self.url_name, my_tags.count(), my_tags[0].name,
+                version
+            )
+        else:
+            return self.url_name
+    @property
     def boundary_thumbprint(self):
         # Boundary autocomplete data lives in browser local storage.
         # It must be invalidated when a different instance is loaded,

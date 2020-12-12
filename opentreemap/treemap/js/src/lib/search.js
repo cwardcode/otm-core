@@ -28,6 +28,7 @@ var boolToText = function(bool) {
 };
 
 var filterObjectIsEmpty = exports.filterObjectIsEmpty = function(filterObj) {
+    debugger;
     return filterObj ? _.keys(filterObj).length === 0 : true;
 };
 
@@ -42,11 +43,14 @@ var isEmpty = exports.isEmpty = function(obj) {
 var makeQueryStringFromFilters = exports.makeQueryStringFromFilters = function(filters) {
     var query = {};
     if ( ! filterObjectIsEmpty(filters.filter)) {
+        debugger
         query[config.urls.filterQueryArgumentName] = JSON.stringify(filters.filter);
     }
     if ( ! displayListIsEmpty(filters.display)) {
+        debugger;
         query[config.urls.displayQueryArgumentName] = JSON.stringify(filters.display);
     }
+    debugger;
     return querystring.stringify(query);
 };
 
@@ -77,7 +81,7 @@ exports._buildElems = buildElems;
 
 function executeSearch(filters) {
     var query = makeQueryStringFromFilters(filters);
-
+    debugger;
     var search = $.ajax({
         url: reverse.benefit_search(config.instance.url_name),
         data: query,
@@ -252,7 +256,7 @@ function hasBoundaryFilter(filter) {
 // applyFilter: Function to call when filter changes.
 exports.init = function(searchStream, applyFilter) {
     searchStream.onValue(applyFilter);
-
+    debugger;
     var completedSearch = searchStream
         .flatMap(executeSearch);
 

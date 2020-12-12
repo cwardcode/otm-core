@@ -104,6 +104,11 @@ species_list = do(
     instance_request,
     misc_views.species_list)
 
+tags_list = do(
+    json_api_call,
+    instance_request,
+    misc_views.tags_list)
+
 compile_scss = do(
     require_http_method("GET"),
     string_to_response("text/css"),

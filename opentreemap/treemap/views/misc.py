@@ -28,6 +28,8 @@ from treemap.lib.perms import model_is_creatable
 from treemap.units import get_unit_abbreviation, get_units
 from treemap.util import leaf_models_of_class
 
+from tagging.models import Tag
+
 
 _SCSS_VAR_NAME_RE = re.compile('^[_a-zA-Z][-_a-zA-Z0-9]*$')
 
@@ -192,6 +194,40 @@ def species_list(request, instance):
 
     return [annotate_species_dict(species) for species in species_qs]
 
+def tags_list(request, instance):
+    max_items = request.GET.get('max_items', None)
+
+    tags_qs = instance.scope_model(Tag)\
+                         .order_by('name')\
+                         .values('name')
+
+    if max_items:
+        tags_qs = tags_qs[:max_items]
+
+    # Split names by space so that "el" will match common_name="Delaware Elm"
+    def tokenize(tags):
+        names = (tags['name'])
+
+        tokens = set()
+
+        for name in names:
+            if name:
+                tokens = tokens.union(name.split())
+
+        # Names are sometimes in quotes, which should be stripped
+        return {token.strip(string.punctuation) for token in tokens}
+
+    def annotate_tags_dict(tdict):
+        tag_name = tdict['name']
+
+        tokens = tokenize(tag)
+
+        tdict.update({
+            'name': tag_name})
+
+        return tdict
+
+    return [annotate_tags_dict(tags) for tags in tags_qs]
 
 def compile_scss(request):
     """

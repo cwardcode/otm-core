@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^boundaries/$', routes.boundary_autocomplete, name='boundary_list'),
     url(r'^edits/$', routes.edits_page, name='edits'),
     url(r'^species/$', routes.species_list, name="species_list_view"),
+    url(r'^tags/$', routes.tags_list, name="tags_list_view"),
     url(r'^map/$', routes.map_page, name='map'),
 
     url(r'^features/(?P<feature_id>\d+)/$',

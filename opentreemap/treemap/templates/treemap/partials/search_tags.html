@@ -1,0 +1,23 @@
+{% load i18n %}
+{% load tag_thumbprint %}
+
+<!--Tag Search-->
+{% if request.user.is_authenticated %}
+    <div class="search-block tags-search-block">
+        <div class="search-field-wrapper">
+            <label>{% trans "Search by Tag" %}</label>
+            <div class="autocomplete-group">
+                <input type="text"
+                    data-class="search"
+                    id="tag-typeahead"
+                    class="form-control"
+                    placeholder="Tag"
+                    data-thumbprint="{{ request|tag_thumbprint }}"/>
+                <input name="tags.id" data-search-type="IS" type="hidden" id="search-tags" />
+            </div>
+        </div>
+        <div id="tags-disabled" class="field-group-message" style="display: none">
+            {% trans "Disabled while missing tags search is active" %}
+        </div>
+    </div>
+{% endif %}

@@ -45,6 +45,9 @@ var dom = {
     searchFieldContainer: '.search-field-wrapper',
     speciesSearchTypeahead: '#species-typeahead',
     speciesSearchContainer: '#species-search-wrapper',
+    tagsDisabledMessage: '#tags-disabled',
+    tagsSearchTypeahead: '#tag-typeahead',
+    tagsSearchContainer: '#tags-search-wrapper',
     locationSearchTypeahead: '#boundary-typeahead',
     clearLocationInput: '.clear-location-input',
     foreignKey: '[data-foreign-key]'
@@ -173,7 +176,7 @@ function updateUi(search) {
 }
 
 function updateActiveSearchIndicators(search) {
-    var simpleSearchKeys = ['species.id', 'mapFeature.geom'],
+    var simpleSearchKeys = ['species.id', 'tags.id', 'mapFeature.geom'],
         activeCategories = _(search.filter)
             .map(getFilterCategory)
             .uniq()
@@ -187,7 +190,7 @@ function updateActiveSearchIndicators(search) {
             return 'missing';
         } else {
             var featureName = key.split('.')[0],
-                featureCategories = ['tree', 'plot', 'mapFeature'],
+                featureCategories = ['tree', 'plot', 'mapFeature', 'tag'],
                 displayedFeatures = _.map(search.display, function (s) {
                     return s.toLowerCase();
                 });
@@ -337,6 +340,14 @@ module.exports = exports = {
                 input: "#species-typeahead",
                 template: "#species-element-template",
                 hidden: "#search-species",
+                reverse: "id"
+            }),
+            tagTypeahead = otmTypeahead.create({
+                name: "tag",
+                url: reverse.tags_list_view(config.instance.url_name),
+                input: "#tag-typeahead",
+                template: "#tag-element-template",
+                hidden: "#search-tags",
                 reverse: "id"
             }),
             locationTypeahead = otmTypeahead.create({
