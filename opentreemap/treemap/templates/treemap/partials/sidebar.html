@@ -77,7 +77,7 @@
         <div id="relatedTreeList">
           {% related_tags_for_object tree as related_tree_list %}
           {% for tree in related_tree_list.related_trees %}
-          <p><a href='../{{tree.id}}'>{{tree.species}}</a></p>
+          <p><a href='../{{tree.id}}'>{{tree.dict.short_species}}, {{tree.plot.owner_orig_id}}</a></p>
           {% endfor %}
         </div>
           {% if not related_tree_list.related_trees %}

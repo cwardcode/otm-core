@@ -1074,6 +1074,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
     instance = models.ForeignKey(Instance)
 
     plot = models.ForeignKey(Plot)
+
     species = models.ForeignKey(Species, null=True, blank=True,
                                 verbose_name=_("Species"))
 
@@ -1163,7 +1164,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
     def dict(self):
         props = self.as_dict()
         props['species'] = self.species
-
+        props['short_species'] = str(self.species).split('[')[0].strip()
         return props
 
     def photos(self):
