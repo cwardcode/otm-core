@@ -39,7 +39,7 @@ DEFAULT_MAPPING = {'plot': '',
                    'treePhoto': 'tree__treephoto__',
                    'mapFeaturePhoto': 'mapfeaturephoto__',
                    'mapFeature': '',
-                   'tag': ''
+                   'tagging_tag': ''
                    }
 
 PLOT_RELATED_MODELS = {Plot, Tree, Species, TreePhoto, Tag}
@@ -171,7 +171,7 @@ def create_filter(instance, filterstr, mapping):
     A filter is a string that must be valid json and conform to
     the following grammar:
     literal        = json literal | GMT date string in 'YYYY-MM-DD HH:MM:SS'
-    model          = 'plot' | 'tree' | 'species' | 'tag'
+    model          = 'plot' | 'tree' | 'species' | 'tagging_tag'
     value-property = 'MIN'
                    | 'MAX'
                    | 'EXCLUSIVE'
