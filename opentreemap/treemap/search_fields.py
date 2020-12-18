@@ -9,7 +9,6 @@ from django.utils.translation import ugettext_noop
 
 import copy
 import re
-import rollbar
 
 from treemap.DotDict import DotDict
 from treemap.lib.object_caches import udf_defs
@@ -198,7 +197,6 @@ def mobile_search_fields(instance):
     from treemap.templatetags.form_extras import (field_type_label_choices,
                                                   ADD_BLANK_NEVER)
     search_fields = copy.deepcopy(instance.mobile_search_fields)
-    rollbar.report_message('mobile_search_fields init', 'info', extra_data={'searchFields': search_fields})
     for field in search_fields['standard']:
         identifier = field['identifier']
         alert_info = get_alert_field_info(identifier, instance)
@@ -210,9 +208,6 @@ def mobile_search_fields(instance):
         set_search_field_label(instance, field)
         field_type, __, __, choices = field_type_label_choices(
             Model, field_name, add_blank=ADD_BLANK_NEVER)
-
-        rollbar.report_message('mobile_search_fields identifier', 'info', extra_data={'identifier': identifier})
-        rollbar.report_message('mobile_search_fields field_type', 'info', extra_data={'field_type': field_type})
 
         if identifier == 'species.id':
             field['search_type'] = 'SPECIES'
@@ -237,7 +232,6 @@ def mobile_search_fields(instance):
     for field in search_fields['missing']:
         _set_missing_search_label(instance, field)
 
-    rollbar.report_message('mobile_search_fields finish', 'info', extra_data={'searchFields': search_fields})
     return search_fields
 
 

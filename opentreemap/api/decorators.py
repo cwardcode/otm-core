@@ -18,7 +18,6 @@ from api.auth import (create_401unauthorized, get_signature_for_request,
 
 from opentreemap.util import add_rollbar_handler
 import logging
-import rollbar
 
 SIG_TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S'
 API_VERSIONS = {2, 3, 4}
@@ -69,7 +68,6 @@ def _check_signature(view_f, require_login):
                 return _bad_request
 
         except ValueError:
-            rollbar.report_message('valueerror', 'error', request)
             return _missing_request
 
         if not sig:

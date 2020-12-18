@@ -19,7 +19,6 @@ from django.utils.translation import ugettext_lazy as _
 
 import hashlib
 import json
-import rollbar
 
 from urllib import urlencode
 
