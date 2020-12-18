@@ -7,6 +7,7 @@ import string
 import re
 import sass
 import json
+import rollbar
 
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
@@ -18,7 +19,7 @@ from django.shortcuts import render, get_object_or_404
 
 from stormwater.models import PolygonalMapFeature
 
-from treemap.models import User, Species, StaticPage, Instance, Boundary
+from treemap.models import User, Species, StaticPage, Instance, Boundary, Tree
 
 from treemap.plugin import get_viewable_instances_filter
 
@@ -28,7 +29,7 @@ from treemap.lib.perms import model_is_creatable
 from treemap.units import get_unit_abbreviation, get_units
 from treemap.util import leaf_models_of_class
 
-from tagging.models import Tag
+from tagging.models import Tag,TaggedItem
 
 
 _SCSS_VAR_NAME_RE = re.compile('^[_a-zA-Z][-_a-zA-Z0-9]*$')
@@ -197,16 +198,17 @@ def species_list(request, instance):
 def tags_list(request, instance):
     max_items = request.GET.get('max_items', None)
 
-    tags_qs = instance.scope_model(Tag)\
-                         .order_by('name')\
-                         .values('name')
+    tags_qs = instance.scope_tags_model(TaggedItem)\
+                         .order_by('tag')\
+                         .values('tag', 'tag_id')
 
     if max_items:
         tags_qs = tags_qs[:max_items]
 
     # Split names by space so that "el" will match common_name="Delaware Elm"
     def tokenize(tags):
-        names = (tags['name'])
+        names = (str(tags['tag']),
+                 str(tags['tag_id']))
 
         tokens = set()
 
@@ -217,17 +219,18 @@ def tags_list(request, instance):
         # Names are sometimes in quotes, which should be stripped
         return {token.strip(string.punctuation) for token in tokens}
 
-    def annotate_tags_dict(tdict):
-        tag_name = tdict['name']
-
+    def annotate_tag_dict(sdict):
         tokens = tokenize(tag)
+        tag_name = Tag.objects.filter(id=sdict['tag']).values('name')[0]['name']
+        sdict.update({
+            'id': sdict['tag'],
+            'name': tag_name,
+            'value': tag_name,
+            'tokens': tokens})
 
-        tdict.update({
-            'name': tag_name})
+        return sdict
 
-        return tdict
-
-    return [annotate_tags_dict(tags) for tags in tags_qs]
+    return [annotate_tag_dict(tag) for tag in tags_qs]
 
 def compile_scss(request):
     """

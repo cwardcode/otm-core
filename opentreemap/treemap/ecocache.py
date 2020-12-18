@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 
+import rollbar
 from treemap.models import Plot, ITreeCodeOverride
 
 # Cache the results of plot counts and tree ecobenefit summary requests.
@@ -26,6 +27,7 @@ _TIMEOUT = 60 * 60 * 24 * 30
 
 def get_cached_benefits(class_name, filter, compute_value):
     prefix = 'eco/%s' % class_name
+    rollbar.report_message('get_cached_benefits init', 'info', extra_data={'filter': filter, 'prefix': prefix})
     return _get_or_compute(prefix, filter, compute_value)
 
 
@@ -33,6 +35,7 @@ def get_cached_plot_count(filter):
     prefix = 'count/Plot'
     compute_value = lambda: filter.get_object_count(Plot)
 
+    rollbar.report_message('get_cached_plot_count init', 'info', extra_data={'filter': filter, 'compute_value': compute_value, 'prefix': prefix})
     return _get_or_compute(prefix, filter, compute_value)
 
 
@@ -41,14 +44,18 @@ def _get_or_compute(prefix, filter, compute_value):
         value = compute_value()
     else:
         key = _get_key(prefix, filter)
+        rollbar.report_message('_get_or_compute key', 'info', extra_data={'key': key})
         value = cache.get(key)
+        rollbar.report_message('_get_or_compute cached value', 'info', extra_data={'value': value})
         if value is None:
             value = compute_value()
+            rollbar.report_message('_get_or_compute new value', 'info', extra_data={'value': value})
             cache.set(key, value, _TIMEOUT)
     return value
 
 
 def _get_key(prefix, filter):
+    rollbar.report_message('_get_key init', 'info', extra_data={'prefix': prefix, 'filter': filter})
     if filter and (filter.filterstr or filter.displaystr):
         # Example of why eco_rev is insufficient when a filter is active:
         # You filter for only trees taller than 30 ft. We compute and cache
@@ -67,15 +74,19 @@ def _get_key(prefix, filter):
         # We are computing benefits for features other than trees
         version = filter.instance.universal_rev
 
+    rollbar.report_message('_get_key version', 'info', extra_data={'version': version})
     filter_key = '%s/%s' % (filter.filterstr, filter.displaystr)
+    rollbar.report_message('_get_key filter_key', 'info', extra_data={'filter_key': filter_key})
     # Explicitly calling `encode()` ensures that the presence of a
     # unicode symbol in the filter string will not raise a
     # UnicodeEncodeError exception when calling `md5()`
     filter_hash = hashlib.md5(filter_key.encode('utf-8')).hexdigest()
+    rollbar.report_message('_get_key filter_hash', 'info', extra_data={'filter_hash': filter_hash})
     key = "%s/%s/%s/%s" % (prefix,
                            filter.instance.url_name,
                            version,
                            filter_hash)
+    rollbar.report_message('_get_key key', 'info', extra_data={'key': key})
     return key
 
 

@@ -12,12 +12,9 @@
                     id="tag-typeahead"
                     class="form-control"
                     placeholder="Tag"
-                    data-thumbprint="{{ request|tag_thumbprint }}"/>
-                <input name="tags.id" data-search-type="IS" type="hidden" id="search-tags" />
+                    data-thumbprint="{{ request.instance.tag_thumbprint }}"/>
+                <input name="tagging_tag.id" data-search-type="IS" type="hidden" id="search-tags" />
             </div>
-        </div>
-        <div id="tags-disabled" class="field-group-message" style="display: none">
-            {% trans "Disabled while missing tags search is active" %}
         </div>
     </div>
 {% endif %}

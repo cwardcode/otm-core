@@ -17,7 +17,9 @@ from treemap.models import Boundary, Tree, Plot, Species, TreePhoto
 from treemap.udf import UDFModel, UserDefinedCollectionValue
 from treemap.units import storage_to_instance_units_factor
 from treemap.util import to_object_name
+from tagging.models import Tag
 
+# import rollbar
 
 class ParseException (Exception):
     def __init__(self, message):
@@ -37,9 +39,11 @@ DEFAULT_MAPPING = {'plot': '',
                    'species': 'tree__species__',
                    'treePhoto': 'tree__treephoto__',
                    'mapFeaturePhoto': 'mapfeaturephoto__',
-                   'mapFeature': ''}
+                   'mapFeature': '',
+                   'tag': ''
+                   }
 
-PLOT_RELATED_MODELS = {Plot, Tree, Species, TreePhoto}
+PLOT_RELATED_MODELS = {Plot, Tree, Species, TreePhoto, Tag}
 
 MAP_FEATURE_RELATED_NAMES = {'mapFeature', 'mapFeaturePhoto'}
 
@@ -57,6 +61,7 @@ class Filter(object):
     def get_objects(self, ModelClass):
         # Filter out invalid models
         model_name = ModelClass.__name__
+        # rollbar.report_message('get_objects: model_name', 'info', extra_data={'model_name': model_name, 'fltrstr': self.filterstr})
 
         if not _model_in_display_filters(model_name, self.display_filter):
             return ModelClass.objects.none()
@@ -67,10 +72,13 @@ class Filter(object):
                                            DEFAULT_MAPPING)
 
         models = q.basekeys
+        # rollbar.report_message('get_objects: models', 'info', extra_data={'models': models})
 
         if _is_valid_models_list_for_model(models, model_name, ModelClass,
                                            self.instance):
+            # rollbar.report_message('get_objects: q', 'info', extra_data={'query': q})
             queryset = ModelClass.objects.filter(q)
+            # rollbar.report_message('get_objects: querySet', 'info', extra_data={'queryset': queryset})
         else:
             queryset = ModelClass.objects.none()
 
@@ -112,6 +120,7 @@ def _is_valid_models_list_for_model(models, model_name, ModelClass, instance):
 
 class FilterContext(Q):
     def __init__(self, *args, **kwargs):
+        # rollbar.report_message('FilterContext __init__', 'info', extra_data={'kwargs': kwargs, 'args': args})
         if 'basekey' in kwargs:
             self.basekeys = {kwargs['basekey']}
 
@@ -122,6 +131,7 @@ class FilterContext(Q):
         super(FilterContext, self).__init__(*args, **kwargs)
 
     def add(self, thing, conn):
+        # rollbar.report_message('FilterContext add', 'info', extra_data={'thing': thing, 'conn': conn})
         if thing.basekeys:
             self.basekeys = self.basekeys | thing.basekeys
 
@@ -168,7 +178,7 @@ def create_filter(instance, filterstr, mapping):
     A filter is a string that must be valid json and conform to
     the following grammar:
     literal        = json literal | GMT date string in 'YYYY-MM-DD HH:MM:SS'
-    model          = 'plot' | 'tree' | 'species'
+    model          = 'plot' | 'tree' | 'species' | 'tag'
     value-property = 'MIN'
                    | 'MAX'
                    | 'EXCLUSIVE'
@@ -183,7 +193,7 @@ def create_filter(instance, filterstr, mapping):
     filter         = predicate
                    | [combinator, filter*, literal?]
 
-    mapping allows for the developer to search focussed on a
+    mapping allows for the developer to search focused on a
     particular object group
 
     Returns a Q object that can be applied to a model of your choice
@@ -192,18 +202,21 @@ def create_filter(instance, filterstr, mapping):
         query = loads(filterstr)
         convert_filter_units(instance, query)
         q = _parse_filter(query, mapping)
+        # rollbar.report_message('create_filter filterstr is not none and not empty', 'info', extra_data={ 'query': q})
     else:
         q = FilterContext()
 
     if instance:
         q = q & FilterContext(instance=instance)
-
+    # rollbar.report_message('create_filter query', 'info', extra_data={ 'query': q})
     return q
 
 
 def _parse_filter(query, mapping):
     if type(query) is dict:
-        return _parse_query_dict(query, mapping)
+        parsed_query = _parse_query_dict(query, mapping) 
+        # rollbar.report_message('_parse_filter result', 'info', extra_data={ 'parsed_query': parsed_query})
+        return parsed_query
     elif type(query) is list:
         predicates = [_parse_filter(p, mapping) for p in query[1:]]
         return _apply_combinator(query[0], predicates)
@@ -223,17 +236,23 @@ def _parse_query_dict(query_dict, mapping):
     # one UserDefinedCollectionValue that matches the action,
     # and another that matches the date, neither of which matches both.
     by_type = _parse_by_is_collection_udf(query_dict, mapping)
+    # rollbar.report_message('_parse_query_dict by_type', 'info', extra_data={ 'tby_type': by_type})
     scalars = _unparse_scalars(by_type.pop('*', []))
+    # rollbar.report_message('_parse_query_dict scalars', 'info', extra_data={ 'tscalars': scalars})
     scalar_predicates = _parse_scalar_predicate(scalars, mapping) \
         if scalars else FilterContext()
     collection_predicates = _parse_collections(by_type, mapping) \
         if by_type else FilterContext()
+    # rollbar.report_message('_parse_query_dict scalar_predicates', 'info', extra_data={ 'tscalar_predicates': scalar_predicates})
+    # rollbar.report_message('_parse_query_dict collection_predicates', 'info', extra_data={ 'tcollection_predicates': collection_predicates})
     return _apply_combinator('AND', [scalar_predicates, collection_predicates])
 
 
 def _parse_scalar_predicate(query, mapping):
 
+    # rollbar.report_message('_parse_scalar_predicate init', 'info', extra_data={ 'query': query, 'mapping': mapping})
     parse_dict_props = partial(_parse_dict_props_for_mapping, PREDICATE_TYPES)
+    # rollbar.report_message('_parse_scalar_predicate parse_dict_props', 'info', extra_data={ 'parse_dict_props': parse_dict_props})
 
     def parse_scalar_predicate_pair(key, value, mapping):
         model, prefix, search_key = _parse_predicate_key(key, mapping)
@@ -257,10 +276,12 @@ def _parse_scalar_predicate(query, mapping):
 
                 query[lookup_key] = rhs
 
+        # rollbar.report_message('parse_scalar_predicate_pair model', 'info', extra_data={ 'model': model, 'query': query})
         return FilterContext(basekey=model, **query)
 
     qs = [parse_scalar_predicate_pair(*kv, mapping=mapping)
           for kv in query.iteritems()]
+    # rollbar.report_message('parse_scalar_predicate_pair qs', 'info', extra_data={ 'qs': qs})
     return _apply_combinator('AND', qs)
 
 
@@ -285,9 +306,13 @@ def _parse_by_is_collection_udf(query_dict, mapping):
     '''
     query_dict_list = [dict(value=v, **_parse_by_key_type(k, mapping=mapping))
                        for k, v in query_dict.items()]
+    # rollbar.report_message('_parse_by_is_collection_udf query_dict_list', extra_data={'qdl': query_dict_list})
     grouped = groupby(sorted(query_dict_list, key=lambda qd: qd['type']),
                       lambda qd: qd['type'])
-    return {k: list(v) for k, v in grouped}
+    # rollbar.report_message('_parse_by_is_collection_udf grouped', extra_data={'grouped': grouped})
+    rtnVal = {k: list(v) for k, v in grouped}
+    # rollbar.report_message('_parse_by_is_collection_udf rtnVal', extra_data={'rtnVal': rtnVal})
+    return rtnVal 
 
 
 def _parse_by_key_type(key, mapping):
@@ -301,8 +326,11 @@ def _parse_by_key_type(key, mapping):
     '''
     model, prefix, field = _parse_predicate_key(key, mapping)
     typ = model if _is_udf(model) else '*'
-    return {'type': typ, 'prefix': prefix, 'model': model,
+    # rollbar.report_message('_parse_by_key_type typ', extra_data={'typ': typ, 'model': model, 'prefix': prefix, 'field': field})
+    rtnVal = {'type': typ, 'prefix': prefix, 'model': model,
             'field': field, 'key': key}
+    # rollbar.report_message('_parse_by_key_type rtnVal', extra_data={'rtnVal': rtnVal})
+    return rtnVal 
 
 
 def _unparse_scalars(scalars):
@@ -322,10 +350,12 @@ def _parse_collections(by_type, mapping):
     `UserDefinedCollectionValue`s for the `UserDefinedFieldDefinition`
     id in the collection identifier.
     '''
+    # rollbar.report_message('_parse_collections init', 'info', extra_data={'by_type': by_type, 'mapping': mapping})
     def parse_collection_subquery(identifier, field_parts, mapping):
         # identifier looks like 'udf:<model type>:<udfd id>'
         __, model, udfd_id = identifier.split(':', 2)
 
+        # rollbar.report_message('_parse_collections parse_collection_subquery', 'info', extra_data={'identifier': identifier, 'field_parts': field_parts, 'mapping': mapping, 'model': model, 'udfd_id': udfd_id})
         return FilterContext(
             basekey=model, **{
                 mapping[model] + 'id__in': UserDefinedCollectionValue.objects
@@ -348,7 +378,7 @@ def _parse_udf_collection(udfd_id, query_parts):
 
     parse_udf_dict_value = partial(_parse_dict_value_for_mapping,
                                    COLLECTION_HSTORE_PREDICATE_TYPES)
-
+    # rollbar.report_message('_parse_udf_collection parse_udf_dict_value', 'info', extra_data={'parse_udf_dict_value': parse_udf_dict_value})
     def parse_collection_udf_dict(key, value):
         __, field = _split_key(key)
         if isinstance(value, dict):
@@ -383,6 +413,7 @@ def _lookup_key(prefix, field, lookup_name='', cast=None):
             cast = ''
     else:
         cast = ''
+    # rollbar.report_message('_lookup_key', 'info', extra_data={'rtnVal': '{}{}{}{}'.format(prefix, field, cast, lookup_name)})
     return '{}{}{}{}'.format(prefix, field, cast, lookup_name)
 
 
@@ -586,7 +617,7 @@ def _parse_dict_value_for_mapping(mapping, valuesdict):
     """
 
     props = _parse_dict_props_for_mapping(mapping, valuesdict)
-
+    # rollbar.report_message('_parse_dict_value_for_mapping props', 'info', extra_data={'props': props})
     return _parse_props(props, valuesdict)
 
 
@@ -594,22 +625,28 @@ def _parse_props(props, valuesdict):
 
     params = {}
 
+    # rollbar.report_message('_parse_props init', 'info', extra_data={'props': props, 'valuedict': valuedict})
     for key, val in valuesdict.items():
         lookup, rhs = _parse_prop(props[key], valuesdict, key, val)
         params[lookup] = rhs
 
+    # rollbar.report_message('_parse_props params', 'info', extra_data={'params': params})
     return params
 
 
 def _parse_prop(predicate_props, valuesdict, key, val):
+        # rollbar.report_message('_parse_prop init', 'info', extra_data={'predprop': predicate_props, 'valuesdict': valuesdict, 'key': key, 'val': val})
         valid_values = predicate_props['combines_with'].union({key})
+        # rollbar.report_message('_parse_prop valid_values', 'info', extra_data={'valid_values': valid_values})
         if not valid_values.issuperset(set(valuesdict.keys())):
             raise ParseException(
                 'Cannot use these keys together: %s vs %s' %
                 (valuesdict.keys(), valid_values))
 
         predicate_builder = predicate_props['predicate_builder']
+        # rollbar.report_message('_parse_prop predicate_builder', 'info', extra_data={'predicate_builder': predicate_builder})
         param_pair = predicate_builder(val)
+        # rollbar.report_message('_parse_prop param_pair', 'info', extra_data={'param_pair': param_pair})
         # Return a 2-tuple rather than a single-key dict
         return param_pair.items()[0]
 
@@ -624,7 +661,7 @@ def _parse_dict_props_for_mapping(mapping, valuesdict):
                 'Invalid key: %s in %s' % (value_key, valuesdict))
         else:
             props[value_key] = mapping[value_key]
-
+    # rollbar.report_message('_parse_dict_props_for_mapping props', 'info', extra_data={'props': props})
     return props
 
 
@@ -634,11 +671,13 @@ def _apply_combinator(combinator, predicates):
 
     Supported combinators are currently 'AND' and 'OR'
     """
+    # rollbar.report_message('_apply_combinator init', 'info', extra_data={'combinator': combinator, 'predicates': predicates})
     if len(predicates) == 0:
         raise ParseException(
             'Empty predicate list is not allowed')
 
     q = predicates[0]
+    # rollbar.report_message('_apply_combinator predicates[0]', 'info', extra_data={'predicates[0]': predicates[0]})
     if combinator == 'AND':
         for p in predicates[1:]:
             q = q & p
@@ -651,6 +690,7 @@ def _apply_combinator(combinator, predicates):
             'Only AND and OR combinators supported, not "%s"' %
             combinator)
 
+    # rollbar.report_message('_apply_combinator return', 'info', extra_data={'tq': q})
     return q
 
 

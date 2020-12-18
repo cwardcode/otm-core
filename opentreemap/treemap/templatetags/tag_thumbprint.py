@@ -1,6 +1,7 @@
 from django import template
 
 import threading
+import rollbar
 
 register = template.Library()
 
@@ -21,5 +22,5 @@ def tag_thumbprint(request):
     else:
         thumbprint = request.instance.tag_thumbprint
         _thread_local.last_request_and_thumbprint = (request, thumbprint)
-
+    rollbar.report_message('tag thumbprint is')
     return thumbprint

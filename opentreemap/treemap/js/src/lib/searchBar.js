@@ -135,7 +135,10 @@ function initSearchUi(searchStream) {
         .on('change typeahead:select', function () {
             updateDisabledFields(Search.buildSearch());
         });
-
+    $(dom.searchFields).add(dom.speciesSearchTypeahead)
+        .on('change typeahead:select', function () {
+            updateDisabledFields(Search.buildSearch());
+        });
     // Update UI when search executed
     searchStream.onValue(function () {
         // Close open categories (in case search was triggered by hitting "enter")
@@ -176,7 +179,7 @@ function updateUi(search) {
 }
 
 function updateActiveSearchIndicators(search) {
-    var simpleSearchKeys = ['species.id', 'tags.id', 'mapFeature.geom'],
+    var simpleSearchKeys = ['species.id', 'tag.id', 'mapFeature.geom'],
         activeCategories = _(search.filter)
             .map(getFilterCategory)
             .uniq()
@@ -363,7 +366,7 @@ module.exports = exports = {
             }),
             ui = geocoderUi({
                 locationTypeahead: locationTypeahead,
-                otherTypeaheads: speciesTypeahead,
+                otherTypeaheads: [speciesTypeahead, tagTypeahead],
                 searchButton: '#perform-search,#location-perform-search'
             }),
             geocodedLocationStream = ui.geocodedLocationStream,

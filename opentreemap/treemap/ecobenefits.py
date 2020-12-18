@@ -9,6 +9,7 @@ from django.db import connection
 
 from django_tinsel.decorators import json_api_call
 import itertools
+import rollbar
 
 from treemap import ecobackend
 from treemap.ecocache import get_cached_benefits
@@ -185,7 +186,7 @@ class TreeBenefitsCalculator(BenefitCalculator):
         params = {'query': query,
                   'instance_id': instance.pk,
                   'region': region_code or ""}
-
+        rollbar.report_message('benefits_for_filter params', 'info', extra_data={'params': params})
         rawb, err = ecobackend.json_benefits_call(
             'eco_summary.json', params.iteritems(), post=True)
 
@@ -424,7 +425,7 @@ def get_benefits_for_filter(filter):
         _combine_grouped_benefits(benefits, ft_benefit_groups)
 
     _annotate_basis_with_extra_stats(basis)
-
+    rollbar.report_message('get_benefits_for_filter benefits', 'info', extra_data={'benefits': benefits, 'basis': basis})
     return benefits, basis
 
 

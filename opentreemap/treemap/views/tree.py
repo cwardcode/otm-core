@@ -19,7 +19,7 @@ from treemap.ecocache import get_cached_plot_count
 from treemap.lib import format_benefits
 from treemap.lib.tree import add_tree_photo_helper
 from treemap.lib.photo import context_dict_for_photo
-
+import rollbar
 
 def tree_detail(request, instance, feature_id, tree_id):
     return HttpResponseRedirect(reverse('map_feature_detail', kwargs={
@@ -55,16 +55,24 @@ def delete_tree(request, instance, feature_id, tree_id):
 
 
 def search_tree_benefits(request, instance):
+    rollbar.report_message('search_tree_benefits init', 'info', request)
     filter_str = request.GET.get('q', '')
+    rollbar.report_message('search_tree_benefits filter_str', 'info', extra_data={'filter_str': filter_str})
     display_str = request.GET.get('show', '')
+    rollbar.report_message('search_tree_benefits display_str', 'info', extra_data={'display_str': display_str})
 
     hide_summary_text = request.GET.get('hide_summary', 'false')
+    rollbar.report_message('search_tree_benefits hide_summary_text', 'info', extra_data={'hide_summary_text': hide_summary_text})
     hide_summary = hide_summary_text.lower() == 'true'
+    rollbar.report_message('search_tree_benefits hide_summary', 'info', extra_data={'hide_summary': hide_summary})
 
     filter = Filter(filter_str, display_str, instance)
+    rollbar.report_message('search_tree_benefits filter', 'info', extra_data={'filter': filter})
     total_plots = get_cached_plot_count(filter)
+    rollbar.report_message('search_tree_benefits total_plots', 'info', extra_data={'total_plots': total_plots})
 
     benefits, basis = get_benefits_for_filter(filter)
+    rollbar.report_message('search_tree_benefits benefits', 'info', extra_data={'benefits': benefits, 'basis': basis})
 
     # Inject the plot count as a basis for tree benefit calcs
     basis.get('plot', {})['n_plots'] = total_plots
@@ -96,6 +104,7 @@ def search_tree_benefits(request, instance):
                                                 filter)
     }
     context.update(formatted)
+    rollbar.report_message('search_tree_benefits context', 'info', extra_data={'context': context})
     return context
 
 
