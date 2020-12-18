@@ -184,9 +184,7 @@ function filterableLayer (table, extension, layerOptions) {
             var suffix = query ? '&' + query : '';
             fullUrl = searchBaseUrl + suffix;
         }
-        debugger;
         layer.setUrl(fullUrl);
     };
-    debugger;
     return layer;
 }

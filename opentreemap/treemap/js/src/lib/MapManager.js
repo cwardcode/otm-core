@@ -119,7 +119,6 @@ MapManager.prototype = {
     ZOOM_PLOT: 18,
 
     createTreeMap: function (options) {
-        debugger;
         var hasPolygons = getDomMapBool('has-polygons', options.domId),
             hasBoundaries = getDomMapBool('has-boundaries', options.domId),
             plotLayer = layersLib.createPlotTileLayer(),
@@ -321,7 +320,6 @@ MapManager.prototype = {
     },
 
     setFilter: function (filter) {
-        debugger;
         this._plotLayer.setFilter(filter);
 
         if (this._hasPolygons) {
