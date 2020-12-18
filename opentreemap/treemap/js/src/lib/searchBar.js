@@ -179,7 +179,7 @@ function updateUi(search) {
 }
 
 function updateActiveSearchIndicators(search) {
-    var simpleSearchKeys = ['species.id', 'tag.id', 'mapFeature.geom'],
+    var simpleSearchKeys = ['species.id', 'tagging_tag.id', 'mapFeature.geom'],
         activeCategories = _(search.filter)
             .map(getFilterCategory)
             .uniq()
@@ -193,7 +193,7 @@ function updateActiveSearchIndicators(search) {
             return 'missing';
         } else {
             var featureName = key.split('.')[0],
-                featureCategories = ['tree', 'plot', 'mapFeature', 'tag'],
+                featureCategories = ['tree', 'plot', 'mapFeature', 'tagging_tag'],
                 displayedFeatures = _.map(search.display, function (s) {
                     return s.toLowerCase();
                 });
