@@ -19,6 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import hashlib
 import json
+
 from urllib import urlencode
 
 from opentreemap.util import extent_intersection, extent_as_json
@@ -500,6 +501,26 @@ class Instance(models.Model):
             return self.url_name
 
     @property
+    def tag_thumbprint(self):
+        # Tag autocomplete data lives in browser local storage.
+        # It must be invalidated when a different instance is loaded,
+        # or when the current instance's tag are updated.
+        #
+        # To get a unique thumbprint across instances and tag updates
+        # we use the instance's url_name, latest tag update time, and
+        # tag count (to handle deletions).
+
+        from tagging.models import Tag,TagManager
+        from treemap.models import Tree
+        my_tags = Tag.objects.usage_for_model(Tree)
+        version = 1
+        if my_tags:
+            return "%s_%s_%s" % (
+                self.url_name, len(my_tags), version
+            )
+        else:
+            return self.url_name
+    @property
     def boundary_thumbprint(self):
         # Boundary autocomplete data lives in browser local storage.
         # It must be invalidated when a different instance is loaded,
@@ -599,7 +620,8 @@ class Instance(models.Model):
     @property
     def resource_classes(self):
         from treemap.models import Plot
-        return self.map_feature_classes - {Plot}
+        from tagging.models import Tag
+        return self.map_feature_classes - {Plot,Tag}
 
     def update_geo_rev(self):
         self.update_revs('geo_rev')
@@ -659,6 +681,12 @@ class Instance(models.Model):
     def scope_model(self, model):
         qs = model.objects.filter(instance=self)
         return qs
+
+    def scope_tags_model(self, model):
+        qs = model.objects.filter()
+        return qs
+
+
 
     def feature_enabled(self, feature):
         # Delayed import to prevent circular imports

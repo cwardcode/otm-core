@@ -45,6 +45,9 @@ var dom = {
     searchFieldContainer: '.search-field-wrapper',
     speciesSearchTypeahead: '#species-typeahead',
     speciesSearchContainer: '#species-search-wrapper',
+    tagsDisabledMessage: '#tags-disabled',
+    tagsSearchTypeahead: '#tag-typeahead',
+    tagsSearchContainer: '#tags-search-wrapper',
     locationSearchTypeahead: '#boundary-typeahead',
     clearLocationInput: '.clear-location-input',
     foreignKey: '[data-foreign-key]'
@@ -132,7 +135,10 @@ function initSearchUi(searchStream) {
         .on('change typeahead:select', function () {
             updateDisabledFields(Search.buildSearch());
         });
-
+    $(dom.searchFields).add(dom.speciesSearchTypeahead)
+        .on('change typeahead:select', function () {
+            updateDisabledFields(Search.buildSearch());
+        });
     // Update UI when search executed
     searchStream.onValue(function () {
         // Close open categories (in case search was triggered by hitting "enter")
@@ -173,7 +179,7 @@ function updateUi(search) {
 }
 
 function updateActiveSearchIndicators(search) {
-    var simpleSearchKeys = ['species.id', 'mapFeature.geom'],
+    var simpleSearchKeys = ['species.id', 'tagging_tag.id', 'mapFeature.geom'],
         activeCategories = _(search.filter)
             .map(getFilterCategory)
             .uniq()
@@ -187,7 +193,7 @@ function updateActiveSearchIndicators(search) {
             return 'missing';
         } else {
             var featureName = key.split('.')[0],
-                featureCategories = ['tree', 'plot', 'mapFeature'],
+                featureCategories = ['tree', 'plot', 'mapFeature', 'tagging_tag'],
                 displayedFeatures = _.map(search.display, function (s) {
                     return s.toLowerCase();
                 });
@@ -339,6 +345,14 @@ module.exports = exports = {
                 hidden: "#search-species",
                 reverse: "id"
             }),
+            tagTypeahead = otmTypeahead.create({
+                name: "tag",
+                url: reverse.tags_list_view(config.instance.url_name),
+                input: "#tag-typeahead",
+                template: "#tag-element-template",
+                hidden: "#search-tags",
+                reverse: "id"
+            }),
             locationTypeahead = otmTypeahead.create({
                 name: "boundaries",
                 url: reverse.boundary_list(config.instance.url_name),
@@ -352,7 +366,7 @@ module.exports = exports = {
             }),
             ui = geocoderUi({
                 locationTypeahead: locationTypeahead,
-                otherTypeaheads: speciesTypeahead,
+                otherTypeaheads: [speciesTypeahead, tagTypeahead],
                 searchButton: '#perform-search,#location-perform-search'
             }),
             geocodedLocationStream = ui.geocodedLocationStream,

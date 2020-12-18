@@ -20,7 +20,6 @@ from treemap.lib import format_benefits
 from treemap.lib.tree import add_tree_photo_helper
 from treemap.lib.photo import context_dict_for_photo
 
-
 def tree_detail(request, instance, feature_id, tree_id):
     return HttpResponseRedirect(reverse('map_feature_detail', kwargs={
         'instance_url_name': instance.url_name,

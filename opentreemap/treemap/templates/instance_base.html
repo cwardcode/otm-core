@@ -156,6 +156,7 @@ ga('set', 'page', pathname);
 
 {% block search %}
 <div class="search-block-wrapper">
+  {% include "treemap/partials/search_tags.html" %}
   {% include "treemap/partials/search_species.html" %}
   {% include "treemap/partials/search_location.html" %}
 </div>
@@ -214,6 +215,11 @@ ga('set', 'page', pathname);
 <div>
   <p>{{name}}</p>
   <p>{{category}}</p>
+</div>
+</script>
+<script id="tag-element-template" type="text/x-mustache-template">
+<div>
+  <p>{{name}}</p>
 </div>
 </script>
 

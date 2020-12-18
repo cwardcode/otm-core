@@ -17,6 +17,7 @@ from treemap.models import Boundary, Tree, Plot, Species, TreePhoto
 from treemap.udf import UDFModel, UserDefinedCollectionValue
 from treemap.units import storage_to_instance_units_factor
 from treemap.util import to_object_name
+from tagging.models import Tag
 
 
 class ParseException (Exception):
@@ -37,9 +38,11 @@ DEFAULT_MAPPING = {'plot': '',
                    'species': 'tree__species__',
                    'treePhoto': 'tree__treephoto__',
                    'mapFeaturePhoto': 'mapfeaturephoto__',
-                   'mapFeature': ''}
+                   'mapFeature': '',
+                   'tag': ''
+                   }
 
-PLOT_RELATED_MODELS = {Plot, Tree, Species, TreePhoto}
+PLOT_RELATED_MODELS = {Plot, Tree, Species, TreePhoto, Tag}
 
 MAP_FEATURE_RELATED_NAMES = {'mapFeature', 'mapFeaturePhoto'}
 
@@ -168,7 +171,7 @@ def create_filter(instance, filterstr, mapping):
     A filter is a string that must be valid json and conform to
     the following grammar:
     literal        = json literal | GMT date string in 'YYYY-MM-DD HH:MM:SS'
-    model          = 'plot' | 'tree' | 'species'
+    model          = 'plot' | 'tree' | 'species' | 'tag'
     value-property = 'MIN'
                    | 'MAX'
                    | 'EXCLUSIVE'
@@ -183,7 +186,7 @@ def create_filter(instance, filterstr, mapping):
     filter         = predicate
                    | [combinator, filter*, literal?]
 
-    mapping allows for the developer to search focussed on a
+    mapping allows for the developer to search focused on a
     particular object group
 
     Returns a Q object that can be applied to a model of your choice
@@ -197,13 +200,13 @@ def create_filter(instance, filterstr, mapping):
 
     if instance:
         q = q & FilterContext(instance=instance)
-
     return q
 
 
 def _parse_filter(query, mapping):
     if type(query) is dict:
-        return _parse_query_dict(query, mapping)
+        parsed_query = _parse_query_dict(query, mapping) 
+        return parsed_query
     elif type(query) is list:
         predicates = [_parse_filter(p, mapping) for p in query[1:]]
         return _apply_combinator(query[0], predicates)
@@ -287,7 +290,8 @@ def _parse_by_is_collection_udf(query_dict, mapping):
                        for k, v in query_dict.items()]
     grouped = groupby(sorted(query_dict_list, key=lambda qd: qd['type']),
                       lambda qd: qd['type'])
-    return {k: list(v) for k, v in grouped}
+    rtnVal = {k: list(v) for k, v in grouped}
+    return rtnVal 
 
 
 def _parse_by_key_type(key, mapping):
@@ -301,8 +305,9 @@ def _parse_by_key_type(key, mapping):
     '''
     model, prefix, field = _parse_predicate_key(key, mapping)
     typ = model if _is_udf(model) else '*'
-    return {'type': typ, 'prefix': prefix, 'model': model,
+    rtnVal = {'type': typ, 'prefix': prefix, 'model': model,
             'field': field, 'key': key}
+    return rtnVal 
 
 
 def _unparse_scalars(scalars):
@@ -348,7 +353,6 @@ def _parse_udf_collection(udfd_id, query_parts):
 
     parse_udf_dict_value = partial(_parse_dict_value_for_mapping,
                                    COLLECTION_HSTORE_PREDICATE_TYPES)
-
     def parse_collection_udf_dict(key, value):
         __, field = _split_key(key)
         if isinstance(value, dict):
@@ -586,7 +590,6 @@ def _parse_dict_value_for_mapping(mapping, valuesdict):
     """
 
     props = _parse_dict_props_for_mapping(mapping, valuesdict)
-
     return _parse_props(props, valuesdict)
 
 
@@ -624,7 +627,6 @@ def _parse_dict_props_for_mapping(mapping, valuesdict):
                 'Invalid key: %s in %s' % (value_key, valuesdict))
         else:
             props[value_key] = mapping[value_key]
-
     return props
 
 

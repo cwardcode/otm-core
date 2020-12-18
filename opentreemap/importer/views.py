@@ -6,7 +6,6 @@ from __future__ import division
 import json
 import io
 import csv
-import rollbar
 
 from copy import copy
 from celery.result import GroupResult, AsyncResult
@@ -719,7 +718,6 @@ def process_csv(request, instance, import_type, **kwargs):
                           instance=instance,
                           **kwargs)
     ie.save()
-    rollbar.report_message("run_import_event_validation", "info")
     run_import_event_validation(import_type, ie.pk, file_obj)
 
     return ie.pk

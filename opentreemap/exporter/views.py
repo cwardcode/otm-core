@@ -20,7 +20,6 @@ from exporter.lib import export_enabled_for
 from exporter.models import ExportJob
 from exporter.user import write_users
 
-import rollbar
 ############################################
 # synchronous exports
 ############################################
@@ -79,7 +78,6 @@ def begin_export_users(request, instance, data_format):
 
 
 def begin_export(request, instance, model):
-    rollbar.report_message("inside begin_export")
     if not instance.feature_enabled('exports'):
         return EXPORTS_FEATURE_DISABLED_CONTEXT
     elif not export_enabled_for(instance, request.user):
@@ -95,7 +93,6 @@ def begin_export(request, instance, model):
         job.user = request.user
     job.save()
 
-    rollbar.report_message("calling async_csv_export.delay")
     async_csv_export(job.pk, model, query, display_filters)
 
     return {'start_status': 'OK', 'job_id': job.pk}

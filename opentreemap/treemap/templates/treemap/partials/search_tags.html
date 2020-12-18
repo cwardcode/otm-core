@@ -1,0 +1,20 @@
+{% load i18n %}
+{% load tag_thumbprint %}
+
+<!--Tag Search-->
+{% if request.user.is_authenticated %}
+    <div class="search-block tags-search-block">
+        <div class="search-field-wrapper">
+            <label>{% trans "Search by Tag" %}</label>
+            <div class="autocomplete-group">
+                <input type="text"
+                    data-class="search"
+                    id="tag-typeahead"
+                    class="form-control"
+                    placeholder="Tag"
+                    data-thumbprint="{{ request.instance.tag_thumbprint }}"/>
+                <input name="tagging_tag.id" data-search-type="IS" type="hidden" id="search-tags" />
+            </div>
+        </div>
+    </div>
+{% endif %}

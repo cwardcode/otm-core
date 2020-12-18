@@ -185,7 +185,6 @@ class TreeBenefitsCalculator(BenefitCalculator):
         params = {'query': query,
                   'instance_id': instance.pk,
                   'region': region_code or ""}
-
         rawb, err = ecobackend.json_benefits_call(
             'eco_summary.json', params.iteritems(), post=True)
 
@@ -424,7 +423,6 @@ def get_benefits_for_filter(filter):
         _combine_grouped_benefits(benefits, ft_benefit_groups)
 
     _annotate_basis_with_extra_stats(basis)
-
     return benefits, basis
 
 

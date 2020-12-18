@@ -15,11 +15,13 @@ from treemap.lib.object_caches import udf_defs
 
 DEFAULT_MOBILE_SEARCH_FIELDS = DotDict({
     'standard': [
+        # {'identifier': 'tag.id'},
         {'identifier': 'species.id'},
         {'identifier': 'tree.diameter'},
         {'identifier': 'tree.height'}
     ],
     'missing': [
+        # {'identifier': 'tag.id'},
         {'identifier': 'species.id'},
         {'identifier': 'tree.diameter'},
         {'identifier': 'mapFeaturePhoto.id'}
@@ -33,6 +35,7 @@ DEFAULT_SEARCH_FIELDS = DotDict({
     ],
     'missing': [
         {'identifier': 'species.id'},
+        # {'identifier': 'tag.id'},
         {'identifier': 'tree.diameter'},
         {'identifier': 'plot.owner_orig_id'},
         {'identifier': 'mapFeaturePhoto.id'}
@@ -208,6 +211,8 @@ def mobile_search_fields(instance):
 
         if identifier == 'species.id':
             field['search_type'] = 'SPECIES'
+        # elif identifier == 'tag.id':
+        #     field['search_type'] = 'TAG'
         elif field_type in {'int', 'float'}:
             field['search_type'] = 'RANGE'
         elif field_type in {'date', 'datetime'}:
