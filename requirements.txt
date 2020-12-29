@@ -1,11 +1,11 @@
 # For outdated module report see https://requires.io/github/OpenTreeMap/otm-core/requirements/?branch=develop
 # Changelog URL shown below if not linked on above page
 
-amqp==2.2.1
+amqp==2.4
 anyjson==0.3.3
-billiard==3.5.0.3
+billiard==3.6
 boto==2.48.0                             # http://docs.pythonboto.org/en/latest/releasenotes/v2.39.0.html
-celery==4.3.0
+celery==4.3.1
 certifi==2017.7.27.1
 chardet==3.0.4
 # https://docs.djangoproject.com/en/1.10/releases/#id2
@@ -26,7 +26,7 @@ gunicorn==19.7.1                         # http://docs.gunicorn.org/en/stable/ne
 hiredis==0.2.0
 idna==2.5
 jsonschema==2.6.0
-kombu==4.2.0
+kombu==4.4.0
 libsass==0.11.2
 mccabe==0.6.1
 modgrammar==0.10
