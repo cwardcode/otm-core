@@ -70,7 +70,7 @@ def begin_export_users(request, instance, data_format):
         user=request.user,
         description='user export with %s format' % data_format)
 
-    async_users_export.delay(job.pk, data_format)
+    async_users_export(job.pk, data_format)
 
     return {'start_status': 'OK', 'job_id': job.pk}
 
@@ -91,7 +91,7 @@ def begin_export(request, instance, model):
         job.user = request.user
     job.save()
 
-    async_csv_export.delay(job.pk, model, query, display_filters)
+    async_csv_export(job.pk, model, query, display_filters)
 
     return {'start_status': 'OK', 'job_id': job.pk}
 

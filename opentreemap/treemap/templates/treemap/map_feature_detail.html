@@ -29,6 +29,9 @@
     {% trans "Add a Photo" as upload_title %}
     {% include "treemap/partials/upload_file.html" with title=upload_title upload_url=upload_photo_endpoint %}
 
+    {% trans "Edit Tags" as edit_tags_title %}
+    {% include "treemap/partials/edit_tags_modal.html" with title=edit_tags_title %}
+    
     {% if request.instance.is_public %}
         {% include "treemap/partials/photo_social_media_sharing.html" %}
     {% endif %}

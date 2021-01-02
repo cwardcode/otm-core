@@ -39,12 +39,9 @@ def get_signature_for_request(request, secret_key):
 
     # Sometimes reading from body fails, so try reading as a file-like object
     try:
-        body_decoded = base64.b64encode(request.body).decode()
+        body_decoded = base64.b64encode(request.body)
     except RawPostDataException:
-        body_decoded = base64.b64encode(request.read()).decode()
-
-    if body_decoded:
-        sign_string += body_decoded
+        body_decoded = base64.b64encode(request.read())
 
     try:
         binary_secret_key = secret_key.encode()
@@ -54,7 +51,7 @@ def get_signature_for_request(request, secret_key):
     sig = base64.b64encode(
         hmac.new(
             binary_secret_key,
-            sign_string.encode(),
+            body_decoded,
             hashlib.sha256
         ).digest()
     )

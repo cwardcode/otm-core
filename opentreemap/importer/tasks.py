@@ -93,19 +93,10 @@ def run_import_event_validation(import_type, import_event_id, file_obj):
 
     try:
         validation_tasks = []
-        for i in range(0, ie.row_count, settings.IMPORT_BATCH_SIZE):
-            validation_tasks.append(_validate_rows.s(import_type, ie.id, i))
+        for i in xrange(0, ie.row_count, settings.IMPORT_BATCH_SIZE):
+            _validate_rows(import_type, ie.id, i)
 
-        final_task = _finalize_validation.si(import_type, import_event_id)
-
-        async_result = chord(validation_tasks, final_task).delay()
-        async_result_parent = async_result.parent
-        if async_result_parent:  # Has value None when run in unit tests
-            # Celery 4 converts a chord with only one task in the head into
-            # a simple chain, which does not have a savable parent GroupResult
-            if isinstance(async_result_parent, GroupResult):
-                async_result_parent.save()
-            ie.task_id = async_result_parent.id
+        _finalize_validation(import_type, import_event_id)
 
         _assure_status_is_at_least_verifying(ie)
 
@@ -162,12 +153,17 @@ def commit_import_event(import_type, import_event_id):
     ie = _get_import_event(import_type, import_event_id)
 
     commit_tasks = [
-        _commit_rows.s(import_type, import_event_id, i)
-        for i in range(0, ie.row_count, settings.IMPORT_BATCH_SIZE)]
+#<<<<<<< HEAD
+#        _commit_rows.s(import_type, import_event_id, i)
+#        for i in range(0, ie.row_count, settings.IMPORT_BATCH_SIZE)]
+#=======
+        _commit_rows(import_type, import_event_id, i)
+        for i in xrange(0, ie.row_count, settings.IMPORT_BATCH_SIZE)]
+#>>>>>>> develop
 
-    finalize_task = _finalize_commit.si(import_type, import_event_id)
+    finalize_task = _finalize_commit(import_type, import_event_id)
 
-    async_result = chord(commit_tasks, finalize_task).delay()
+    async_result = chord(commit_tasks, finalize_task)
     # Protect against a race condition where finalize_task's ie
     # may have already been updated to FINISHED_CREATING and saved to the db,
     # rendering this instance of the ie model obsolete.

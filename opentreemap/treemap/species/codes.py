@@ -1,5 +1,5 @@
 # flake8: noqa
-
+import rollbar
 
 def all_itree_region_codes():
     return list(_CODES.keys())
@@ -17,6 +17,7 @@ def species_codes_for_regions(region_codes):
     return list(set(species_codes))
 
 def get_itree_code(region_code, otm_code):
+    rollbar.report_message('codes are', 'warning', extra_data={'region_code': region_code, 'otm_code': otm_code, '_CODES': _CODES})
     if otm_code:
         if region_code in _CODES:
             if otm_code in _CODES[region_code]:

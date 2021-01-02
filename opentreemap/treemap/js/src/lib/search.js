@@ -77,7 +77,6 @@ exports._buildElems = buildElems;
 
 function executeSearch(filters) {
     var query = makeQueryStringFromFilters(filters);
-
     var search = $.ajax({
         url: reverse.benefit_search(config.instance.url_name),
         data: query,
@@ -252,7 +251,6 @@ function hasBoundaryFilter(filter) {
 // applyFilter: Function to call when filter changes.
 exports.init = function(searchStream, applyFilter) {
     searchStream.onValue(applyFilter);
-
     var completedSearch = searchStream
         .flatMap(executeSearch);
 

@@ -1,4 +1,6 @@
 import os
+import rollbar
+
 from omgeo import postprocessors
 
 # Django settings for opentreemap project.
@@ -17,9 +19,9 @@ UITEST_SETUP_FUNCTION = None
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # This email is shown in various contact/error pages throughout the site
-SUPPORT_EMAIL_ADDRESS = 'support@yoursite.com'
+SUPPORT_EMAIL_ADDRESS = 'chris@cwardcode.com'
 # This email is used as the "from" address when sending messages
-DEFAULT_FROM_EMAIL = 'noreply@yoursite.com'
+DEFAULT_FROM_EMAIL = 'noreply@otm.wcu.edu'
 SYSTEM_USER_ID = -1
 
 #
@@ -107,7 +109,7 @@ TILE_HOST = None
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'America/New_York'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -232,8 +234,7 @@ MIDDLEWARE = (
 )
 
 # Settings for Rollbar exception reporting service
-ROLLBAR_SERVER_ACCESS_TOKEN = os.environ.get(
-    'ROLLBAR_SERVER_SIDE_ACCESS_TOKEN', None)
+ROLLBAR_SERVER_ACCESS_TOKEN = '022203b887374c9aae5e722fd6e3651c'
 ROLLBAR_CLIENT_ACCESS_TOKEN = os.environ.get(
     'ROLLBAR_POST_CLIENT_ITEM_ACCESS_TOKEN', None)
 STACK_TYPE = os.environ.get('OTM_STACK_TYPE', 'Unknown')
@@ -245,6 +246,7 @@ if ROLLBAR_SERVER_ACCESS_TOKEN is not None:
     }
     MIDDLEWARE += (
         'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',)
+    rollbar.init(**ROLLBAR)
 
 STACK_COLOR = os.environ.get('OTM_STACK_COLOR', 'Black')
 
@@ -284,6 +286,7 @@ INSTALLED_APPS = (
     'stormwater',
     'manage_treemap',
     'modeling',
+    'tagging',
     'registration',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -294,6 +297,7 @@ INSTALLED_APPS = (
     'django.contrib.postgres',
     'django_js_reverse',
     'webpack_loader',
+    'ddtrace.contrib.django',
 )
 
 I18N_APPS = (
@@ -325,7 +329,8 @@ ACCOUNT_ACTIVATION_DAYS = 7
 # Django-registration-redux sends HTML emails by default as of version 1.2
 # Disabling them for now until we add some new email templates
 REGISTRATION_EMAIL_HTML = False
-
+# Disable registration
+REGISTRATION_OPEN = False
 #
 # Units and decimal digits for fields and eco values
 #
@@ -412,3 +417,40 @@ if os.environ.get('RECAPTCHA_PUBLIC_KEY', '') != '':
     USE_RECAPTCHA = True
 else:
     USE_RECAPTCHA = False
+
+#LOGGING = {
+#    "version": 1,
+#    "disable_existing_loggers": True,
+#    "formatters": {"json": {"()": "pythonjsonlogger.jsonlogger.JsonFormatter"}},
+#    "handlers": {
+#        'default': {
+#            'level':'DEBUG',
+#            'class': 'logging.handlers.RotatingFileHandler',
+#            'filename': '/var/log/otm/django.log',
+#            'maxBytes': 1024*1024*5, # 5 MB
+#            'backupCount': 5,
+#            'formatter':'json',
+#        },
+#        'request_handler': {
+#            'level':'DEBUG',
+#            'class':'logging.handlers.RotatingFileHandler',
+#            'filename': '/var/log/otm/django_request.log',
+#            'maxBytes': 1024*1024*5, # 5 MB
+#            'backupCount': 5,
+#            'formatter':'json',
+#        }
+#    },
+#    'loggers': {
+#        '': {
+#            'handlers': ['default'],
+#            'level': 'ERROR',
+#            'propagate': True
+#        },
+#        'django.request': { # Stop SQL debug from logging to main logger
+#            'handlers': ['request_handler'],
+#            'level': 'DEBUG',
+#            'propagate': False
+#        },
+#    }
+#
+#}

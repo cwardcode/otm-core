@@ -8,20 +8,6 @@
 {% load comment_sequence %}
 
 <div class="detail-header">
-    {% if request.instance.is_public %}
-        <div class="js-container pull-right" style="display: none">
-            <a target="_blank" href="http://www.facebook.com/sharer/sharer.php?u={{ share.url }}">
-                <img src="/static/img/facebook_32.png">
-            </a>
-            <a target="_blank" href="http://twitter.com/share?url={{ share.url }}&text={{ share.title }}">
-                <img src="/static/img/twitter_32.png">
-            </a>
-            <a target="_blank" href="https://plus.google.com/share?url={{ share.url }}">
-                <img src="/static/img/googleplus_32.png">
-            </a>
-        </div>
-        <button class="btn share">Share</button>
-    {% endif %}
     <h2 class="common-name" id="map-feature-title">
         {{ title }}
         <a id="favorite-link"
@@ -45,6 +31,7 @@
 <div class="col-md-8">
     <p>
         {% if feature.is_plot or feature.is_editable %}
+        {% if request.user.is_authenticated %}
             <button id="edit-map-feature"
                     data-class="display"
                     disabled="disabled"
@@ -59,8 +46,7 @@
                     class="btn btn-sm btn-info">{% trans "Edit" %}</button>
             <button id="save-edit-map-feature" data-class="edit" class="btn btn-sm btn-primary" style="display: none;">{% trans "Save" %}</button>
             <button id="cancel-edit-map-feature" data-class="edit" class="btn btn-sm" style="display: none;">{% trans "Cancel" %}</button>
-        {% endif %}
-        <button id="delete-object"
+            <button id="delete-object"
                 data-class="display"
                 disabled="disabled"
                 {% if has_tree %}
@@ -77,6 +63,8 @@
                 {% endif %}
                 data-href="{{ request.get_full_path }}"
                 class="btn btn-sm btn-danger">{% trans "Delete" %}</button>
+        {% endif %}
+        {% endif %}
         <img class="spinner" src="{% static "img/spinner.gif" %}" style="display: none;">
     </p>
 
@@ -99,7 +87,7 @@
         {% endblock subclass_details %}
 
     </form>
-
+  {% if request.user.is_authenticated %}
     <!-- Commenting -->
     <h3>{% trans "Comments" %}</h3>
     <div id="comments-container">
@@ -135,11 +123,6 @@
             </div>
             {% for close in comment.close %}</li></ul>{% endfor %}
         {% endfor %}
-        {% if not request.user.is_authenticated %}
-            <p><a href="{% url 'registration_register' %}">{% trans "Sign Up" %}</a>
-                {% trans "or" %} <a href="{% url 'auth_login' %}{% login_forward %}">{% trans "log in" %}</a>
-                {% trans "to add comments" %}</p>
-        {% endif %}
     </div>
 
     <div id="comment_disclaimer">
@@ -155,5 +138,6 @@
             </em>
         </p>
     </div>
+  {% endif %}
 
 </div>

@@ -530,7 +530,8 @@ class Dictable(object):
     def hash(self):
         values = ['%s:%s' % (k, v) for (k, v) in self.as_dict().items()]
         string = '|'.join(values).encode('utf-8')
-        return hashlib.md5(string.encode()).hexdigest()
+        return hashlib.md5(string).hexdigest()
+        #return hashlib.md5(string.encode()).hexdigest()
 
 
 class UserTrackable(Dictable):

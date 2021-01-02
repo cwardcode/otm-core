@@ -21,6 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import (UserManager, AbstractBaseUser,
                                         PermissionsMixin)
 from django.template.loader import get_template
+from tagging.registry import register
 
 from treemap.species.codes import ITREE_REGIONS, get_itree_code
 from treemap.audit import Auditable, Role, Dictable, Audit, PendingAuditable
@@ -34,6 +35,7 @@ from treemap.udf import UDFModel
 from treemap.instance import Instance
 from treemap.lib.object_caches import invalidate_adjuncts
 
+import rollbar
 
 def _action_format_string_for_location(action):
     """A helper that allows multiple auditable models to return the
@@ -171,7 +173,7 @@ class BenefitCurrencyConversion(Dictable, models.Model):
                            'voc_lb_to_currency']
 
         for field in positive_fields:
-            value = getattr(self, field)
+            value = self.field
             try:
                 value = float(value or '')
                 if value < 0:
@@ -1001,7 +1003,7 @@ class Plot(MapFeature, ValidationMixin):
             'warning_message': _(
                 "Marking a planting site with an alert does not serve as a "
                 "way to report problems with that site. If you have any "
-                "emergency concerns, please contact your city directly."),
+                "emergency concerns, please contact facilities directly."),
             'range_field_key': 'Date Noticed',
             'action_field_key': 'Action Needed',
             'action_verb': _('with open alerts for'),
@@ -1070,6 +1072,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
     instance = models.ForeignKey(Instance)
 
     plot = models.ForeignKey(Plot)
+
     species = models.ForeignKey(Species, null=True, blank=True,
                                 verbose_name=_("Species"))
 
@@ -1089,10 +1092,24 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
 
     objects = models.GeoManager()
 
-    _stewardship_choices = ['Watered',
+    _stewardship_choices = [
+                            'Watered',
+                            'Fertilized',
+                            'Air-spaded',
                             'Pruned',
+                            'Growth Regulator',
+                            'Cabling',
+                            'Root Pruned',
+                            'Lightning Protection',
+                            'Pest Scouting',
+                            'Pest Treatment',
+                            'Storm Damaged',
+                            'Risk Assessment',
+                            'Failure',
+                            'Death',
                             'Mulched, Had Compost Added, or Soil Amended',
-                            'Cleared of Trash or Debris']
+                            'Cleared of Trash or Debris'
+		           ]
 
     udf_settings = {
         'Stewardship': {
@@ -1112,7 +1129,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
             'warning_message': _(
                 "Marking a tree with an alert does not serve as a way to "
                 "report problems with a tree. If you have any emergency "
-                "tree concerns, please contact your city directly."),
+                "tree concerns, please contact facilities directly."),
             'range_field_key': 'Date Noticed',
             'action_field_key': 'Action Needed',
             'action_verb': _('with open alerts for'),
@@ -1131,7 +1148,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
 
     def __unicode__(self):
         diameter_str = getattr(self, 'diameter', '')
-        species_str = getattr(self, 'species', '')
+        species_str = self.species.display_name
         if not diameter_str and not species_str:
             return ''
         diameter_chunk = "Diameter: %s" % diameter_str
@@ -1144,8 +1161,9 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
 
     def dict(self):
         props = self.as_dict()
-        props['species'] = self.species
-
+        props['species'] = self.species.display_name
+        props['short_species'] = str(self.species.display_name).split('[')[0].strip()
+        rollbar.report_message('props are', 'warning', extra_data={'props': props})
         return props
 
     def photos(self):
@@ -1230,6 +1248,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
         self.instance.update_universal_rev()
         super(Tree, self).delete_with_user(user, *args, **kwargs)
 
+register(Tree)
 
 class Favorite(models.Model):
     user = models.ForeignKey(User)

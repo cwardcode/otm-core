@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^boundaries/$', routes.boundary_autocomplete, name='boundary_list'),
     url(r'^edits/$', routes.edits_page, name='edits'),
     url(r'^species/$', routes.species_list, name="species_list_view"),
+    url(r'^tags/$', routes.tags_list, name="tags_list_view"),
     url(r'^map/$', routes.map_page, name='map'),
 
     url(r'^features/(?P<feature_id>\d+)/$',
@@ -74,6 +75,5 @@ urlpatterns = [
     url(r'^users/%s/$' % USERNAME_PATTERN, routes.instance_user_page,
         name="user_profile"),
     url(r'^users/%s/edits/$' % USERNAME_PATTERN, routes.instance_user_audits),
-
-    url(r'^users/$', routes.users, name="users"),
+    url(r'^users/$', routes.users, name="users")
 ]

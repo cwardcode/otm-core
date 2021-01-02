@@ -12,6 +12,15 @@
     <meta charset="utf-8">
     <title>{% block title %}OpenTreeMap{% block instance_title %}{% endblock %}{% block page_title %}{% endblock %}{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-143328763-1"></script>
+	<script>
+		  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-143328763-1');
+	</script>
     <link rel="icon" type="image/png" href="/favicon.png" />
     {% block application_css %}
     {% render_bundle 'js/treemap/base' 'css' %}
@@ -134,18 +143,12 @@
               </li>
             {% else %}
               <li class="hidden-xs"><a id="login" href="{% url 'auth_login' %}{% login_forward %}">{% trans "Login" %}</a></li>
-              {% block signup %}
-              <li class="hidden-xs"><a href="{% url 'registration_register' %}">{% trans "Sign Up" %}</a></li>
-              {% endblock signup %}
               <li class="add-menu dropdown visible-xs-inline-block">
               <a class="dropdown-toggle" data-toggle="dropdown">
                   <i class="icon-cog"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-pull-left">
                   <li><a id="login" href="{% url 'auth_login' %}{% login_forward %}">{% trans "Login" %}</a></li>
-                  {% block signup_small %}
-                  <li><a href="{% url 'registration_register' %}">{% trans "Sign Up" %}</a></li>
-                  {% endblock signup_small %}
                 </ul>
               </li>
             {% endif %}

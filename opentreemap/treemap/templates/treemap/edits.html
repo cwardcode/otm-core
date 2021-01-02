@@ -119,13 +119,13 @@ active
           <td>
             {% if audit.clean_previous_value %}
             <a href="?models=Plot&model_id={{ audit.clean_previous_value.pk|unlocalize }}">
-              Plot {{ audit.clean_previous_value }}
+              Plot {{ audit.clean_current_value.pk }}
             </a>
             {% endif %}
           </td>
           <td>
             <a href="?models=Plot&model_id={{ audit.clean_current_value.pk|unlocalize }}">
-              Plot {{ audit.clean_current_value|default_if_none:"" }}
+              Plot {{ audit.clean_current_value.pk }}
             </a>
           </td>
 

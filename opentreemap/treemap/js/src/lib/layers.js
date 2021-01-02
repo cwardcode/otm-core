@@ -186,6 +186,5 @@ function filterableLayer (table, extension, layerOptions) {
         }
         layer.setUrl(fullUrl);
     };
-
     return layer;
 }

@@ -17,6 +17,7 @@ var $ = require('jquery'),
     statePrompter = require('treemap/lib/statePrompter.js'),
     csrf = require('treemap/lib/csrf.js'),
     uploadPanel = require('treemap/lib/uploadPanel.js'),
+    editTagsPanel = require('treemap/lib/editTagsPanel.js'),
     imageLightbox = require('treemap/lib/imageLightbox.js'),
     socialMediaSharing = require('treemap/lib/socialMediaSharing.js'),
     reverseGeocodeStreamAndUpdateAddressesOnForm =
@@ -26,7 +27,12 @@ var $ = require('jquery'),
     reverse = require('reverse'),
     alerts = require('treemap/lib/alerts.js'),
     buttonEnabler = require('treemap/lib/buttonEnabler.js'),
-    comments = require('otm_comments/lib/comments.js');
+    comments = require('otm_comments/lib/comments.js'),
+    $editPanel = '#edit-tags-panel',
+    addTagInput = '#add-tag-input',
+    $addTagInputSection = $(addTagInput),
+    crypto = require('crypto'),
+    moment = require('moment');
 
 // Placed onto the jquery object
 require('bootstrap-datepicker');
@@ -93,6 +99,68 @@ function init() {
         onSaveBefore: function (data) { currentMover.onSaveBefore(data); },
         dontUpdateOnSaveOk: true
     });
+
+    var tagsPanelStream = editTagsPanel.init({
+        updateUrl: detailUrl
+    });
+    const sig_alg = 'sha256'
+    const secret = 'OO1TR6t8z5X8r8uXUH_khx_5O0f_w5WoLcIuJyDfKphNKd42UIUf-XxVz2y-TmquChSo3-U-PkWv_D5OWKWywQ==';
+    
+    function getPlotId(url) {
+        const splitUrl = url.split('/');
+        const endOfSplit = splitUrl[splitUrl.length - 1];
+        let plotId = '';
+
+        if (endOfSplit === '') {
+            plotId = splitUrl[splitUrl.length - 2];
+        } else {
+            plotId = endOfSplit;
+        }
+        return plotId;
+    }
+
+    tagsPanelStream.saveStream.onValue((data) => {
+        if($addTagInputSection.val()) {
+            const plotId = getPlotId(detailUrl);
+            console.log(`plot id is: ${plotId}`)
+            var data = $addTagInputSection.val();
+            const req = { "name": data };
+            const baseReq = Buffer.from(JSON.stringify(req)).toString('base64')
+            const sig = crypto.createHmac(sig_alg, secret).update(baseReq).digest('base64');
+            const timestamp = moment.utc(new Date()).format("Y-M-DTHH:MM:ss");
+            return Bacon.fromPromise($.ajax({
+                url: `/api/v4/instance/wcu/tags/feature/${plotId}?access_key=LiUMH1KKT4y9SX15_qKAiA&timestamp=${timestamp}&signature=${sig}`,
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify(req)
+            }))
+            .onValue((resp)=>{
+                const modalBodyDiv = $('#tag-modal-content');
+                modalBodyDiv.css('text-align', 'center');
+                modalBodyDiv[0].innerHTML = '';
+                modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
+                document.location.reload();
+            });
+        }
+    })
+
+    tagsPanelStream.deleteStream.onValue((event) => {
+        const plotId = getPlotId(detailUrl);
+        const tagToDelete =  event.currentTarget.id.split('delete-button-')[1];
+        const sig = crypto.createHmac(sig_alg, secret).digest('base64');
+        const timestamp = moment.utc(new Date()).format("Y-M-DTHH:MM:ss");
+        return Bacon.fromPromise($.ajax({
+            url: `/api/v4/instance/wcu/tags/feature/${plotId}/${tagToDelete}?access_key=LiUMH1KKT4y9SX15_qKAiA&timestamp=${timestamp}&signature=${sig}`,
+            type: 'DELETE'
+        }))
+        .onValue((resp)=>{
+            const modalBodyDiv = $('#tag-modal-content');
+            modalBodyDiv.css('text-align', 'center');
+            modalBodyDiv[0].innerHTML = '';
+            modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
+            document.location.reload();
+        });
+    })
 
     function initDetailAfterRefresh() {
         buttonEnabler.run();
@@ -214,6 +282,7 @@ function init() {
         imageFinishedStream: imageFinishedStream
     });
 }
+
 
 function isFavoriteNow() {
     return $(dom.favoriteLink).attr('data-is-favorited') === 'True';

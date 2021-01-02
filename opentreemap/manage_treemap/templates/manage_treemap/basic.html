@@ -31,7 +31,7 @@
                         {% with itree_regions=request.instance.itree_regions %}
                             {% if itree_regions %}
                                 {% for itree_region in itree_regions %}
-                                    {{ itree_region }}{% if not forloop.last %},&nbsp;{% endif %}
+                                    {{ itree_region.code }}{% if not forloop.last %},&nbsp;{% endif %}
                                 {% endfor %}
                             {% else %}
                                 {% trans "None" %}

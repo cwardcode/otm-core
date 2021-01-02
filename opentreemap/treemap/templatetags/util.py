@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 import json
 import re
+import rollbar
 
 from opentreemap.util import dotted_split
 
@@ -12,7 +13,7 @@ from treemap.udf import UserDefinedCollectionValue
 from treemap.util import (get_filterable_audit_models, to_model_name,
                           safe_get_model_class, num_format as util_num_format)
 from treemap.units import Convertible
-
+from tagging.models import TaggedItem
 
 _external_tree_id_url_re = re.compile(r'#{tree.id}')
 
@@ -22,6 +23,17 @@ register = template.Library()
 
 register.filter('get', lambda a, b: a[b])
 
+def context_dict_for_tree(tree):
+    tag_dict = {
+        "id": tree.id,
+        "species": tree.species
+    }
+    return tag_dict
+
+@register.simple_tag(name='related_tags_for_object')
+def related_objects(tree_object, limit=10):
+    objects = TaggedItem.objects.get_related(tree_object,tree_object.__class__)
+    return {"related_trees": objects[:limit]}
 
 # From https://djangosnippets.org/snippets/545/
 # Found from http://bit.ly/2c37Fgz on stackoverflow
@@ -85,6 +97,8 @@ def detail_link(thing):
     """
     name = thing.__class__.__name__
     nameLower = name.lower()
+    rollbar.report_message('detail_link', 'warning', extra_data={'thing': thing, 'name': name, 'nameLower': nameLower})
+
     if nameLower in MODEL_DETAILS:
         return MODEL_DETAILS[nameLower](thing)
     elif MapFeature.has_subclass(name):
@@ -130,6 +144,9 @@ def audit_detail_link(audit):
 def terminology(model, instance):
     return model.terminology(instance)
 
+@register.filter
+def get_fields(obj):
+    return [(field.name, field.value_to_string(obj)) for field in obj._meta.fields]
 
 @register.filter
 def display_name(audit_or_model_or_name, instance=None):
