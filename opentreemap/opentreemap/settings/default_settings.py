@@ -182,7 +182,7 @@ STATICFILES_DIRS = (
     # This is the directory where webpack gets its source data from
     # We use this as a static directory so that images can be referenced in CSS
     # but also be collected by collectstatic
-    os.path.join(PROJECT_ROOT, 'assets/'),
+    str(os.path.join(PROJECT_ROOT, 'assets/')),
 )
 
 # List of finder classes that know how to find static files in
@@ -191,6 +191,14 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'djangobower.finders.BowerFinder',
+)
+
+BOWER_COMPONENTS_ROOT = ''.join(os.path.join(PROJECT_ROOT, 'components/'))
+BOWER_INSTALLED_APPS = (
+    'jquery',
+    'jquery-ui',
+    'bootstrap'
 )
 
 # Make this unique, and don't share it with anybody.
@@ -298,6 +306,8 @@ INSTALLED_APPS = (
     'django_js_reverse',
     'webpack_loader',
     'ddtrace.contrib.django',
+    'schedule',
+    'djangobower',
 )
 
 I18N_APPS = (

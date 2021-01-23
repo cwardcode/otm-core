@@ -48,3 +48,5 @@ unicodecsv==0.14.1
 urllib3==1.23
 wsgiref==0.1.2
 django-icons==1.1.2
+django-scheduler==0.8.8
+django-bower==5.2.0

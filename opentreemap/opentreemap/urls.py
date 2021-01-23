@@ -7,7 +7,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth.views import logout
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from django.views.i18n import javascript_catalog
 
 from treemap import routes
@@ -77,6 +77,7 @@ urlpatterns = [
     url(instance_pattern + r'/export/', include('exporter.urls')),
     url(instance_pattern + r'/comments/', include('otm_comments.urls')),
     url(instance_pattern + r'/management/', include('manage_treemap.urls')),
+    url(instance_pattern + r'/schedule/', include('schedule.urls')),
     url(r'', include('modeling.urls')),
 ]
 
