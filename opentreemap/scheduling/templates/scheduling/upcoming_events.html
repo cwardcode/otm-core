@@ -1,0 +1,29 @@
+{% extends "scheduling/management_base.html" %}
+{% load render_bundle from webpack_loader %}
+{% load i18n %}
+{% load form_extras %}
+
+{% block admin_title %}{% trans "Basic Information" %}{% endblock %}
+
+{% block tab_content %}
+    <div id="basic-info">
+        <div class="page-header">
+            <div class="page-header-toggles">
+                <i class="icon-menu" id="toggle-sidebar"></i>
+            </div>
+            <div class="page-header-title">
+                <h1>{% trans "Basic Information" %}</h1>
+            </div>
+            {% include "treemap/partials/form_buttons.html" %}
+        </div>
+        <div class="content">
+            {% block messages %}
+            {% endblock %}
+            Coming soon: Events list
+        </div>
+    </div>
+{% endblock tab_content %}
+
+{% block scripts %}
+    {% render_bundle 'js/scheduling/basicInfo' %}
+{% endblock scripts %}

@@ -83,6 +83,9 @@ ga('set', 'page', pathname);
 <li class="hidden-xs {% block activemanagement %}{% endblock %}">
   <a href="{% url "management" instance_url_name=request.instance.url_name %}">{% trans "Manage" %}</a>
 </li>
+<li class="hidden-xs {% block activescheduling %}{% endblock %}">
+  <a href="{% url 'scheduling' instance_url_name=request.instance.url_name %}">{% trans "Schedule" %}</a>
+</li>
 {% endif %}
 {% endblock instancetopnav %}
 

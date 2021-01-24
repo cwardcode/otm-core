@@ -194,11 +194,13 @@ STATICFILES_FINDERS = (
     'djangobower.finders.BowerFinder',
 )
 
-BOWER_COMPONENTS_ROOT = ''.join(os.path.join(PROJECT_ROOT, 'components/'))
+BOWER_COMPONENTS_ROOT = '/usr/local/otm/app/components'
+
 BOWER_INSTALLED_APPS = (
     'jquery',
     'jquery-ui',
-    'bootstrap'
+    'bootstrap',
+    'fullcalendar#3.8.2'
 )
 
 # Make this unique, and don't share it with anybody.
@@ -293,6 +295,7 @@ INSTALLED_APPS = (
     'appevents',
     'stormwater',
     'manage_treemap',
+    'scheduling',
     'modeling',
     'tagging',
     'registration',

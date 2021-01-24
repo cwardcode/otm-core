@@ -78,6 +78,7 @@ urlpatterns = [
     url(instance_pattern + r'/comments/', include('otm_comments.urls')),
     url(instance_pattern + r'/management/', include('manage_treemap.urls')),
     url(instance_pattern + r'/schedule/', include('schedule.urls')),
+    url(instance_pattern + r'/scheduling/', include('scheduling.urls')),
     url(r'', include('modeling.urls')),
 ]
 

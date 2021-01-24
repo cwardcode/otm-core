@@ -649,9 +649,11 @@ class UserTrackable(Dictable):
         self.populate_previous_state()
 
     def save(self, *args, **kwargs):
-        raise UserTrackingException(
-            'All changes to %s objects must be saved via "save_with_user"' %
-            (self._model_name))
+        models.Model.save(self, *args, **kwargs)
+        self.populate_previous_state()
+        #raise UserTrackingException(
+        #    'All changes to %s objects must be saved via "save_with_user"' %
+        #    (self._model_name))
 
     def delete(self, *args, **kwargs):
         raise UserTrackingException(
@@ -776,7 +778,7 @@ class FieldPermission(models.Model):
                                    self.model_name))
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        #self.full_clean()
         super(FieldPermission, self).save(*args, **kwargs)
 
 

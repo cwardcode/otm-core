@@ -176,6 +176,101 @@
                     }
                 }
             }
+            
+            .nav.flat-nav-list {
+                width: 100%;
+
+                .label-notification {
+                    background-color: $secondary-color;
+                    border-radius: 9px;
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin-top: -3px;
+                    padding: .3em .6em;
+
+                    &:empty {
+                        display: none;
+                    }
+                    &.role-label {
+                        background-color: #D8C161;
+                    }
+                }
+
+                ul {
+                    padding-left: 16px;
+
+
+                    li.active > a {
+                        color: $paper;
+                    }
+
+                    li > a {
+                        padding: 10px 0 0 0;
+                        white-space: nowrap;
+
+                        &:hover {
+                            background-color: transparent;
+                            color: $paper;
+                        }
+
+                        .label-notification {
+                            position: static;
+                        }
+                    }
+                    li:last-child > a {
+                        padding-bottom: 10px;
+                    }
+                }
+
+                tr {
+                    padding: 0;
+                    display: block;
+                    width: 100%;
+                    position: relative;
+
+                    &.active {
+                        i.link-icon, a.section-title {
+                            color: $paper;
+                        }
+                    }
+
+                    td:first-child {
+                        vertical-align: top;
+                        padding: 10px 0;
+                    }
+
+                    .section-title {
+                        cursor: pointer;
+                        width: 100%;
+                        display: block;
+                        padding: 12px 0;
+                        white-space: nowrap;
+
+                        i {
+                            position: absolute;
+                            right: 0;
+                        }
+                    }
+
+                    a {
+                        font-weight: 400;
+                        font-size: 1.3rem;
+                        padding: 12px 0;
+                        color: rgba(255,255,255,.6);
+                    }
+
+                    i {
+                        color: rgba(255,255,255,.5);
+                        padding: 0 12px;
+                    }
+
+                    .label-notification {
+                        position: absolute;
+                        left: 18px;
+                        top: 28px;
+                    }
+                }
+            }
         }
 
         .management-content {

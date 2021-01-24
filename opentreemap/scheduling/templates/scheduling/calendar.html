@@ -1,0 +1,44 @@
+{% extends "scheduling/management_base.html" %}
+{% load render_bundle from webpack_loader %}
+{% load i18n static %}
+{% load form_extras %}
+
+{% block admin_title %}{% trans "Calendar" %}{% endblock %}
+{% block head_extra %}
+    <link rel='stylesheet' type='text/css' href="{% static 'fullcalendar/dist/fullcalendar.css' %}" />
+    <script type='text/javascript' src="{% static 'jquery/dist/jquery.js' %}"></script>
+    <script type='text/javascript' src="{% static 'moment/moment.js' %}"></script>
+    <script type='text/javascript' src="{% static 'fullcalendar/dist/fullcalendar.js' %}"></script>
+{% endblock head_extra %}
+{% block tab_content %}
+    <div id="basic-info">
+        <div class="page-header">
+            <div class="page-header-toggles">
+                <i class="icon-menu" id="toggle-sidebar"></i>
+            </div>
+            <div class="page-header-title">
+                <h1>{% trans "Calendar" %}</h1>
+            </div>
+        </div>
+        <div class="content">
+            {% block messages %}
+            {% endblock %}
+            <div id="calendar"></div>
+            <script type='text/javascript'>
+            $(document).ready(function() {
+            
+                // page is now ready, initialize the calendar...
+                $('#calendar').fullCalendar({
+                    // put your options and callbacks here
+                  events: '/wcu/schedule/api/occurrences?calendar_slug=tree-maintenance'
+                })
+            
+            });
+            </script>
+        </div>
+    </div>
+{% endblock tab_content %}
+
+{% block scripts %}
+    {% render_bundle 'js/scheduling/basicInfo' %}
+{% endblock scripts %}
