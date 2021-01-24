@@ -33,6 +33,20 @@ GOOGLE_MAPS_KEY=...
 `ROLLBAR_SERVER_SIDE_ACCESS_TOKEN` is a token for [Rollbar](rollbar.com).
 `GOOGLE_MAPS_KEY` is a browser key for the Google Maps Javascript API, [which can be obtained here](https://developers.google.com/maps/documentation/javascript/get-api-key).
 
+## Custom Python Packages
+
+Due to the somewhat outdated nature of this repository's dependencies, some custom packages have been created as forks to support necessry features that were added. These packages will need to be installed by running `pip install <package.whl>`.
+
+These packaes can be found under the `custom-packages` directory.
+
+Currently-required custom pakages:
+* django-scheduler:
+  * Reason for fork:
+    * Package has been updated to support Python 3.x and no longer supports 2.7.
+  * Changes Made:
+    * Updated to allow incoming instance_url_name kwargs on requests to the schedule APIs.
+
+
 ## Other Repositories
 
 This repository (ie, otm-core) is but one of a few separate repositories 
