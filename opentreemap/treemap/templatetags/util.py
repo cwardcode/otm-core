@@ -22,6 +22,7 @@ register = template.Library()
 
 register.filter('get', lambda a, b: a[b])
 
+
 def context_dict_for_tree(tree):
     tag_dict = {
         "id": tree.id,
@@ -29,10 +30,13 @@ def context_dict_for_tree(tree):
     }
     return tag_dict
 
+
 @register.simple_tag(name='related_tags_for_object')
 def related_objects(tree_object, limit=10):
-    objects = TaggedItem.objects.get_related(tree_object,tree_object.__class__)
+    tagged_objects = TaggedItem.objects
+    objects = tagged_objects.get_related(tree_object, tree_object.__class__)
     return {"related_trees": objects[:limit]}
+
 
 # From https://djangosnippets.org/snippets/545/
 # Found from http://bit.ly/2c37Fgz on stackoverflow

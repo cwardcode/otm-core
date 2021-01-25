@@ -18,7 +18,7 @@ from django.shortcuts import render, get_object_or_404
 
 from stormwater.models import PolygonalMapFeature
 
-from treemap.models import User, Species, StaticPage, Instance, Boundary, Tree
+from treemap.models import User, Species, StaticPage, Instance, Boundary
 
 from treemap.plugin import get_viewable_instances_filter
 
@@ -28,7 +28,7 @@ from treemap.lib.perms import model_is_creatable
 from treemap.units import get_unit_abbreviation, get_units
 from treemap.util import leaf_models_of_class
 
-from tagging.models import Tag,TaggedItem
+from tagging.models import Tag, TaggedItem
 
 
 _SCSS_VAR_NAME_RE = re.compile('^[_a-zA-Z][-_a-zA-Z0-9]*$')
@@ -194,12 +194,13 @@ def species_list(request, instance):
 
     return [annotate_species_dict(species) for species in species_qs]
 
+
 def tags_list(request, instance):
     max_items = request.GET.get('max_items', None)
 
     tags_qs = instance.scope_tags_model(TaggedItem)\
-                         .order_by('tag')\
-                         .values('tag', 'tag_id')
+        .order_by('tag')\
+        .values('tag', 'tag_id')
 
     if max_items:
         tags_qs = tags_qs[:max_items]
@@ -220,16 +221,18 @@ def tags_list(request, instance):
 
     def annotate_tag_dict(sdict):
         tokens = tokenize(tag)
-        tag_name = Tag.objects.filter(id=sdict['tag']).values('name')[0]['name']
+        tag_name = Tag.objects.filter(id=sdict['tag']).values('name')
+        tag_name_value = tag_name[0]['name']
         sdict.update({
             'id': sdict['tag'],
-            'name': tag_name,
-            'value': tag_name,
+            'name': tag_name_value,
+            'value': tag_name_value,
             'tokens': tokens})
 
         return sdict
 
     return [annotate_tag_dict(tag) for tag in tags_qs]
+
 
 def compile_scss(request):
     """

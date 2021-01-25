@@ -37,7 +37,7 @@ def check_signature(view_f):
 def _check_signature(view_f, require_login):
     _bad_request = HttpResponseBadRequest('Invalid signature')
     _missing_request = HttpResponseBadRequest('Missing signature or timestamp')
-    
+
     @wraps(view_f)
     def wrapperf(request, *args, **kwargs):
         # Request must have signature and access_key parameters
@@ -59,11 +59,8 @@ def _check_signature(view_f, require_login):
         try:
             timestamp = datetime.datetime.strptime(
                 timestamp, SIG_TIMESTAMP_FORMAT)
-
-
             expires = timestamp + datetime.timedelta(minutes=15)
 
-            
             if expires < datetime.datetime.now():
                 return _bad_request
 

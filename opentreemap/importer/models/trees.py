@@ -7,11 +7,11 @@ import json
 
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.contrib.gis.db import models
-from django.contrib.gis.geos import Point, Polygon
+from django.contrib.gis.geos import Point
 from django.utils.translation import ugettext as _
 from django.db import transaction
 
-from treemap.models import Species, Plot, Tree, MapFeature
+from treemap.models import Species, Plot, Tree
 from treemap.lib.object_caches import udf_defs
 from treemap.units import storage_to_instance_units_factor
 

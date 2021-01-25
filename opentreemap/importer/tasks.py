@@ -6,7 +6,6 @@ from __future__ import division
 import json
 
 from celery import shared_task, chord
-from celery.result import GroupResult
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.db import transaction
@@ -93,7 +92,6 @@ def run_import_event_validation(import_type, import_event_id, file_obj):
     ie.update_progress_timestamp_and_save()
 
     try:
-        validation_tasks = []
         for i in xrange(0, ie.row_count, settings.IMPORT_BATCH_SIZE):
             _validate_rows(import_type, ie.id, i)
 

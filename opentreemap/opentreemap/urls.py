@@ -7,7 +7,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth.views import logout
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import RedirectView
 from django.views.i18n import javascript_catalog
 
 from treemap import routes

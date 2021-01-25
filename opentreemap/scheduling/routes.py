@@ -9,10 +9,7 @@ from django_tinsel.decorators import route, render_template, json_api_call
 from django_tinsel.utils import decorate as do
 
 import scheduling.views.management as views
-import otm_comments.views as comment_views
 
-from exporter.views import begin_export_users
-from importer.views import list_imports
 from scheduling.views import update_instance_fields_with_validator
 from treemap.decorators import (require_http_method, admin_instance_request,
                                 return_400_if_validation_errors)
