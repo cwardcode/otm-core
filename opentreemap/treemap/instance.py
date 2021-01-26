@@ -21,7 +21,7 @@ from django.db.models import Manager as GeoManager
 import hashlib
 import json
 
-from urllib import urlencode
+from urllib.parse import urlencode
 
 from opentreemap.util import extent_intersection, extent_as_json
 

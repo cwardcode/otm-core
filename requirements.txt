@@ -33,7 +33,7 @@ modgrammar
 olefile
 pep8
 Pillow
-psycopg2
+psycopg2-binary
 pyflakes
 python-dateutil
 python-omgeo
@@ -44,7 +44,7 @@ rollbar
 six
 unicodecsv
 urllib3
-wsgiref
+#wsgiref
 django-icons
 django-scheduler
 django-bower
