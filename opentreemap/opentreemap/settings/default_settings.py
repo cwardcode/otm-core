@@ -430,3 +430,5 @@ if os.environ.get('RECAPTCHA_PUBLIC_KEY', '') != '':
     USE_RECAPTCHA = True
 else:
     USE_RECAPTCHA = False
+
+SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']

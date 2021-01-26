@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.contrib.auth.views import logout
+from django.contrib.auth.views import LogoutView
 from django.views.generic import RedirectView
-from django.views.i18n import javascript_catalog
+from django.views.i18n import JavaScriptCatalog
 
 from treemap import routes
 from treemap.ecobenefits import within_itree_regions_view
@@ -50,7 +48,7 @@ urlpatterns = [
     # The profile view is handled specially by redirecting to
     # the page of the currently logged in user
     url(r'^accounts/profile/$', routes.profile_to_user_page, name='profile'),
-    url(r'^accounts/logout/$', logout, {'next_page': '/'}),
+    url(r'^accounts/logout/$', LogoutView.as_view(), name='logout'),
     url(r'^accounts/forgot-username/$', routes.forgot_username,
         name='forgot_username'),
     url(r'^accounts/resend-activation-email/$', routes.resend_activation_email,
@@ -72,7 +70,7 @@ urlpatterns = [
         RegistrationView.as_view(),
         name='instance_registration_register'),
     url(instance_pattern + r'/', include('treemap.urls')),
-    url(instance_pattern + r'/importer/', include('importer.urls',
+    url(instance_pattern + r'/importer/', include(('importer.urls', 'importer'),
                                                   namespace='importer')),
     url(instance_pattern + r'/export/', include('exporter.urls')),
     url(instance_pattern + r'/comments/', include('otm_comments.urls')),
@@ -89,7 +87,7 @@ if settings.USE_JS_I18N:
     }
 
     urlpatterns = [
-        url(r'^jsi18n/$', javascript_catalog, js_i18n_info_dict)
+        url(r'^jsi18n/$', JavaScriptCatalog, js_i18n_info_dict)
     ] + urlpatterns
 
 if settings.EXTRA_URLS:
@@ -99,7 +97,7 @@ if settings.EXTRA_URLS:
     ] + urlpatterns
 
 if settings.DEBUG:
-    urlpatterns = [url(r'^admin/', include(admin.site.urls))] + urlpatterns
+    urlpatterns = [url(r'^admin/', admin.site.urls)] + urlpatterns
 
 handler404 = 'treemap.routes.error_404_page'
 handler500 = 'treemap.routes.error_500_page'

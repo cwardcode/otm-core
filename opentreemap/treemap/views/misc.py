@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import string
 import re
@@ -9,7 +7,7 @@ import sass
 import json
 
 from django.utils.translation import ugettext as _
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 from django.contrib.gis.geos import Polygon
 from django.core.exceptions import ValidationError
@@ -73,7 +71,7 @@ def index(request, instance):
 
 
 def get_map_view_context(request, instance):
-    if request.user and not request.user.is_anonymous():
+    if request.user and not request.user.is_anonymous:
         iuser = request.user.get_effective_instance_user(instance)
         resource_classes = [resource for resource in instance.resource_classes
                             if model_is_creatable(iuser, resource)]
@@ -132,6 +130,7 @@ def add_anonymous_boundary(request):
 
 def boundary_autocomplete(request, instance):
     max_items = request.GET.get('max_items', None)
+    max_items = int(max_items) if max_items else None
 
     boundaries = instance.boundaries \
                          .filter(searchable=True) \
@@ -148,6 +147,7 @@ def boundary_autocomplete(request, instance):
 
 def species_list(request, instance):
     max_items = request.GET.get('max_items', None)
+    max_items = int(max_items) if max_items else None
 
     species_qs = instance.scope_model(Species)\
                          .order_by('common_name')\
@@ -183,7 +183,7 @@ def species_list(request, instance):
         display_name = "%s [%s]" % (sdict['common_name'],
                                     sci_name)
 
-        tokens = tokenize(species)
+        tokens = tokenize(sdict)
 
         sdict.update({
             'scientific_name': sci_name,
@@ -248,7 +248,7 @@ def compile_scss(request):
     scss = "$staticUrl: '/static/';\n"
     # We can probably be a bit looser with what we allow here in the future if
     # we need to, but we must do some checking so that libsass doesn't explode
-    for key, value in request.GET.items():
+    for key, value in list(request.GET.items()):
         if _SCSS_VAR_NAME_RE.match(key) and COLOR_RE.match(value):
             scss += '$%s: #%s;\n' % (key, value)
         elif key == 'url':
@@ -290,7 +290,7 @@ def public_instances_geojson(request):
 def error_page(status_code):
     template = '%s.html' % status_code
 
-    def inner_fn(request):
+    def inner_fn(request, exception=None):
         reasons = {
             404: _('URL or resource not found'),
             500: _('An unhandled error occured'),
