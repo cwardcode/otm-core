@@ -5,13 +5,14 @@
 
 {% block admin_title %}{% trans "Calendar" %}{% endblock %}
 {% block head_extra %}
-    <link rel='stylesheet' type='text/css' href="{% static 'fullcalendar/dist/fullcalendar.css' %}" />
+    <!-- <link rel='stylesheet' type='text/css' href="{% static 'fullcalendar/dist/fullcalendar.css' %}" /> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script type='text/javascript' src="{% static 'jquery/dist/jquery.js' %}"></script>
     <script type='text/javascript' src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
     <script type='text/javascript' src="{% static 'moment/moment.js' %}"></script>
-    <script type='text/javascript' src="{% static 'fullcalendar/dist/fullcalendar.js' %}"></script>
-    <!-- <script type='text/javascript' src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script> -->
+    <!-- <script type='text/javascript' src="{% static 'fullcalendar/dist/fullcalendar.js' %}"></script> -->
+    <script type='text/javascript' src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
 {% endblock head_extra %}
 {% block tab_content %}
     <div id="basic-info">
@@ -29,12 +30,12 @@
             <div id="calendar"></div>
             <script type='text/javascript'>
             $(document).ready(function() {
-                $('#calendar').fullCalendar({
-                // var calendarEl = document.getElementById('calendar'); 
-                // var calendar = new FullCalendar.Calendar(calendarEl, {
+                var calendarEl = document.getElementById('calendar'); 
+                var calendar = new FullCalendar.Calendar(calendarEl, {
                   events: '/wcu/schedule/api/occurrences?calendar_slug=tree-maintenance',
-                  eventLimit: true, // This is different in latest version of fullcalendar
+                  dayMaxEvents: 4,
                   timezone:'UTC',
+                  themeSystem: 'bootstrap',
                   eventClick: function(data) { openEventModal(data); },
                   eventMouseover: function(event, jsEvent) {
                     var tooltip = '<div class="tooltipevent" style="padding:1rem;background:#ccc;position:absolute;z-index:10001;">' + event.title + '</div>';
@@ -49,13 +50,35 @@
                       $tooltip.css('left', e.pageX + 20);
                     });
                   },
-
                   eventMouseout: function(event, jsEvent) {
                     $(this).css('z-index', 8);
                     $('.tooltipevent').remove();
                   },
+                  headerToolbar: {
+                    end: 'addTaskButton today prev,next'
+                  },
+                  customButtons: {
+                    addTaskggButton: {
+                        text: 'Add New Task',
+                        click: function() {
+                        var dateStr = prompt('Enter a date in YYYY-MM-DD format');
+                        var date = new Date(dateStr + 'T00:00:00'); // will be in local time
+
+                        if (!isNaN(date.valueOf())) { // valid?
+                            calendar.addEvent({
+                            title: 'dynamic event',
+                            start: date,
+                            allDay: true
+                            });
+                            alert('Great. Now, update your database...');
+                        } else {
+                            alert('Invalid date.');
+                        }
+                        }
+                    }
+                  }
                 })
-                // calendar.render();
+                calendar.render();
             });
 
             function openEventModal(event) { 
@@ -85,9 +108,9 @@
                       }
                     ],
                     open: function(){
-                        $("#description").text(event.description)
-                        $("#date").text(`Date: ${new Date(event.start.toDate()).toLocaleDateString()}`)
-                        $("#time").text(`Time: ${new Date(event.start.toDate()).toLocaleTimeString()}`)
+                        $("#description").text(event.event.extendedProps.description)
+                        $("#date").text(`Date: ${new Date(event.event.start.toString()).toLocaleDateString()}`)
+                        $("#time").text(`Time: ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
                     }
                 })
             }
