@@ -6,9 +6,12 @@
 {% block admin_title %}{% trans "Calendar" %}{% endblock %}
 {% block head_extra %}
     <link rel='stylesheet' type='text/css' href="{% static 'fullcalendar/dist/fullcalendar.css' %}" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script type='text/javascript' src="{% static 'jquery/dist/jquery.js' %}"></script>
+    <script type='text/javascript' src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
     <script type='text/javascript' src="{% static 'moment/moment.js' %}"></script>
     <script type='text/javascript' src="{% static 'fullcalendar/dist/fullcalendar.js' %}"></script>
+    <!-- <script type='text/javascript' src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script> -->
 {% endblock head_extra %}
 {% block tab_content %}
     <div id="basic-info">
@@ -26,17 +29,76 @@
             <div id="calendar"></div>
             <script type='text/javascript'>
             $(document).ready(function() {
-            
-                // page is now ready, initialize the calendar...
                 $('#calendar').fullCalendar({
-                    // put your options and callbacks here
-                  events: '/wcu/schedule/api/occurrences?calendar_slug=tree-maintenance'
+                // var calendarEl = document.getElementById('calendar'); 
+                // var calendar = new FullCalendar.Calendar(calendarEl, {
+                  events: '/wcu/schedule/api/occurrences?calendar_slug=tree-maintenance',
+                  eventLimit: true, // This is different in latest version of fullcalendar
+                  timezone:'UTC',
+                  eventClick: function(data) { openEventModal(data); },
+                  eventMouseover: function(event, jsEvent) {
+                    var tooltip = '<div class="tooltipevent" style="padding:1rem;background:#ccc;position:absolute;z-index:10001;">' + event.title + '</div>';
+                    var $tooltip = $(tooltip).appendTo('body');
+
+                    $(this).mouseover(function(e) {
+                      $(this).css('z-index', 10000);
+                      $tooltip.fadeIn('500');
+                      $tooltip.fadeTo('10', 1.9);
+                    }).mousemove(function(e) {
+                      $tooltip.css('top', e.pageY + 10);
+                      $tooltip.css('left', e.pageX + 20);
+                    });
+                  },
+
+                  eventMouseout: function(event, jsEvent) {
+                    $(this).css('z-index', 8);
+                    $('.tooltipevent').remove();
+                  },
                 })
-            
+                // calendar.render();
             });
+
+            function openEventModal(event) { 
+                console.log(event);
+                $('#dialog').dialog({
+                    title: event.title,
+                    modal: true,
+                    buttons: [
+             
+                      {
+                          text: 'Edit',
+                          click: function() {
+                              alert('Coming Soon')
+                          }
+                      },
+                      {
+                          text: 'Delete',
+                          click: function() {
+                              alert('Coming Soon')
+                          }
+                      },
+                      {
+                         text: "Close",
+                         click: function() {
+                          $( this ).dialog( "close" );
+                        }
+                      }
+                    ],
+                    open: function(){
+                        $("#description").text(event.description)
+                        $("#date").text(`Date: ${new Date(event.start.toDate()).toLocaleDateString()}`)
+                        $("#time").text(`Time: ${new Date(event.start.toDate()).toLocaleTimeString()}`)
+                    }
+                })
+            }
             </script>
         </div>
     </div>
+            <div id="dialog">
+                <p id="date"></p>
+                <p id="time"></p>
+                <p id="description"></p>
+            </div>
 {% endblock tab_content %}
 
 {% block scripts %}
