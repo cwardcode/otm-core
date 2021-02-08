@@ -73,6 +73,7 @@
                         {
                             text: 'Edit',
                             click: function () {
+                                $("#details-description-div").empty();
                                 $(this).dialog("close");
                                 openEditEventModal(event)
                             }
@@ -101,6 +102,7 @@
                                         }
                                     ],
                                     open: function () {
+                                        $(this).parent().css('position', 'fixed');
                                         $("#delete-description").text('Are you sure you want to delete this event?')
                                     }
                                 })
@@ -115,45 +117,114 @@
                         }
                     ],
                     open: function () {
-                        $("#details-description-div").append('<h4 id="details-description-header" style="text-decoration:underline">Description</h4>')
+                        $(this).parent().css('position', 'fixed');
+                        $("#details-description-div").append('<h5 id="details-description-header" style="text-decoration:underline">Description</h5>')
                         $("#details-description-div").append(`<p id="details-description" >${event.event.extendedProps.description}</p>`)
-                        $("#details-date").text(`Date: ${new Date(event.event.start.toString()).toLocaleDateString()}`)
-                        $("#details-time").text(`Time: ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
+                        $("#details-start").text(`Start: ${new Date(event.event.start.toString()).toLocaleDateString()}, ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
+                        if (event.event.end != null) {
+                            $("#details-end").text(`End: ${new Date(event.event.start.toString()).toLocaleDateString()}, ${new Date(event.event.end.toString()).toLocaleTimeString()}`)
+                        }
                     }
                 })
             }
 
             function openEditEventModal(event) {
+                var selectedStartDate = formatDate(event.event.start)
+                var selectedEndDate;
+                var selectedStartTime = event.event.start.toLocaleTimeString({hour: '2-digit', minute: '2-digit'}).replace(' ', '');
+                var selectedEndTime;
+                var selectedDesc = event.event.extendedProps.description;
+                var selectedTitle = event.event.title;
+                
+                if (event.event.end != null) {
+                    selectedEndDate = formatDate(event.event.end);
+                    selectedEndTime = event.event.end.toLocaleTimeString({hour: '2-digit', minute: '2-digit'}).replace(' ', '');
+                }
                 $('#edit-dialog').dialog({
                     closeOnEscape: false,
                     dialogClass: 'no-close',
-                    title: event.event.title,
+                    title: `Editing ${event.event.title}`,
                     modal: true,
                     buttons: [
                         {
-                            text: 'Save',
+                            text: 'Update Task',
                             click: function () {
-                                alert('Coming Soon')
+                                const eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
+                                let eventEndDate;
+                                if(selectedEndTime) {
+                                    eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
+                                }
+                                if (!isNaN(eventStartDate.valueOf())) {
+                                    event.event.setProp('title', `${selectedTitle}`);
+                                    event.event.setExtendedProp('description', `${selectedDesc}`);
+                                    if(eventEndDate) {
+                                        event.event.setDates(eventStartDate, eventEndDate);
+                                    } else {
+                                        event.event.setStart(eventStartDate);
+                                    }
+                                    console.log('Great. Now, update your database...');
+                                } else {
+                                    console.log('Invalid date.');
+                                }
+                                $(this).dialog("close");
+                                $('#edit-date-start,#edit-time,#edit-title,#edit-description').val('');
+                                $('#edit-dialog').addClass('hidden');
                             }
                         },
                         {
                             text: "Close",
                             click: function () {
                                 $(this).dialog("close");
+                                $('#edit-dialog').addClass('hidden');
                             }
                         }
                     ],
-                    open: function () {
-                        $("#edit-description").text(event.event.extendedProps.description)
-                        $("#edit-date").text(`Date: ${new Date(event.event.start.toString()).toLocaleDateString()}`)
-                        $("#edit-time").text(`Time: ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
+                    open: function() {
+                        $(this).parent().css('position', 'fixed');
+                        $('#edit-dialog').removeClass('hidden');
+                        $('#edit-date-start').val(formatDate(event.event.start))
+                        $('#edit-time-start').val(event.event.start.toLocaleTimeString({hour: '2-digit', minute: '2-digit'}).replace(' ', ''));
+                        if(event.event.end != null) {
+                            $('#edit-date-end').val(formatDate(event.event.end))
+                            $('#edit-time-end').val(event.event.end.toLocaleTimeString({hour: '2-digit', minute: '2-digit'}).replace(' ', ''));
+                        }
+                        $('#edit-title').val(event.event.title)
+                        $('#edit-description').val(event.event.extendedProps.description)
+                        $('#edit-date-start').datepicker({
+                            dateFormat: 'yy-mm-dd'
+                        });
+                        $("#edit-date-start").on("change",function(){
+                            selectedStartDate = $(this).val();
+                        });
+                        $('#edit-date-end').datepicker({
+                            dateFormat: 'yy-mm-dd'
+                        });
+                        $("#edit-date-end").on("change",function(){
+                            selectedEndDate = $(this).val();
+                        });
+                        $('#edit-time-start').timepicker();
+                        $("#edit-time-start").on("change",function(){
+                            selectedStartTime = $(this).val();
+                        });
+                        $('#edit-time-end').timepicker();
+                        $("#edit-time-end").on("change",function(){
+                            selectedEndTime = $(this).val();
+                        });
+                        $("#edit-title").on("change",function(){
+                            selectedTitle = $(this).val();
+                        });
+                        $("#edit-description").on("change",function(){
+                            selectedDesc = $(this).val();
+                        });
                     }
                 })
             }
 
             function openCreateEventModal(calendar, event) {
-                var selectedDate;
-                var selectedTime;
+                var selectedStartDate;
+                var selectedEndDate;
+                var selectedStartTime;
+                var selectedEndTime;
                 var selectedDesc;
                 var selectedTitle;
 
@@ -166,11 +237,13 @@
                         {
                             text: 'Add Task',
                             click: function () {
-                                const eventDate = new Date(`${selectedDate}T${convertTo24Hour(selectedTime)}`);
-                                if (!isNaN(eventDate.valueOf())) {
+                                const eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
+                                const eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
+                                if (!isNaN(eventStartDate.valueOf())) {
                                     calendar.addEvent({
                                         title: `${selectedTitle}`,
-                                        start: eventDate,
+                                        start: eventStartDate,
+                                        end: selectedEndDate,
                                         extendedProps: {
                                             description: `${selectedDesc}`
                                         } 
@@ -180,7 +253,7 @@
                                     console.log('Invalid date.');
                                 }
                                 $(this).dialog("close");
-                                $('#create-date,#create-time,#create-title,#create-description').val('');
+                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description').val('');
                                 $('#create-dialog').addClass('hidden');
                             }
                         },
@@ -193,16 +266,27 @@
                         }
                     ],
                     open: function() {
+                        $(this).parent().css('position', 'fixed');
                         $('#create-dialog').removeClass('hidden');
-                        $('#create-date').datepicker({
+                        $('#create-date-start').datepicker({
                             dateFormat: 'yy-mm-dd'
                         });
-                        $('#create-time').timepicker();
-                        $("#create-date").on("change",function(){
-                            selectedDate = $(this).val();
+                        $('#create-date-end').datepicker({
+                            dateFormat: 'yy-mm-dd'
                         });
-                        $("#create-time").on("change",function(){
-                            selectedTime = $(this).val();
+                        $("#create-date-start").on("change",function(){
+                            selectedStartDate = $(this).val();
+                        });
+                        $("#create-date-end").on("change",function(){
+                            selectedEndDate = $(this).val();
+                        });
+                        $('#create-time-start').timepicker();
+                        $("#create-time-start").on("change",function(){
+                            selectedStartTime = $(this).val();
+                        });
+                        $('#create-time-end').timepicker();
+                        $("#create-time-end").on("change",function(){
+                            selectedEndTime = $(this).val();
                         });
                         $("#create-title").on("change",function(){
                             selectedTitle = $(this).val();
@@ -214,9 +298,23 @@
                 })
             }
 
+            function formatDate(date) {
+                var d = new Date(date),
+                    month = '' + (d.getMonth() + 1),
+                    day = '' + d.getDate(),
+                    year = d.getFullYear();
+
+                if (month.length < 2) 
+                    month = '0' + month;
+                if (day.length < 2) 
+                    day = '0' + day;
+
+                return [year, month, day].join('-');
+            }
+
             function convertTo24Hour(time) {
                 var hours = parseInt(time.substr(0, 2));
-                if(time.indexOf('am') != -1) {
+                if(time.toLowerCase().indexOf('am') != -1) {
                     if (hours == 12) {
                         time = '0' + time.replace('12', '0');
                     }
@@ -224,24 +322,27 @@
                         time = '0' + time;
                     }
                 }
-                if(time.indexOf('pm')  != -1 && hours < 12) {
+                if(time.toLowerCase().indexOf('pm')  != -1 && hours < 12) {
                     time = time.replace(hours, (hours + 12));
                 }
-                return time.replace(/(am|pm)/, '');
+                return time.replace(/(am|pm)/i, '');
             }
         </script>
     </div>
 </div>
 <div id="details-dialog">
-    <p id="details-date"></p>
-    <p id="details-time"></p>
+    <p id="details-start"></p>
+    <p id="details-end"></p>
     <div id="details-description-div"></div>
 </div>
 
-<div id="edit-dialog">
-    <p id="edit-date"></p>
-    <p id="edit-time"></p>
-    <p id="edit-description"></p>
+<div id="edit-dialog" class="hidden">
+    <p>Date Start: <input type="text" id="edit-date-start"></p>
+    <p>Time: <input type="text" id="edit-time-start"></p>
+    <p>Date End: <input type="text" id="edit-date-end"></p>
+    <p>Time: <input type="text" id="edit-time-end"></p>
+    <p>Title: <input type="text" id="edit-title"></p>
+    <p>Description: <textarea type="text" id="edit-description"></textarea></p>
 </div>
 
 <div id="delete-dialog">
@@ -249,10 +350,12 @@
 </div>
 
 <div id="create-dialog" class="hidden">
-    <p>Date: <input type="text" id="create-date"></p>
-    <p>Time: <input type="text" id="create-time"></p>
+    <p>Date Start: <input type="text" id="create-date-start"></p>
+    <p>Time: <input type="text" id="create-time-start"></p>
+    <p>Date End: <input type="text" id="create-date-end"></p>
+    <p>Time: <input type="text" id="create-time-end"></p>
     <p>Title: <input type="text" id="create-title"></p>
-    <p>Description: <input type="text" id="create-description"></p>
+    <p>Description: <textarea type="text" id="create-description"></textarea></p>
 </div>
 {% endblock tab_content %}
 
