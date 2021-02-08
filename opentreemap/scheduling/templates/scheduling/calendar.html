@@ -5,125 +5,243 @@
 
 {% block admin_title %}{% trans "Calendar" %}{% endblock %}
 {% block head_extra %}
-    <!-- <link rel='stylesheet' type='text/css' href="{% static 'fullcalendar/dist/fullcalendar.css' %}" /> -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script type='text/javascript' src="{% static 'jquery/dist/jquery.js' %}"></script>
-    <script type='text/javascript' src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
-    <script type='text/javascript' src="{% static 'moment/moment.js' %}"></script>
-    <!-- <script type='text/javascript' src="{% static 'fullcalendar/dist/fullcalendar.js' %}"></script> -->
-    <script type='text/javascript' src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
+<script type='text/javascript' src="{% static 'jquery/dist/jquery.js' %}"></script>
+<script type='text/javascript' src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
+<script type='text/javascript' src="{% static 'moment/moment.js' %}"></script>
+<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
+<script type='text/javascript' src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
 {% endblock head_extra %}
 {% block tab_content %}
-    <div id="basic-info">
-        <div class="page-header">
-            <div class="page-header-toggles">
-                <i class="icon-menu" id="toggle-sidebar"></i>
-            </div>
-            <div class="page-header-title">
-                <h1>{% trans "Calendar" %}</h1>
-            </div>
+<div id="basic-info">
+    <div class="page-header">
+        <div class="page-header-toggles">
+            <i class="icon-menu" id="toggle-sidebar"></i>
         </div>
-        <div class="content">
-            {% block messages %}
-            {% endblock %}
-            <div id="calendar"></div>
-            <script type='text/javascript'>
-            $(document).ready(function() {
-                var calendarEl = document.getElementById('calendar'); 
+        <div class="page-header-title">
+            <h1>{% trans "Calendar" %}</h1>
+        </div>
+    </div>
+    <div class="content">
+        {% block messages %}
+        {% endblock %}
+        <div id="calendar"></div>
+        <script type='text/javascript'>
+            $(document).ready(function () {
+                var calendarEl = document.getElementById('calendar');
                 var calendar = new FullCalendar.Calendar(calendarEl, {
-                  events: '/wcu/schedule/api/occurrences?calendar_slug=tree-maintenance',
-                  dayMaxEvents: 4,
-                  timezone:'UTC',
-                  themeSystem: 'bootstrap',
-                  eventClick: function(data) { openEventModal(data); },
-                  eventMouseover: function(event, jsEvent) {
-                    var tooltip = '<div class="tooltipevent" style="padding:1rem;background:#ccc;position:absolute;z-index:10001;">' + event.title + '</div>';
-                    var $tooltip = $(tooltip).appendTo('body');
+                    events: '/wcu/schedule/api/occurrences?calendar_slug=tree-maintenance',
+                    dayMaxEvents: 4,
+                    themeSystem: 'bootstrap',
+                    eventClick: function (data) { openEventDetailsModal(data); },
+                    eventMouseover: function (event, jsEvent) {
+                        var tooltip = '<div class="tooltipevent" style="padding:1rem;background:#ccc;position:absolute;z-index:10001;">' + event.title + '</div>';
+                        var $tooltip = $(tooltip).appendTo('body');
 
-                    $(this).mouseover(function(e) {
-                      $(this).css('z-index', 10000);
-                      $tooltip.fadeIn('500');
-                      $tooltip.fadeTo('10', 1.9);
-                    }).mousemove(function(e) {
-                      $tooltip.css('top', e.pageY + 10);
-                      $tooltip.css('left', e.pageX + 20);
-                    });
-                  },
-                  eventMouseout: function(event, jsEvent) {
-                    $(this).css('z-index', 8);
-                    $('.tooltipevent').remove();
-                  },
-                  headerToolbar: {
-                    end: 'addTaskButton today prev,next'
-                  },
-                  customButtons: {
-                    addTaskggButton: {
-                        text: 'Add New Task',
-                        click: function() {
-                        var dateStr = prompt('Enter a date in YYYY-MM-DD format');
-                        var date = new Date(dateStr + 'T00:00:00'); // will be in local time
-
-                        if (!isNaN(date.valueOf())) { // valid?
-                            calendar.addEvent({
-                            title: 'dynamic event',
-                            start: date,
-                            allDay: true
-                            });
-                            alert('Great. Now, update your database...');
-                        } else {
-                            alert('Invalid date.');
+                        $(this).mouseover(function (e) {
+                            $(this).css('z-index', 10000);
+                            $tooltip.fadeIn('500');
+                            $tooltip.fadeTo('10', 1.9);
+                        }).mousemove(function (e) {
+                            $tooltip.css('top', e.pageY + 10);
+                            $tooltip.css('left', e.pageX + 20);
+                        });
+                    },
+                    eventMouseout: function (event, jsEvent) {
+                        $(this).css('z-index', 8);
+                        $('.tooltipevent').remove();
+                    },
+                    headerToolbar: {
+                        end: 'addTaskButton today prev,next'
+                    },
+                    customButtons: {
+                        addTaskButton: {
+                            text: 'Add New Task',
+                            click: function () {
+                                openCreateEventModal(calendar, event)
+                            }
                         }
-                        }
-                    }
-                  }
+                    },
+                    nowIndicator: true
                 })
                 calendar.render();
             });
 
-            function openEventModal(event) { 
-                console.log(event);
-                $('#dialog').dialog({
+            function openEventDetailsModal(event) {
+                $('#details-dialog').dialog({
                     title: event.title,
                     modal: true,
                     buttons: [
-             
-                      {
-                          text: 'Edit',
-                          click: function() {
-                              alert('Coming Soon')
-                          }
-                      },
-                      {
-                          text: 'Delete',
-                          click: function() {
-                              alert('Coming Soon')
-                          }
-                      },
-                      {
-                         text: "Close",
-                         click: function() {
-                          $( this ).dialog( "close" );
+
+                        {
+                            text: 'Edit',
+                            click: function () {
+                                $(this).dialog("close");
+                                openEditEventModal(event)
+                            }
+                        },
+                        {
+                            text: 'Delete',
+                            click: function () {
+                                $(this).dialog("close");
+                                $('#delete-dialog').dialog({
+                                    title: event.title,
+                                    modal: true,
+                                    buttons: [
+                                        {
+                                            text: 'Delete',
+                                            click: function () {
+                                                event.event.remove();
+                                                $(this).dialog("close");
+                                            }
+                                        },
+                                        {
+                                            text: "Close",
+                                            click: function () {
+                                                $(this).dialog("close");
+                                            }
+                                        }
+                                    ],
+                                    open: function () {
+                                        $("#delete-description").text('Are you sure you want to delete this event?')
+                                    }
+                                })
+                            }
+                        },
+                        {
+                            text: "Close",
+                            click: function () {
+                                $(this).dialog("close");
+                            }
                         }
-                      }
                     ],
-                    open: function(){
-                        $("#description").text(event.event.extendedProps.description)
-                        $("#date").text(`Date: ${new Date(event.event.start.toString()).toLocaleDateString()}`)
-                        $("#time").text(`Time: ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
+                    open: function () {
+                        $("#details-description").text(event.event.extendedProps.description)
+                        $("#details-date").text(`Date: ${new Date(event.event.start.toString()).toLocaleDateString()}`)
+                        $("#details-time").text(`Time: ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
                     }
                 })
             }
-            </script>
-        </div>
+
+            function openEditEventModal(event) {
+                $('#edit-dialog').dialog({
+                    title: event.title,
+                    modal: true,
+                    buttons: [
+                        {
+                            text: 'Save',
+                            click: function () {
+                                alert('Coming Soon')
+                            }
+                        },
+                        {
+                            text: "Close",
+                            click: function () {
+                                $(this).dialog("close");
+                            }
+                        }
+                    ],
+                    open: function () {
+                        $("#edit-description").text(event.event.extendedProps.description)
+                        $("#edit-date").text(`Date: ${new Date(event.event.start.toString()).toLocaleDateString()}`)
+                        $("#edit-time").text(`Time: ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
+                    }
+                })
+            }
+
+            function openCreateEventModal(calendar, event) {
+                var selectedDate;
+                var selectedTime;
+                var selectedDesc;
+                var selectedTitle;
+
+                $('#create-dialog').dialog({
+                    title: event.title,
+                    modal: true,
+                    buttons: [
+                        {
+                            text: 'Add Task',
+                            click: function () {
+                                const eventDate = new Date(`${selectedDate}T${selectedTime}`);
+                                debugger;
+                                if (!isNaN(eventDate.valueOf())) {
+                                    calendar.addEvent({
+                                        title: `${selectedTitle}`,
+                                        start: eventDate,
+                                        extendedProps: {
+                                            description: `${selectedDesc}`
+                                        } 
+                                    });
+                                    console.log('Great. Now, update your database...');
+                                    $(this).dialog("close");
+                                } else {
+                                    console.log('Invalid date.');
+                                }
+                                $(this).dialog("close");
+                                $('#create-dialog').addClass('hidden');
+                            }
+                        },
+                        {
+                            text: "Close",
+                            click: function () {
+                                $(this).dialog("close");
+                                $('#create-dialog').addClass('hidden');
+                            }
+                        }
+                    ],
+                    open: function() {
+                        $('#create-dialog').removeClass('hidden');
+                        $('#create-date').datepicker({
+                            dateFormat: 'yy-mm-dd'
+                        });
+                        $('#create-time').timepicker({
+                            timeFormat: 'H:i'
+                        });
+                        $("#create-date").on("change",function(){
+                            selectedDate = $(this).val();
+                        });
+                        $("#create-time").on("change",function(){
+                            selectedTime = $(this).val();
+                        });
+                        $("#create-title").on("change",function(){
+                            selectedTitle = $(this).val();
+                        });
+                        $("#create-description").on("change",function(){
+                            selectedDesc = $(this).val();
+                        });
+                    }
+                })
+            }
+        </script>
     </div>
-            <div id="dialog">
-                <p id="date"></p>
-                <p id="time"></p>
-                <p id="description"></p>
-            </div>
+</div>
+<div id="details-dialog">
+    <p id="details-date"></p>
+    <p id="details-time"></p>
+    <p id="details-description"></p>
+</div>
+
+<div id="edit-dialog">
+    <p id="edit-date"></p>
+    <p id="edit-time"></p>
+    <p id="edit-description"></p>
+</div>
+
+<div id="delete-dialog">
+    <p id="delete-description"></p>
+</div>
+
+<div id="create-dialog" class="hidden">
+    <p>Date: <input type="text" id="create-date"></p>
+    <p>Time: <input type="text" id="create-time"></p>
+    <p>Title: <input type="text" id="create-title"></p>
+    <p>Description: <input type="text" id="create-description"></p>
+</div>
 {% endblock tab_content %}
 
 {% block scripts %}
-    {% render_bundle 'js/scheduling/basicInfo' %}
+{% render_bundle 'js/scheduling/basicInfo' %}
 {% endblock scripts %}
