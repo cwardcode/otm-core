@@ -64,7 +64,9 @@
 
             function openEventDetailsModal(event) {
                 $('#details-dialog').dialog({
-                    title: event.title,
+                    closeOnEscape: false,
+                    dialogClass: 'no-close',
+                    title: event.event.title,
                     modal: true,
                     buttons: [
 
@@ -78,6 +80,7 @@
                         {
                             text: 'Delete',
                             click: function () {
+                                $("#details-description-div").empty();
                                 $(this).dialog("close");
                                 $('#delete-dialog').dialog({
                                     title: event.title,
@@ -106,12 +109,14 @@
                         {
                             text: "Close",
                             click: function () {
+                                $("#details-description-div").empty();
                                 $(this).dialog("close");
                             }
                         }
                     ],
                     open: function () {
-                        $("#details-description").text(event.event.extendedProps.description)
+                        $("#details-description-div").append('<h4 id="details-description-header" style="text-decoration:underline">Description</h4>')
+                        $("#details-description-div").append(`<p id="details-description" >${event.event.extendedProps.description}</p>`)
                         $("#details-date").text(`Date: ${new Date(event.event.start.toString()).toLocaleDateString()}`)
                         $("#details-time").text(`Time: ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
                     }
@@ -120,7 +125,9 @@
 
             function openEditEventModal(event) {
                 $('#edit-dialog').dialog({
-                    title: event.title,
+                    closeOnEscape: false,
+                    dialogClass: 'no-close',
+                    title: event.event.title,
                     modal: true,
                     buttons: [
                         {
@@ -151,7 +158,9 @@
                 var selectedTitle;
 
                 $('#create-dialog').dialog({
-                    title: event.title,
+                    closeOnEscape: false,
+                    dialogClass: 'no-close',
+                    title: 'Create a New Task',
                     modal: true,
                     buttons: [
                         {
@@ -188,9 +197,7 @@
                         $('#create-date').datepicker({
                             dateFormat: 'yy-mm-dd'
                         });
-                        $('#create-time').timepicker({
-                            //timeFormat: 'H:i'
-                        });
+                        $('#create-time').timepicker();
                         $("#create-date").on("change",function(){
                             selectedDate = $(this).val();
                         });
@@ -209,7 +216,6 @@
 
             function convertTo24Hour(time) {
                 var hours = parseInt(time.substr(0, 2));
-                debugger;
                 if(time.indexOf('am') != -1) {
                     if (hours == 12) {
                         time = '0' + time.replace('12', '0');
@@ -229,7 +235,7 @@
 <div id="details-dialog">
     <p id="details-date"></p>
     <p id="details-time"></p>
-    <p id="details-description"></p>
+    <div id="details-description-div"></div>
 </div>
 
 <div id="edit-dialog">
