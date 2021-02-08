@@ -37,7 +37,7 @@
                 var calendarEl = document.getElementById('calendar');
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     events: '/wcu/schedule/api/occurrences?calendar_slug=tree-maintenance',
-                    dayMaxEvents: true,
+                    dayMaxEventRows: 4,
                     themeSystem: 'bootstrap',
                     eventClick: function (data) { openEventDetailsModal(data); },
                     eventDidMount: function (info) {
