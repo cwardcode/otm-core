@@ -6,14 +6,15 @@
 {% block admin_title %}{% trans "Calendar" %}{% endblock %}
 {% block head_extra %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
 <script type='text/javascript' src="{% static 'jquery/dist/jquery.js' %}"></script>
 <script type='text/javascript' src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
 <script type='text/javascript' src="{% static 'moment/moment.js' %}"></script>
 <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
 <script type='text/javascript' src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
+<script type='text/javascript' src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+<script type='text/javascript' src="https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js"></script>
 {% endblock head_extra %}
 {% block tab_content %}
 <div id="basic-info">
@@ -34,25 +35,16 @@
                 var calendarEl = document.getElementById('calendar');
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     events: '/wcu/schedule/api/occurrences?calendar_slug=tree-maintenance',
-                    dayMaxEvents: 4,
+                    dayMaxEvents: true,
                     themeSystem: 'bootstrap',
                     eventClick: function (data) { openEventDetailsModal(data); },
-                    eventMouseover: function (event, jsEvent) {
-                        var tooltip = '<div class="tooltipevent" style="padding:1rem;background:#ccc;position:absolute;z-index:10001;">' + event.title + '</div>';
-                        var $tooltip = $(tooltip).appendTo('body');
-
-                        $(this).mouseover(function (e) {
-                            $(this).css('z-index', 10000);
-                            $tooltip.fadeIn('500');
-                            $tooltip.fadeTo('10', 1.9);
-                        }).mousemove(function (e) {
-                            $tooltip.css('top', e.pageY + 10);
-                            $tooltip.css('left', e.pageX + 20);
-                        });
-                    },
-                    eventMouseout: function (event, jsEvent) {
-                        $(this).css('z-index', 8);
-                        $('.tooltipevent').remove();
+                    eventDidMount: function(info) {
+                    var tooltip = new Tooltip(info.el, {
+                        title: info.event.title,
+                        placement: 'top',
+                        trigger: 'hover',
+                        container: '#calendar'
+                    });
                     },
                     headerToolbar: {
                         end: 'addTaskButton today prev,next'
@@ -165,8 +157,7 @@
                         {
                             text: 'Add Task',
                             click: function () {
-                                const eventDate = new Date(`${selectedDate}T${selectedTime}`);
-                                debugger;
+                                const eventDate = new Date(`${selectedDate}T${convertTo24Hour(selectedTime)}`);
                                 if (!isNaN(eventDate.valueOf())) {
                                     calendar.addEvent({
                                         title: `${selectedTitle}`,
@@ -176,11 +167,11 @@
                                         } 
                                     });
                                     console.log('Great. Now, update your database...');
-                                    $(this).dialog("close");
                                 } else {
                                     console.log('Invalid date.');
                                 }
                                 $(this).dialog("close");
+                                $('#create-date,#create-time,#create-title,#create-description').val('');
                                 $('#create-dialog').addClass('hidden');
                             }
                         },
@@ -198,7 +189,7 @@
                             dateFormat: 'yy-mm-dd'
                         });
                         $('#create-time').timepicker({
-                            timeFormat: 'H:i'
+                            //timeFormat: 'H:i'
                         });
                         $("#create-date").on("change",function(){
                             selectedDate = $(this).val();
@@ -214,6 +205,23 @@
                         });
                     }
                 })
+            }
+
+            function convertTo24Hour(time) {
+                var hours = parseInt(time.substr(0, 2));
+                if(time.indexOf('am') != -1) {
+                    if (hours == 12) {
+                        time = time.replace('12', '0');
+                    }
+                    
+                    if (hours.toString().length < 2) {
+                        time = '0' + time;
+                    }
+                }
+                if(time.indexOf('pm')  != -1 && hours < 12) {
+                    time = time.replace(hours, (hours + 12));
+                }
+                return time.replace(/(am|pm)/, '');
             }
         </script>
     </div>
