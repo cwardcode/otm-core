@@ -60,7 +60,7 @@ static_page = do(
 instance_not_available = render_template(
     'treemap/instance_not_available.html')()
 
-landing_page = render_template('base.html')()
+landing_page = render_template('otm_base.html')()
 
 unsupported_page = render_template('treemap/unsupported.html')()
 
