@@ -242,6 +242,7 @@
             }
 
             function openCreateEventModal(calendar, event) {
+                var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                 var selectedStartDate;
                 var selectedEndDate;
                 var selectedStartTime;
@@ -273,6 +274,26 @@
                                         end: selectedEndDate,
                                         extendedProps: {
                                             description: `${selectedDesc}`
+                                        }
+                                    });
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: "{% url 'api_create_event' instance_url_name=request.instance.url_name %}",
+                                        dataType: 'json',
+                                        data: {
+                                            'csrfmiddlewaretoken': csrftoken,
+                                            'title': selectedTitle,
+                                            'description': selectedDesc,
+                                            'start': eventStartDate.toISOString(),
+                                            'end': eventEndDate.toISOString(),
+                                            'calendar_slug': 'tree-maintenance',
+                                        },
+                                        success: function (result) {
+                                            calendar.refetchEvents();
+                                        },
+                                        error: function (req, status, error) {
+                                            console.log(error);
                                         }
                                     });
                                     console.log('Great. Now, update your database...');
@@ -364,6 +385,7 @@
 </div>
 
 <div id="edit-dialog" class="hidden">
+    {% csrf_token %}
     <p>Date Start: <input type="text" id="edit-date-start"></p>
     <p>Time: <input type="text" id="edit-time-start"></p>
     <p>Date End: <input type="text" id="edit-date-end"></p>
@@ -373,10 +395,12 @@
 </div>
 
 <div id="delete-dialog">
+    {% csrf_token %}
     <p id="delete-description"></p>
 </div>
 
 <div id="create-dialog" class="hidden">
+    {% csrf_token %}
     <p>Date Start: <input type="text" id="create-date-start"></p>
     <p>Time: <input type="text" id="create-time-start"></p>
     <p>Date End: <input type="text" id="create-date-end"></p>
