@@ -12,8 +12,6 @@ from schedule.utils import (
 )
 from django.http import JsonResponse
 
-import rollbar
-
 def management_root(request, instance_url_name):
     return redirect('calendars', instance_url_name=instance_url_name)
 
