@@ -1,29 +1,436 @@
 {% extends "scheduling/management_base.html" %}
 {% load render_bundle from webpack_loader %}
-{% load i18n %}
+{% load i18n static %}
 {% load form_extras %}
 
-{% block admin_title %}{% trans "Basic Information" %}{% endblock %}
-
+{% block admin_title %}{% trans "Upcoming Events" %}{% endblock %}
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
+<script type='text/javascript' src="{% static 'jquery/dist/jquery.js' %}"></script>
+<script type='text/javascript' src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
+<script type='text/javascript' src="{% static 'moment/moment.js' %}"></script>
+<script type='text/javascript'
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
+<script type='text/javascript' src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
+<script type='text/javascript' src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+<script type='text/javascript' src="https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js"></script>
+{% endblock head_extra %}
 {% block tab_content %}
-    <div id="basic-info">
-        <div class="page-header">
-            <div class="page-header-toggles">
-                <i class="icon-menu" id="toggle-sidebar"></i>
-            </div>
-            <div class="page-header-title">
-                <h1>{% trans "Basic Information" %}</h1>
-            </div>
-            {% include "treemap/partials/form_buttons.html" %}
+<div id="basic-info">
+    <div class="page-header">
+        <div class="page-header-toggles">
+            <i class="icon-menu" id="toggle-sidebar"></i>
         </div>
-        <div class="content">
-            {% block messages %}
-            {% endblock %}
-            Coming soon: Events list
+        <div class="page-header-title">
+            <h1>{% trans "Upcoming Events" %}</h1>
         </div>
     </div>
+    <div class="content">
+        {% block messages %}
+        {% endblock %}
+        <div id="calendar" style="max-width: 1070px; margin: 0px auto;"></div>
+        <script type='text/javascript'>
+            $(document).ready(function () {
+                var calendarEl = document.getElementById('calendar');
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'timeGridWeek',
+                    scrollTime: '09:00:00',
+                    events: '/wcu/schedule/api/occurrences?calendar_slug=tree-maintenance',
+                    dayMaxEventRows: 4,
+                    themeSystem: 'bootstrap',
+                    eventClick: function (event) { openEventDetailsModal(calendar, event); },
+                    eventDidMount: function (info) {
+                        var tooltip = new Tooltip(info.el, {
+                            title: info.event.title,
+                            placement: 'top',
+                            trigger: 'hover',
+                            container: '#calendar'
+                        });
+                    },
+                    headerToolbar: {
+                        end: 'addTaskButton today prev,next'
+                    },
+                    customButtons: {
+                        addTaskButton: {
+                            text: 'Add New Task',
+                            click: function () {
+                                openCreateEventModal(calendar, event)
+                            }
+                        }
+                    },
+                    nowIndicator: true
+                })
+                calendar.render();
+            });
+
+            function openEventDetailsModal(calendar, event) {
+                var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                $('#details-dialog').dialog({
+                    closeOnEscape: false,
+                    dialogClass: 'no-close',
+                    title: event.event.title,
+                    position: {
+                        my: "center top",
+                        at: "center top",
+                        of: '#calendar',
+                        collision: "none"
+                    },
+                    modal: true,
+                    buttons: [
+
+                        {
+                            text: 'Edit',
+                            click: function () {
+                                $("#details-description-div").empty();
+                                $(this).dialog("close");
+                                openEditEventModal(calendar, event)
+                            }
+                        },
+                        {
+                            text: 'Delete',
+                            click: function () {
+                                $("#details-description-div").empty();
+                                $(this).dialog("close");
+                                $('#delete-dialog').dialog({
+                                    title: `Deleting ${event.event.title}`,
+                                    modal: true,
+                                    position: {
+                                        my: "center top",
+                                        at: "center top",
+                                        of: '#calendar',
+                                        collision: "none"
+                                    },
+                                    buttons: [
+                                        {
+                                            text: 'Delete',
+                                            "class": 'btn-danger',
+                                            click: function () {
+                                                $.ajax({
+                                                    type: 'POST',
+                                                    url: "{% url 'api_delete_event' instance_url_name=request.instance.url_name %}",
+                                                    dataType: 'json',
+                                                    data: {
+                                                        'csrfmiddlewaretoken': csrftoken,
+                                                        'eventId': event.event.extendedProps.event_id,
+                                                    },
+                                                    success: function (result) {
+                                                        calendar.refetchEvents();
+                                                    },
+                                                    error: function (req, status, error) {
+                                                        console.log(error);
+                                                    }
+                                                });
+                                                $(this).dialog("close");
+                                            }
+                                        },
+                                        {
+                                            text: "Close",
+                                            click: function () {
+                                                $(this).dialog("close");
+                                            }
+                                        }
+                                    ],
+                                    open: function () {
+                                        $(this).parent().css('position', 'fixed');
+                                        $("#delete-description").text('Are you sure you want to delete this event?')
+                                    }
+                                })
+                            }
+                        },
+                        {
+                            text: "Close",
+                            click: function () {
+                                $("#details-description-div").empty();
+                                $(this).dialog("close");
+                            }
+                        }
+                    ],
+                    open: function () {
+                        $(this).parent().css('position', 'fixed');
+                        $("#details-description-div").append('<h5 id="details-description-header" style="text-decoration:underline">Description</h5>')
+                        $("#details-description-div").append(`<p id="details-description" >${event.event.extendedProps.description}</p>`)
+                        $("#details-start").text(`Start: ${new Date(event.event.start.toString()).toLocaleDateString()}, ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
+                        if (event.event.end != null) {
+                            $("#details-end").text(`End: ${new Date(event.event.start.toString()).toLocaleDateString()}, ${new Date(event.event.end.toString()).toLocaleTimeString()}`)
+                        }
+                    }
+                })
+            }
+
+            function openEditEventModal(calendar, event) {
+                var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                var selectedStartDate = formatDate(event.event.start)
+                var selectedEndDate;
+                var selectedStartTime = event.event.start.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', '');
+                var selectedEndTime;
+                var selectedDesc = event.event.extendedProps.description;
+                var selectedTitle = event.event.title;
+
+                if (event.event.end != null) {
+                    selectedEndDate = formatDate(event.event.end);
+                    selectedEndTime = event.event.end.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', '');
+                }
+                $('#edit-dialog').dialog({
+                    closeOnEscape: false,
+                    dialogClass: 'no-close',
+                    title: `Editing ${event.event.title}`,
+                    modal: true,
+                    position: {
+                        my: "center top",
+                        at: "center top",
+                        of: '#calendar',
+                        collision: "none"
+                    },
+                    buttons: [
+                        {
+                            text: 'Update Task',
+                            click: function () {
+                                const eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
+                                let eventEndDate;
+                                if (selectedEndTime) {
+                                    eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
+                                }
+                                if (!isNaN(eventStartDate.valueOf())) {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: "{% url 'api_edit_event' instance_url_name=request.instance.url_name %}",
+                                        dataType: 'json',
+                                        data: {
+                                            'csrfmiddlewaretoken': csrftoken,
+                                            'title': selectedTitle,
+                                            'description': selectedDesc,
+                                            'start': eventStartDate.toISOString(),
+                                            'end': eventEndDate.toISOString(),
+                                            'primaryKey': event.event.extendedProps.event_id,
+                                            'calendar': 'tree-maintenance',
+                                        },
+                                        success: function (result) {
+                                            calendar.refetchEvents();
+                                        },
+                                        error: function (req, status, error) {
+                                            console.log(error);
+                                        }
+                                    });
+                                    calendar.refetchEvents();
+                                } else {
+                                    console.log('Invalid date.');
+                                }
+                                $(this).dialog("close");
+                                $('#edit-date-start,#edit-time,#edit-title,#edit-description').val('');
+                                $('#edit-dialog').addClass('hidden');
+                            }
+                        },
+                        {
+                            text: "Close",
+                            click: function () {
+                                $(this).dialog("close");
+                                $('#edit-dialog').addClass('hidden');
+                            }
+                        }
+                    ],
+                    open: function () {
+                        $(this).parent().css('position', 'fixed');
+                        $('#edit-dialog').removeClass('hidden');
+                        $('#edit-date-start').val(formatDate(event.event.start))
+                        $('#edit-time-start').val(event.event.start.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', ''));
+                        if (event.event.end != null) {
+                            $('#edit-date-end').val(formatDate(event.event.end))
+                            $('#edit-time-end').val(event.event.end.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', ''));
+                        }
+                        $('#edit-title').val(event.event.title)
+                        $('#edit-description').val(event.event.extendedProps.description)
+                        $('#edit-date-start').datepicker({
+                            dateFormat: 'yy-mm-dd'
+                        });
+                        $("#edit-date-start").on("change", function () {
+                            selectedStartDate = $(this).val();
+                        });
+                        $('#edit-date-end').datepicker({
+                            dateFormat: 'yy-mm-dd'
+                        });
+                        $("#edit-date-end").on("change", function () {
+                            selectedEndDate = $(this).val();
+                        });
+                        $('#edit-time-start').timepicker();
+                        $("#edit-time-start").on("change", function () {
+                            selectedStartTime = $(this).val();
+                        });
+                        $('#edit-time-end').timepicker();
+                        $("#edit-time-end").on("change", function () {
+                            selectedEndTime = $(this).val();
+                        });
+                        $("#edit-title").on("change", function () {
+                            selectedTitle = $(this).val();
+                        });
+                        $("#edit-description").on("change", function () {
+                            selectedDesc = $(this).val();
+                        });
+                    }
+                })
+            }
+
+            function openCreateEventModal(calendar, event) {
+                var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                var selectedStartDate;
+                var selectedEndDate;
+                var selectedStartTime;
+                var selectedEndTime;
+                var selectedDesc;
+                var selectedTitle;
+
+                $('#create-dialog').dialog({
+                    closeOnEscape: false,
+                    dialogClass: 'no-close',
+                    title: 'Create a New Task',
+                    modal: true,
+                    position: {
+                        my: "center top",
+                        at: "center top",
+                        of: '#calendar',
+                        collision: "none"
+                    },
+                    buttons: [
+                        {
+                            text: 'Add Task',
+                            click: function () {
+                                const eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
+                                const eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
+                                if (!isNaN(eventStartDate.valueOf())) {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: "{% url 'api_create_event' instance_url_name=request.instance.url_name %}",
+                                        dataType: 'json',
+                                        data: {
+                                            'csrfmiddlewaretoken': csrftoken,
+                                            'title': selectedTitle,
+                                            'description': selectedDesc,
+                                            'start': eventStartDate.toISOString(),
+                                            'end': eventEndDate.toISOString(),
+                                            'calendar': 'tree-maintenance',
+                                        },
+                                        success: function (result) {
+                                            calendar.refetchEvents();
+                                        },
+                                        error: function (req, status, error) {
+                                            console.log(error);
+                                        }
+                                    });
+                                } else {
+                                    console.log('Invalid date.');
+                                }
+                                $(this).dialog("close");
+                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description').val('');
+                                $('#create-dialog').addClass('hidden');
+                            }
+                        },
+                        {
+                            text: "Close",
+                            click: function () {
+                                $(this).dialog("close");
+                                $('#create-dialog').addClass('hidden');
+                            }
+                        }
+                    ],
+                    open: function () {
+                        $(this).parent().css('position', 'fixed');
+                        $('#create-dialog').removeClass('hidden');
+                        $('#create-date-start').datepicker({
+                            dateFormat: 'yy-mm-dd'
+                        });
+                        $('#create-date-end').datepicker({
+                            dateFormat: 'yy-mm-dd'
+                        });
+                        $("#create-date-start").on("change", function () {
+                            selectedStartDate = $(this).val();
+                        });
+                        $("#create-date-end").on("change", function () {
+                            selectedEndDate = $(this).val();
+                        });
+                        $('#create-time-start').timepicker();
+                        $("#create-time-start").on("change", function () {
+                            selectedStartTime = $(this).val();
+                        });
+                        $('#create-time-end').timepicker();
+                        $("#create-time-end").on("change", function () {
+                            selectedEndTime = $(this).val();
+                        });
+                        $("#create-title").on("change", function () {
+                            selectedTitle = $(this).val();
+                        });
+                        $("#create-description").on("change", function () {
+                            selectedDesc = $(this).val();
+                        });
+                    }
+                })
+            }
+
+            function formatDate(date) {
+                var d = new Date(date),
+                    month = '' + (d.getMonth() + 1),
+                    day = '' + d.getDate(),
+                    year = d.getFullYear();
+
+                if (month.length < 2)
+                    month = '0' + month;
+                if (day.length < 2)
+                    day = '0' + day;
+
+                return [year, month, day].join('-');
+            }
+
+            function convertTo24Hour(time) {
+                var hours = parseInt(time.substr(0, 2));
+                if (time.toLowerCase().indexOf('am') != -1) {
+                    if (hours == 12) {
+                        time = '0' + time.replace('12', '0');
+                    }
+                    if (hours.toString().length < 2) {
+                        time = '0' + time;
+                    }
+                }
+                if (time.toLowerCase().indexOf('pm') != -1 && hours < 12) {
+                    time = time.replace(hours, (hours + 12));
+                }
+                return time.replace(/(am|pm)/i, '');
+            }
+        </script>
+    </div>
+</div>
+<div id="details-dialog">
+    <p id="details-start"></p>
+    <p id="details-end"></p>
+    <div id="details-description-div"></div>
+</div>
+
+<div id="edit-dialog" class="hidden">
+    {% csrf_token %}
+    <p>Date Start: <input type="text" id="edit-date-start"></p>
+    <p>Time: <input type="text" id="edit-time-start"></p>
+    <p>Date End: <input type="text" id="edit-date-end"></p>
+    <p>Time: <input type="text" id="edit-time-end"></p>
+    <p>Title: <input type="text" id="edit-title"></p>
+    <p>Description: <textarea type="text" id="edit-description"></textarea></p>
+</div>
+
+<div id="delete-dialog">
+    {% csrf_token %}
+    <p id="delete-description"></p>
+</div>
+
+<div id="create-dialog" class="hidden">
+    {% csrf_token %}
+    <p>Date Start: <input type="text" id="create-date-start"></p>
+    <p>Time: <input type="text" id="create-time-start"></p>
+    <p>Date End: <input type="text" id="create-date-end"></p>
+    <p>Time: <input type="text" id="create-time-end"></p>
+    <p>Title: <input type="text" id="create-title"></p>
+    <p>Description: <textarea type="text" id="create-description"></textarea></p>
+</div>
 {% endblock tab_content %}
 
 {% block scripts %}
-    {% render_bundle 'js/scheduling/basicInfo' %}
+{% render_bundle 'js/scheduling/basicInfo' %}
 {% endblock scripts %}

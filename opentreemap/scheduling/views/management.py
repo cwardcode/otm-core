@@ -44,7 +44,7 @@ def api_create_event(request, **kwargs):
     end = request.POST.get("end")
     title = request.POST.get("title")
     description = request.POST.get("description")
-    calendar_slug = request.POST.get("calendar_slug")
+    calendar_slug = request.POST.get("calendar")
 
     response_data = _api_create_event(start, end, calendar_slug, title, description)
     return JsonResponse(response_data)
@@ -71,7 +71,6 @@ def api_edit_event(request, **kwargs):
     end = request.POST.get("end")
     title = request.POST.get("title")
     description = request.POST.get("description")
-    calendar_slug = request.POST.get("calendar")
     primary_key = request.POST.get("primaryKey")
 
     response_data = _api_edit_event(start, end, calendar_slug, title, description, primary_key)
@@ -81,7 +80,6 @@ def _api_edit_event(start, end, calendar_slug, title, description, primary_key):
     event = Event.objects.get(pk=primary_key)
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
-    calendar = Calendar.objects.get(slug=calendar_slug)
 
     event.start = start
     event.end = end
