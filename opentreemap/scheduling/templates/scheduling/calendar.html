@@ -3,7 +3,7 @@
 {% load i18n static %}
 {% load form_extras %}
 
-{% block admin_title %}{% trans "Calendar" %}{% endblock %}
+{% block admin_title %}{% trans "Task Calendar" %}{% endblock %}
 {% block head_extra %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -25,13 +25,13 @@
             <i class="icon-menu" id="toggle-sidebar"></i>
         </div>
         <div class="page-header-title">
-            <h1>{% trans "Calendar" %}</h1>
+            <h1>{% trans "Task Calendar" %}</h1>
         </div>
     </div>
     <div class="content">
         {% block messages %}
         {% endblock %}
-        <div id="calendar"></div>
+        <div id="calendar" style="max-width: 1070px; margin: 0px auto;"></div>
         <script type='text/javascript'>
             $(document).ready(function () {
                 var calendarEl = document.getElementById('calendar');
