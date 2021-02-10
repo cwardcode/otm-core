@@ -65,6 +65,36 @@ def _api_create_event(start, end, calendar_slug, title, description):
 
 @require_POST
 @check_calendar_permissions
+def api_edit_event(request, **kwargs):
+    response_data = {}
+    start = request.POST.get("start")
+    end = request.POST.get("end")
+    title = request.POST.get("title")
+    description = request.POST.get("description")
+    calendar_slug = request.POST.get("calendar")
+    primary_key = request.POST.get("primaryKey")
+
+    response_data = _api_edit_event(start, end, calendar_slug, title, description, primary_key)
+    return JsonResponse(response_data)
+
+def _api_edit_event(start, end, calendar_slug, title, description, primary_key):
+    event = Event.objects.get(pk=primary_key)
+    start = dateutil.parser.parse(start)
+    end = dateutil.parser.parse(end)
+    calendar = Calendar.objects.get(slug=calendar_slug)
+
+    event.start = start
+    event.end = end
+    event.title = title
+    event.description = description
+    event.save()
+
+    response_data = {}
+    response_data["status"] = "OK"
+    return response_data
+
+@require_POST
+@check_calendar_permissions
 def api_delete_event(request, **kwargs):
     response_data = {}
     event_id = request.POST.get("eventId")

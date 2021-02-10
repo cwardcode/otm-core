@@ -159,6 +159,7 @@
             }
 
             function openEditEventModal(calendar, event) {
+                var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                 var selectedStartDate = formatDate(event.event.start)
                 var selectedEndDate;
                 var selectedStartTime = event.event.start.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', '');
@@ -191,14 +192,27 @@
                                     eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
                                 }
                                 if (!isNaN(eventStartDate.valueOf())) {
-                                    event.event.setProp('title', `${selectedTitle}`);
-                                    event.event.setExtendedProp('description', `${selectedDesc}`);
-                                    if (eventEndDate) {
-                                        event.event.setDates(eventStartDate, eventEndDate);
-                                    } else {
-                                        event.event.setStart(eventStartDate);
-                                    }
-                                    console.log('Great. Now, update your database...');
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: "{% url 'api_edit_event' instance_url_name=request.instance.url_name %}",
+                                        dataType: 'json',
+                                        data: {
+                                            'csrfmiddlewaretoken': csrftoken,
+                                            'title': selectedTitle,
+                                            'description': selectedDesc,
+                                            'start': eventStartDate.toISOString(),
+                                            'end': eventEndDate.toISOString(),
+                                            'primaryKey': event.event.extendedProps.event_id,
+                                            'calendar': 'tree-maintenance',
+                                        },
+                                        success: function (result) {
+                                            calendar.refetchEvents();
+                                        },
+                                        error: function (req, status, error) {
+                                            console.log(error);
+                                        }
+                                    });
+                                    calendar.refetchEvents();
                                 } else {
                                     console.log('Invalid date.');
                                 }
@@ -293,7 +307,7 @@
                                             'description': selectedDesc,
                                             'start': eventStartDate.toISOString(),
                                             'end': eventEndDate.toISOString(),
-                                            'calendar_slug': 'tree-maintenance',
+                                            'calendar': 'tree-maintenance',
                                         },
                                         success: function (result) {
                                             calendar.refetchEvents();
