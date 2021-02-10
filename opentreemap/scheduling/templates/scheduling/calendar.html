@@ -252,11 +252,11 @@
                         $("#edit-date-end").on("change", function () {
                             selectedEndDate = $(this).val();
                         });
-                        $('#edit-time-start').timepicker();
+                        $('#edit-time-start').timepicker({ 'scrollDefault': 'now' });
                         $("#edit-time-start").on("change", function () {
                             selectedStartTime = $(this).val();
                         });
-                        $('#edit-time-end').timepicker();
+                        $('#edit-time-end').timepicker({ 'scrollDefault': 'now' });
                         $("#edit-time-end").on("change", function () {
                             selectedEndTime = $(this).val();
                         });
@@ -347,11 +347,11 @@
                         $("#create-date-end").on("change", function () {
                             selectedEndDate = $(this).val();
                         });
-                        $('#create-time-start').timepicker();
+                        $('#create-time-start').timepicker({ 'scrollDefault': 'now' });
                         $("#create-time-start").on("change", function () {
                             selectedStartTime = $(this).val();
                         });
-                        $('#create-time-end').timepicker();
+                        $('#create-time-end').timepicker({ 'scrollDefault': 'now' });
                         $("#create-time-end").on("change", function () {
                             selectedEndTime = $(this).val();
                         });
