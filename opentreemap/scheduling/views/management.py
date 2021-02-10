@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from __future__ import division
 
 from django.shortcuts import redirect
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST 
 import dateutil.parser
 from schedule.models import Event, Calendar
 from schedule.utils import (
@@ -58,6 +58,21 @@ def _api_create_event(start, end, calendar_slug, title, description):
         start=start, end=end, title=title, calendar=calendar,
         description=description
     )
+
+    response_data = {}
+    response_data["status"] = "OK"
+    return response_data
+
+@require_POST
+@check_calendar_permissions
+def api_delete_event(request, **kwargs):
+    response_data = {}
+    event_id = request.POST.get("eventId")
+    response_data = _api_delete_event(event_id)
+    return JsonResponse(response_data)
+
+def _api_delete_event(event_id):
+    Event.objects.get(pk=event_id).delete()
 
     response_data = {}
     response_data["status"] = "OK"

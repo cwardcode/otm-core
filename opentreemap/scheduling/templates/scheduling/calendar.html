@@ -39,7 +39,7 @@
                     events: '/wcu/schedule/api/occurrences?calendar_slug=tree-maintenance',
                     dayMaxEventRows: 4,
                     themeSystem: 'bootstrap',
-                    eventClick: function (data) { openEventDetailsModal(data); },
+                    eventClick: function (event) { openEventDetailsModal(calendar, event); },
                     eventDidMount: function (info) {
                         var tooltip = new Tooltip(info.el, {
                             title: info.event.title,
@@ -64,7 +64,8 @@
                 calendar.render();
             });
 
-            function openEventDetailsModal(event) {
+            function openEventDetailsModal(calendar, event) {
+                var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                 $('#details-dialog').dialog({
                     closeOnEscape: false,
                     dialogClass: 'no-close',
@@ -83,7 +84,7 @@
                             click: function () {
                                 $("#details-description-div").empty();
                                 $(this).dialog("close");
-                                openEditEventModal(event)
+                                openEditEventModal(calendar, event)
                             }
                         },
                         {
@@ -105,7 +106,21 @@
                                             text: 'Delete',
                                             "class": 'btn-danger',
                                             click: function () {
-                                                event.event.remove();
+                                                $.ajax({
+                                                    type: 'POST',
+                                                    url: "{% url 'api_delete_event' instance_url_name=request.instance.url_name %}",
+                                                    dataType: 'json',
+                                                    data: {
+                                                        'csrfmiddlewaretoken': csrftoken,
+                                                        'eventId': event.event.extendedProps.event_id,
+                                                    },
+                                                    success: function (result) {
+                                                        calendar.refetchEvents();
+                                                    },
+                                                    error: function (req, status, error) {
+                                                        console.log(error);
+                                                    }
+                                                });
                                                 $(this).dialog("close");
                                             }
                                         },
@@ -143,7 +158,7 @@
                 })
             }
 
-            function openEditEventModal(event) {
+            function openEditEventModal(calendar, event) {
                 var selectedStartDate = formatDate(event.event.start)
                 var selectedEndDate;
                 var selectedStartTime = event.event.start.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', '');
@@ -268,15 +283,6 @@
                                 const eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
                                 const eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
                                 if (!isNaN(eventStartDate.valueOf())) {
-                                    calendar.addEvent({
-                                        title: `${selectedTitle}`,
-                                        start: eventStartDate,
-                                        end: selectedEndDate,
-                                        extendedProps: {
-                                            description: `${selectedDesc}`
-                                        }
-                                    });
-
                                     $.ajax({
                                         type: 'POST',
                                         url: "{% url 'api_create_event' instance_url_name=request.instance.url_name %}",
@@ -296,7 +302,6 @@
                                             console.log(error);
                                         }
                                     });
-                                    console.log('Great. Now, update your database...');
                                 } else {
                                     console.log('Invalid date.');
                                 }
