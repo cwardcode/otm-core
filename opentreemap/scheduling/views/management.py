@@ -45,18 +45,22 @@ def api_create_event(request, **kwargs):
     title = request.POST.get("title")
     description = request.POST.get("description")
     calendar_slug = request.POST.get("calendar")
+    plot_id = request.POST.get('plotId')
 
-    response_data = _api_create_event(start, end, calendar_slug, title, description)
+    response_data = _api_create_event(start, end, calendar_slug, title,
+                    description, plot_id)
     return JsonResponse(response_data)
 
-def _api_create_event(start, end, calendar_slug, title, description):
+def _api_create_event(start, end, calendar_slug, title, description, plot_id):
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
     calendar = Calendar.objects.get(slug=calendar_slug)
-
+    if (plot_id is None):
+        plot_id = ''
+        
     Event.objects.create(
         start=start, end=end, title=title, calendar=calendar,
-        description=description
+        description=description, plot_id=plot_id
     )
 
     response_data = {}
@@ -72,15 +76,17 @@ def api_edit_event(request, **kwargs):
     title = request.POST.get("title")
     description = request.POST.get("description")
     primary_key = request.POST.get("primaryKey")
+    plot_id = request.POST.get("plotId")
 
-    response_data = _api_edit_event(start, end, calendar_slug, title, description, primary_key)
+    response_data = _api_edit_event(start, end, title, description, primary_key, plot_id)
     return JsonResponse(response_data)
 
-def _api_edit_event(start, end, calendar_slug, title, description, primary_key):
+def _api_edit_event(start, end, title, description, primary_key, plot_id):
     event = Event.objects.get(pk=primary_key)
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
 
+    event.plot_id = plot_id
     event.start = start
     event.end = end
     event.title = title
