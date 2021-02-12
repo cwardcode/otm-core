@@ -85,6 +85,7 @@
                             text: 'Edit',
                             click: function () {
                                 $("#details-description-div").empty();
+                                $("#details-location-div").empty();
                                 $(this).dialog("close");
                                 openEditEventModal(calendar, event)
                             }
@@ -93,6 +94,7 @@
                             text: 'Delete',
                             click: function () {
                                 $("#details-description-div").empty();
+                                $("#details-location-div").empty();
                                 $(this).dialog("close");
                                 $('#delete-dialog').dialog({
                                     title: `Deleting ${event.event.title}`,
@@ -144,17 +146,24 @@
                             text: "Close",
                             click: function () {
                                 $("#details-description-div").empty();
+                                $("#details-location-div").empty();
                                 $(this).dialog("close");
                             }
                         }
                     ],
                     open: function () {
                         $(this).parent().css('position', 'fixed');
+                        const plotId = event.event.extendedProps.plot_id;
                         $("#details-description-div").append('<h5 id="details-description-header" style="text-decoration:underline">Description</h5>')
                         $("#details-description-div").append(`<p id="details-description" >${event.event.extendedProps.description}</p>`)
                         $("#details-start").text(`Start: ${new Date(event.event.start.toString()).toLocaleDateString()}, ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
+                        
                         if (event.event.end != null) {
                             $("#details-end").text(`End: ${new Date(event.event.start.toString()).toLocaleDateString()}, ${new Date(event.event.end.toString()).toLocaleTimeString()}`)
+                        }
+                        if (plotId != null && plotId !== '') {
+                            $("#details-location-div").append('<h5 id="details-location-header" style="text-decoration:underline">Location</h5>')
+                            $("#details-location-div").append(`<a style="color: #337ab7" target="_blank" href="${location.origin}/{{request.instance.url_name }}/features/${plotId}">Tree ${plotId}</a>`)
                         }
                     }
                 })
@@ -168,6 +177,7 @@
                 var selectedEndTime;
                 var selectedDesc = event.event.extendedProps.description;
                 var selectedTitle = event.event.title;
+                var selectedPlotId = event.event.extendedProps.plot_id;
 
                 if (event.event.end != null) {
                     selectedEndDate = formatDate(event.event.end);
@@ -204,6 +214,7 @@
                                             'description': selectedDesc,
                                             'start': eventStartDate.toISOString(),
                                             'end': eventEndDate.toISOString(),
+                                            'plotId': selectedPlotId,
                                             'primaryKey': event.event.extendedProps.event_id,
                                             'calendar': 'tree-maintenance',
                                         },
@@ -234,14 +245,15 @@
                     open: function () {
                         $(this).parent().css('position', 'fixed');
                         $('#edit-dialog').removeClass('hidden');
+                        $('#edit-title').val(event.event.title)
+                        $('#edit-description').val(event.event.extendedProps.description)
                         $('#edit-date-start').val(formatDate(event.event.start))
                         $('#edit-time-start').val(event.event.start.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', ''));
+                        $('#edit-plot-id').val(event.event.extendedProps.plot_id)
                         if (event.event.end != null) {
                             $('#edit-date-end').val(formatDate(event.event.end))
                             $('#edit-time-end').val(event.event.end.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', ''));
                         }
-                        $('#edit-title').val(event.event.title)
-                        $('#edit-description').val(event.event.extendedProps.description)
                         $('#edit-date-start').datepicker({
                             dateFormat: 'yy-mm-dd'
                         });
@@ -254,11 +266,11 @@
                         $("#edit-date-end").on("change", function () {
                             selectedEndDate = $(this).val();
                         });
-                        $('#edit-time-start').timepicker();
+                        $('#edit-time-start').timepicker({ 'scrollDefault': 'now' });
                         $("#edit-time-start").on("change", function () {
                             selectedStartTime = $(this).val();
                         });
-                        $('#edit-time-end').timepicker();
+                        $('#edit-time-end').timepicker({ 'scrollDefault': 'now' });
                         $("#edit-time-end").on("change", function () {
                             selectedEndTime = $(this).val();
                         });
@@ -267,6 +279,9 @@
                         });
                         $("#edit-description").on("change", function () {
                             selectedDesc = $(this).val();
+                        });
+                        $("#edit-plot-id").on("change", function () {
+                            selectedPlotId = $(this).val();
                         });
                     }
                 })
@@ -280,6 +295,7 @@
                 var selectedEndTime;
                 var selectedDesc;
                 var selectedTitle;
+                var selectedPlotId;
 
                 $('#create-dialog').dialog({
                     closeOnEscape: false,
@@ -310,6 +326,7 @@
                                             'start': eventStartDate.toISOString(),
                                             'end': eventEndDate.toISOString(),
                                             'calendar': 'tree-maintenance',
+                                            'plotId': selectedPlotId,
                                         },
                                         success: function (result) {
                                             calendar.refetchEvents();
@@ -349,11 +366,11 @@
                         $("#create-date-end").on("change", function () {
                             selectedEndDate = $(this).val();
                         });
-                        $('#create-time-start').timepicker();
+                        $('#create-time-start').timepicker({ 'scrollDefault': 'now' });
                         $("#create-time-start").on("change", function () {
                             selectedStartTime = $(this).val();
                         });
-                        $('#create-time-end').timepicker();
+                        $('#create-time-end').timepicker({ 'scrollDefault': 'now' });
                         $("#create-time-end").on("change", function () {
                             selectedEndTime = $(this).val();
                         });
@@ -362,6 +379,9 @@
                         });
                         $("#create-description").on("change", function () {
                             selectedDesc = $(this).val();
+                        });
+                        $("#create-plot-id").on("change", function () {
+                            selectedPlotId = $(this).val();
                         });
                     }
                 })
@@ -402,6 +422,7 @@
 <div id="details-dialog">
     <p id="details-start"></p>
     <p id="details-end"></p>
+    <div style="padding-bottom: 1rem;" id="details-location-div"></div>
     <div id="details-description-div"></div>
 </div>
 
@@ -413,6 +434,7 @@
     <p>Time: <input type="text" id="edit-time-end"></p>
     <p>Title: <input type="text" id="edit-title"></p>
     <p>Description: <textarea type="text" id="edit-description"></textarea></p>
+    <p>Plot ID: <input type="text" id="edit-plot-id"></p>
 </div>
 
 <div id="delete-dialog">
@@ -428,6 +450,7 @@
     <p>Time: <input type="text" id="create-time-end"></p>
     <p>Title: <input type="text" id="create-title"></p>
     <p>Description: <textarea type="text" id="create-description"></textarea></p>
+    <p>Plot ID: <input type="text" id="create-plot-id"></p>
 </div>
 {% endblock tab_content %}
 
