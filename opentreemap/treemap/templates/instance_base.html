@@ -135,6 +135,7 @@ ga('set', 'page', pathname);
       {% if request.instance|feature_enabled:'add_plot' and last_effective_instance_user %}
         {% if request.instance.has_resources %}
           <div class="btn-group">
+            {% include "treemap/partials/add_task_btn.html" %}
             {% include "treemap/partials/add_plot_btn.html" %}
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="caret"></span>
@@ -143,6 +144,7 @@ ga('set', 'page', pathname);
             {% include "treemap/partials/add_feature_menu.html" with dropdown_class="dropdown-menu-right" %}
           </div>
         {% else %}
+          {% include "treemap/partials/add_task_btn.html" %}
           {% include "treemap/partials/add_plot_btn.html" %}
         {% endif %}
       {% endif %}

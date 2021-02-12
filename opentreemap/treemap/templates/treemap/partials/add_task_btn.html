@@ -1,0 +1,156 @@
+{% load i18n %}
+{% load static %}
+{% load instance_config %}
+{% if request.user.is_authenticated %}
+{% if 'features' in request.path %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
+<script type='text/javascript' src="{% static 'jquery/dist/jquery.js' %}"></script>
+<script type='text/javascript' src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
+<script type='text/javascript'
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
+<script>
+   function showDialog() {
+	var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+	var selectedStartDate;
+	var selectedEndDate;
+	var selectedStartTime;
+	var selectedEndTime;
+	var selectedDesc;
+	var selectedTitle;
+	var selectedPlotId = location.href.split('/').filter(e => e).slice(-1)[0];
+
+	$('#create-dialog').dialog({
+	    closeOnEscape: false,
+	    dialogClass: 'no-close',
+	    title: 'Create a New Task',
+	    modal: true,
+	    position: {
+		my: "center top",
+		at: "center top",
+		of: '.container',
+		collision: "none"
+	    },
+	    buttons: [
+		{
+		    text: 'Add Task',
+		    click: function () {
+			const eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
+			const eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
+			if (!isNaN(eventStartDate.valueOf())) {
+			    $.ajax({
+				type: 'POST',
+				url: "{% url 'api_create_event' instance_url_name=request.instance.url_name %}",
+				dataType: 'json',
+				data: {
+				    'csrfmiddlewaretoken': csrftoken,
+				    'title': selectedTitle,
+				    'description': selectedDesc,
+				    'start': eventStartDate.toISOString(),
+				    'end': eventEndDate.toISOString(),
+				    'calendar': 'tree-maintenance',
+				    'plotId': selectedPlotId,
+				},
+				success: function (result) {
+				    alert(`${selectedTitle} added to schedule!`)
+				},
+				error: function (req, status, error) {
+				    console.log(error);
+				}
+			    });
+			} else {
+			    console.log('Invalid date.');
+			}
+			$(this).dialog("close");
+			$('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description').val('');
+			$('#create-dialog').addClass('hidden');
+		    }
+		},
+		{
+		    text: "Close",
+		    click: function () {
+			$(this).dialog("close");
+			$('#create-dialog').addClass('hidden');
+		    }
+		}
+	    ],
+	    open: function () {
+		$(this).parent().css('position', 'fixed');
+		$('#create-dialog').removeClass('hidden');
+		$('#create-date-start').datepicker({
+		    dateFormat: 'yy-mm-dd'
+		});
+		$('#create-date-end').datepicker({
+		    dateFormat: 'yy-mm-dd'
+		});
+		$("#create-date-start").on("change", function () {
+		    selectedStartDate = $(this).val();
+		});
+		$("#create-date-end").on("change", function () {
+		    selectedEndDate = $(this).val();
+		});
+		$('#create-time-start').timepicker({ 'scrollDefault': 'now' });
+		$("#create-time-start").on("change", function () {
+		    selectedStartTime = $(this).val();
+		});
+		$('#create-time-end').timepicker({ 'scrollDefault': 'now' });
+		$("#create-time-end").on("change", function () {
+		    selectedEndTime = $(this).val();
+		});
+		$("#create-title").on("change", function () {
+		    selectedTitle = $(this).val();
+		});
+		$("#create-description").on("change", function () {
+		    selectedDesc = $(this).val();
+		});
+	    }
+	})
+    }
+    
+    function formatDate(date) {
+	var d = new Date(date),
+	    month = '' + (d.getMonth() + 1),
+	    day = '' + d.getDate(),
+	    year = d.getFullYear();
+
+	if (month.length < 2)
+	    month = '0' + month;
+	if (day.length < 2)
+	    day = '0' + day;
+
+	return [year, month, day].join('-');
+    }
+
+    function convertTo24Hour(time) {
+	var hours = parseInt(time.substr(0, 2));
+	if (time.toLowerCase().indexOf('am') != -1) {
+	    if (hours == 12) {
+		time = '0' + time.replace('12', '0');
+	    }
+	    if (hours.toString().length < 2) {
+		time = '0' + time;
+	    }
+	}
+	if (time.toLowerCase().indexOf('pm') != -1 && hours < 12) {
+	    time = time.replace(hours, (hours + 12));
+	}
+	return time.replace(/(am|pm)/i, '');
+    }
+</script>
+
+<button class="btn btn-primary" onclick="showDialog()">
+   <i class="icon-plus"></i> {% trans "Add a Task" %}
+</button>
+
+<div id="create-dialog" class="hidden">
+    {% csrf_token %}
+    <p>Date Start: <input type="text" id="create-date-start"></p>
+    <p>Time: <input type="text" id="create-time-start"></p>
+    <p>Date End: <input type="text" id="create-date-end"></p>
+    <p>Time: <input type="text" id="create-time-end"></p>
+    <p>Title: <input type="text" id="create-title"></p>
+    <p>Description: <textarea type="text" id="create-description"></textarea></p>
+</div>
+{% endif %}
+{% endif %}
