@@ -45,22 +45,24 @@ def api_create_event(request, **kwargs):
     title = request.POST.get("title")
     description = request.POST.get("description")
     calendar_slug = request.POST.get("calendar")
-    plot_id = request.POST.get('plotId')
+    plot_id = request.POST.get("plotId")
+    color_event = request.POST.get("eventColor")
 
     response_data = _api_create_event(start, end, calendar_slug, title,
-                    description, plot_id)
+                    description, plot_id, color_event)
     return JsonResponse(response_data)
 
-def _api_create_event(start, end, calendar_slug, title, description, plot_id):
+def _api_create_event(start, end, calendar_slug, title, description, plot_id,
+                      color_event):
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
     calendar = Calendar.objects.get(slug=calendar_slug)
     if (plot_id is None):
         plot_id = ''
-        
+
     Event.objects.create(
         start=start, end=end, title=title, calendar=calendar,
-        description=description, plot_id=plot_id
+        description=description, plot_id=plot_id, color_event=color_event
     )
 
     response_data = {}
@@ -77,11 +79,14 @@ def api_edit_event(request, **kwargs):
     description = request.POST.get("description")
     primary_key = request.POST.get("primaryKey")
     plot_id = request.POST.get("plotId")
+    color_event = request.POST.get("eventColor")
 
-    response_data = _api_edit_event(start, end, title, description, primary_key, plot_id)
+    response_data = _api_edit_event(start, end, title, description,
+        primary_key, plot_id, color_event)
     return JsonResponse(response_data)
 
-def _api_edit_event(start, end, title, description, primary_key, plot_id):
+def _api_edit_event(start, end, title, description, primary_key, plot_id,
+    color_event):
     event = Event.objects.get(pk=primary_key)
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
@@ -91,6 +96,7 @@ def _api_edit_event(start, end, title, description, primary_key, plot_id):
     event.end = end
     event.title = title
     event.description = description
+    event.color_event = color_event
     event.save()
 
     response_data = {}

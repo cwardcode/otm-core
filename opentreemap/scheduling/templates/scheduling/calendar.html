@@ -9,9 +9,13 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
+<link rel="stylesheet" href="{% static 'js/vendor/spectrum/spectrum.css' %}">
+</link>
+
 <script type='text/javascript' src="{% static 'jquery/dist/jquery.js' %}"></script>
 <script type='text/javascript' src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
 <script type='text/javascript' src="{% static 'moment/moment.js' %}"></script>
+<script type='text/javascript' src="{% static 'js/vendor/spectrum/spectrum.js' %}"></script>
 <script type='text/javascript'
     src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
 <script type='text/javascript' src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
@@ -61,6 +65,7 @@
                     },
                     nowIndicator: true
                 })
+
                 calendar.render();
             });
 
@@ -155,7 +160,7 @@
                         $("#details-description-div").append('<h5 id="details-description-header" style="text-decoration:underline">Description</h5>')
                         $("#details-description-div").append(`<p id="details-description" >${event.event.extendedProps.description}</p>`)
                         $("#details-start").text(`Start: ${new Date(event.event.start.toString()).toLocaleDateString()}, ${new Date(event.event.start.toString()).toLocaleTimeString()}`)
-                        
+
                         if (event.event.end != null) {
                             $("#details-end").text(`End: ${new Date(event.event.start.toString()).toLocaleDateString()}, ${new Date(event.event.end.toString()).toLocaleTimeString()}`)
                         }
@@ -175,7 +180,12 @@
                 var selectedEndTime;
                 var selectedDesc = event.event.extendedProps.description;
                 var selectedTitle = event.event.title;
+                var selectedEventColor = event.event.borderColor;
                 var selectedPlotId = event.event.extendedProps.plot_id;
+                const joe = colorjoe.rgb('edit-color-picker', '#000');
+                joe.on("change", color => {
+                    selectedEventColor = color.hex();
+                });
 
                 if (event.event.end != null) {
                     selectedEndDate = formatDate(event.event.end);
@@ -186,6 +196,7 @@
                     dialogClass: 'no-close',
                     title: `Editing ${event.event.title}`,
                     modal: true,
+                    width: '600px',
                     position: {
                         my: "center top",
                         at: "center top",
@@ -215,6 +226,7 @@
                                             'plotId': selectedPlotId,
                                             'primaryKey': event.event.extendedProps.event_id,
                                             'calendar': 'tree-maintenance',
+                                            'eventColor': selectedEventColor,
                                         },
                                         success: function (result) {
                                             calendar.refetchEvents();
@@ -228,8 +240,9 @@
                                     console.log('Invalid date.');
                                 }
                                 $(this).dialog("close");
-                                $('#edit-date-start,#edit-time,#edit-title,#edit-description').val('');
                                 $('#edit-dialog').addClass('hidden');
+                                $('#edit-date-start,#edit-time,#edit-title,#edit-description').val('');
+                                $("#edit-color-picker").empty();
                             }
                         },
                         {
@@ -237,6 +250,7 @@
                             click: function () {
                                 $(this).dialog("close");
                                 $('#edit-dialog').addClass('hidden');
+                                $("#edit-color-picker").empty();
                             }
                         }
                     ],
@@ -294,12 +308,18 @@
                 var selectedDesc;
                 var selectedTitle;
                 var selectedPlotId;
+                var selectedEventColor;
+                const joe = colorjoe.rgb('create-color-picker', '#000');
+                joe.on("change", color => {
+                    selectedEventColor = color.hex();
+                });
 
                 $('#create-dialog').dialog({
                     closeOnEscape: false,
                     dialogClass: 'no-close',
                     title: 'Create a New Task',
                     modal: true,
+                    width: '600px',
                     position: {
                         my: "center top",
                         at: "center top",
@@ -325,6 +345,7 @@
                                             'end': eventEndDate.toISOString(),
                                             'calendar': 'tree-maintenance',
                                             'plotId': selectedPlotId,
+                                            'eventColor': selectedEventColor,
                                         },
                                         success: function (result) {
                                             calendar.refetchEvents();
@@ -337,8 +358,9 @@
                                     console.log('Invalid date.');
                                 }
                                 $(this).dialog("close");
-                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description').val('');
                                 $('#create-dialog').addClass('hidden');
+                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description').val('');
+                                $("#create-color-picker").empty();
                             }
                         },
                         {
@@ -346,6 +368,7 @@
                             click: function () {
                                 $(this).dialog("close");
                                 $('#create-dialog').addClass('hidden');
+                                $("#create-color-picker").empty();
                             }
                         }
                     ],
@@ -424,15 +447,23 @@
     <div id="details-description-div"></div>
 </div>
 
-<div id="edit-dialog" class="hidden">
+<div id="edit-dialog" class="hidden" style="width: 600px">
     {% csrf_token %}
-    <p>Date Start: <input type="text" id="edit-date-start"></p>
-    <p>Time: <input type="text" id="edit-time-start"></p>
-    <p>Date End: <input type="text" id="edit-date-end"></p>
-    <p>Time: <input type="text" id="edit-time-end"></p>
-    <p>Title: <input type="text" id="edit-title"></p>
-    <p>Description: <textarea type="text" id="edit-description"></textarea></p>
-    <p>Plot ID: <input type="text" id="edit-plot-id"></p>
+    <div class="row" style="display: flex">
+        <div class="column" style="flex: 50%; margin: 1em;">
+            <p>Date Start: <input type="text" id="edit-date-start"></p>
+            <p>Time: <input type="text" id="edit-time-start"></p>
+            <p>Date End: <input type="text" id="edit-date-end"></p>
+            <p>Time: <input type="text" id="edit-time-end"></p>
+            <p>Location (Plot ID): <input type="text" id="edit-plot-id"></p>
+        </div>
+        <div class="column" style="flex: 50%; margin: 1em;">
+            <p>Title: <input type="text" id="edit-title"></p>
+            <p>Description: <textarea type="text" id="edit-description"></textarea></p>
+            <p>Task Color:</p>
+            <div id="edit-color-picker" style="width: 29.4rem; margin: 0 !important;"></div>
+        </div>
+    </div>
 </div>
 
 <div id="delete-dialog">
@@ -440,15 +471,23 @@
     <p id="delete-description"></p>
 </div>
 
-<div id="create-dialog" class="hidden">
+<div id="create-dialog" class="hidden" style="width: 600px">
     {% csrf_token %}
-    <p>Date Start: <input type="text" id="create-date-start"></p>
-    <p>Time: <input type="text" id="create-time-start"></p>
-    <p>Date End: <input type="text" id="create-date-end"></p>
-    <p>Time: <input type="text" id="create-time-end"></p>
-    <p>Title: <input type="text" id="create-title"></p>
-    <p>Description: <textarea type="text" id="create-description"></textarea></p>
-    <p>Plot ID: <input type="text" id="create-plot-id"></p>
+    <div class="row" style="display: flex">
+        <div class="column" style="flex: 50%; margin: 1em;">
+            <p>Date Start: <input type="text" id="create-date-start"></p>
+            <p>Time: <input type="text" id="create-time-start"></p>
+            <p>Date End: <input type="text" id="create-date-end"></p>
+            <p>Time: <input type="text" id="create-time-end"></p>
+            <p>Location (Plot ID): <input type="text" id="create-plot-id"></p>
+        </div>
+        <div class="column" style="flex: 50%; margin: 1em;">
+            <p>Title: <input type="text" id="create-title"></p>
+            <p>Description: <textarea type="text" id="create-description"></textarea></p>
+            <p>Task Color:</p>
+            <div id="create-color-picker" style="width: 29.4rem; margin: 0 !important;"></div>
+        </div>
+    </div>
 </div>
 {% endblock tab_content %}
 
