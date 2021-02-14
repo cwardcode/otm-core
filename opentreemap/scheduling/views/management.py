@@ -81,6 +81,11 @@ def api_edit_event(request, **kwargs):
     plot_id = request.POST.get("plotId")
     color_event = request.POST.get("eventColor")
 
+    if (color_event == "white"):
+        color_event = '#ffffff'
+    elif (color_event == "black"):
+        color_event = '#000000'
+
     response_data = _api_edit_event(start, end, title, description,
         primary_key, plot_id, color_event)
     return JsonResponse(response_data)

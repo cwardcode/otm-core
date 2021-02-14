@@ -1,4 +1,2902 @@
-/*! colorjoe - v4.1.1 - Juho Vepsalainen <bebraw@gmail.com> - MIT
-https://bebraw.github.com/colorjoe - 2020-01-27 */
-!function(e,n){"object"==typeof exports&&"undefined"!=typeof module?module.exports=n():"function"==typeof define&&define.amd?define(n):e.colorjoe=n()}(this,function(){"use strict";"undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self&&self;function e(e,n){return e(n={exports:{}},n.exports),n.exports}var p=e(function(e,n){e.exports=function(){function r(e,n){e?(t(e,n,"touchstart","touchmove","touchend"),t(e,n,"mousedown","mousemove","mouseup")):console.warn("drag is missing elem!")}return r.xyslider=function(e){var n=i(e.class||"",e.parent),t=i("pointer",n);return i("shape shape1",t),i("shape shape2",t),i("bg bg1",n),i("bg bg2",n),r(n,a(e.cbs,t)),{background:n,pointer:t}},r.slider=function(e){var n=i(e.class,e.parent),t=i("pointer",n);return i("shape",t),i("bg",n),r(n,a(e.cbs,t)),{background:n,pointer:t}},r;function a(e,t){var n={};for(var r in e)n[r]=a(e[r]);function a(n){return function(e){e.pointer=t,n(e)}}return n}function i(e,n){return t="div",r=e,a=n,i=document.createElement(t),r&&(i.className=r),a.appendChild(i),i;var t,r,a,i}function t(r,e,n,a,i){var t,o,u,s=(e=(t=e)?{begin:t.begin||p,change:t.change||p,end:t.end||p}:{begin:function(e){o={x:e.elem.offsetLeft,y:e.elem.offsetTop},u=e.cursor},change:function(e){d(e.elem,"left",o.x+e.cursor.x-u.x+"px"),d(e.elem,"top",o.y+e.cursor.y-u.y+"px")},end:p}).begin,l=e.change,f=e.end;c(r,n,function(n){var t=function(e){var n=Array.prototype.slice,t=n.apply(arguments,[1]);return function(){return e.apply(null,t.concat(n.apply(arguments)))}}(g,l,r);c(document,a,t),c(document,i,function e(){h(document,a,t),h(document,i,e),g(f,r,n)}),g(s,r,n)})}function c(e,n,t){var r=!1;try{var a=Object.defineProperty({},"passive",{get:function(){r=!0}});window.addEventListener("testPassive",null,a),window.removeEventListener("testPassive",null,a)}catch(e){}e.addEventListener(n,t,!!r&&{passive:!1})}function h(e,n,t){e.removeEventListener(n,t,!1)}function d(e,n,t){e.style[n]=t}function p(){}function g(e,n,t){t.preventDefault();var r,a,i,o={x:(r=n.getBoundingClientRect()).left,y:r.top},u=n.clientWidth,s=n.clientHeight,l={x:(i=t,(i.touches?i.touches[i.touches.length-1]:i).clientX),y:(a=t,(a.touches?a.touches[a.touches.length-1]:a).clientY)},f=(l.x-o.x)/u,c=(l.y-o.y)/s;e({x:isNaN(f)?0:f,y:isNaN(c)?0:c,cursor:l,elem:n,e:t})}}()}),a=e(function(e,n){e.exports=function(){function c(e){if(Array.isArray(e)){if("string"==typeof e[0]&&"function"==typeof c[e[0]])return new c[e[0]](e.slice(1,e.length));if(4===e.length)return new c.RGB(e[0]/255,e[1]/255,e[2]/255,e[3]/255)}else if("string"==typeof e){var n=e.toLowerCase();c.namedColors[n]&&(e="#"+c.namedColors[n]),"transparent"===n&&(e="rgba(0,0,0,0)");var t=e.match(p);if(t){var r=t[1].toUpperCase(),a=h(t[8])?t[8]:parseFloat(t[8]),i="H"===r[0],o=t[3]?100:i?360:255,u=t[5]||i?100:255,s=t[7]||i?100:255;if(h(c[r]))throw new Error("color."+r+" is not installed.");return new c[r](parseFloat(t[2])/o,parseFloat(t[4])/u,parseFloat(t[6])/s,a)}e.length<6&&(e=e.replace(/^#?([0-9a-f])([0-9a-f])([0-9a-f])$/i,"$1$1$2$2$3$3"));var l=e.match(/^#?([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])$/i);if(l)return new c.RGB(parseInt(l[1],16)/255,parseInt(l[2],16)/255,parseInt(l[3],16)/255);if(c.CMYK){var f=e.match(new RegExp("^cmyk\\("+d.source+","+d.source+","+d.source+","+d.source+"\\)$","i"));if(f)return new c.CMYK(parseFloat(f[1])/100,parseFloat(f[2])/100,parseFloat(f[3])/100,parseFloat(f[4])/100)}}else if("object"==typeof e&&e.isColor)return e;return!1}var u=[],h=function(e){return void 0===e},e=/\s*(\.\d+|\d+(?:\.\d+)?)(%)?\s*/,d=/\s*(\.\d+|100|\d?\d(?:\.\d+)?)%\s*/,p=new RegExp("^(rgb|hsl|hsv)a?\\("+e.source+","+e.source+","+e.source+"(?:,"+/\s*(\.\d+|\d+(?:\.\d+)?)\s*/.source+")?\\)$","i");c.namedColors={},c.installColorSpace=function(a,i,e){function n(e,r){var n={};for(var t in n[r.toLowerCase()]=function(){return this.rgb()[r.toLowerCase()]()},c[r].propertyNames.forEach(function(t){var e="black"===t?"k":t.charAt(0);n[t]=n[e]=function(e,n){return this[r.toLowerCase()]()[t](e,n)}}),n)n.hasOwnProperty(t)&&void 0===c[e].prototype[t]&&(c[e].prototype[t]=n[t])}(c[a]=function(e){var r=Array.isArray(e)?e:arguments;i.forEach(function(e,n){var t=r[n];if("alpha"===e)this._alpha=isNaN(t)||1<t?1:t<0?0:t;else{if(isNaN(t))throw new Error("["+a+"]: Invalid color: ("+i.join(",")+")");"hue"===e?this._hue=t<0?t-Math.floor(t):t%1:this["_"+e]=t<0?0:1<t?1:t}},this)}).propertyNames=i;var r=c[a].prototype;for(var t in["valueOf","hex","hexa","css","cssa"].forEach(function(e){r[e]=r[e]||("RGB"===a?r.hex:function(){return this.rgb()[e]()})}),r.isColor=!0,r.equals=function(e,n){h(n)&&(n=1e-10),e=e[a.toLowerCase()]();for(var t=0;t<i.length;t+=1)if(Math.abs(this["_"+i[t]]-e["_"+i[t]])>n)return!1;return!0},r.toJSON=function(){return[a].concat(i.map(function(e){return this["_"+e]},this))},e)if(e.hasOwnProperty(t)){var o=t.match(/^from(.*)$/);o?c[o[1].toUpperCase()].prototype[a.toLowerCase()]=e[t]:r[t]=e[t]}return r[a.toLowerCase()]=function(){return this},r.toString=function(){return"["+a+" "+i.map(function(e){return this["_"+e]},this).join(", ")+"]"},i.forEach(function(t){var e="black"===t?"k":t.charAt(0);r[t]=r[e]=function(n,e){return void 0===n?this["_"+t]:e?new this.constructor(i.map(function(e){return this["_"+e]+(t===e?n:0)},this)):new this.constructor(i.map(function(e){return t===e?n:this["_"+e]},this))}}),u.forEach(function(e){n(a,e),n(e,a)}),u.push(a),c},c.pluginList=[],c.use=function(e){return-1===c.pluginList.indexOf(e)&&(this.pluginList.push(e),e(c)),c},c.installMethod=function(n,t){return u.forEach(function(e){c[e].prototype[n]=t}),this},c.installColorSpace("RGB",["red","green","blue","alpha"],{hex:function(){var e=(65536*Math.round(255*this._red)+256*Math.round(255*this._green)+Math.round(255*this._blue)).toString(16);return"#"+"00000".substr(0,6-e.length)+e},hexa:function(){var e=Math.round(255*this._alpha).toString(16);return"#"+"00".substr(0,2-e.length)+e+this.hex().substr(1,6)},css:function(){return"rgb("+Math.round(255*this._red)+","+Math.round(255*this._green)+","+Math.round(255*this._blue)+")"},cssa:function(){return"rgba("+Math.round(255*this._red)+","+Math.round(255*this._green)+","+Math.round(255*this._blue)+","+this._alpha+")"}});var n=function(a){a.installColorSpace("XYZ",["x","y","z","alpha"],{fromRgb:function(){var e=function(e){return.04045<e?Math.pow((e+.055)/1.055,2.4):e/12.92},n=e(this._red),t=e(this._green),r=e(this._blue);return new a.XYZ(.4124564*n+.3575761*t+.1804375*r,.2126729*n+.7151522*t+.072175*r,.0193339*n+.119192*t+.9503041*r,this._alpha)},rgb:function(){var e=this._x,n=this._y,t=this._z,r=function(e){return.0031308<e?1.055*Math.pow(e,1/2.4)-.055:12.92*e};return new a.RGB(r(3.2404542*e+-1.5371385*n+-.4985314*t),r(-.969266*e+1.8760108*n+.041556*t),r(.0556434*e+-.2040259*n+1.0572252*t),this._alpha)},lab:function(){var e=function(e){return.008856<e?Math.pow(e,1/3):7.787037*e+4/29},n=e(this._x/95.047),t=e(this._y/100),r=e(this._z/108.883);return new a.LAB(116*t-16,500*(n-t),200*(t-r),this._alpha)}})},t=function(c){c.installColorSpace("HSV",["hue","saturation","value","alpha"],{rgb:function(){var e,n,t,r=this._hue,a=this._saturation,i=this._value,o=Math.min(5,Math.floor(6*r)),u=6*r-o,s=i*(1-a),l=i*(1-u*a),f=i*(1-(1-u)*a);switch(o){case 0:e=i,n=f,t=s;break;case 1:e=l,n=i,t=s;break;case 2:e=s,n=i,t=f;break;case 3:e=s,n=l,t=i;break;case 4:e=f,n=s,t=i;break;case 5:e=i,n=s,t=l}return new c.RGB(e,n,t,this._alpha)},hsl:function(){var e,n=(2-this._saturation)*this._value,t=this._saturation*this._value,r=n<=1?n:2-n;return e=r<1e-9?0:t/r,new c.HSL(this._hue,e,n/2,this._alpha)},fromRgb:function(){var e,n=this._red,t=this._green,r=this._blue,a=Math.max(n,t,r),i=Math.min(n,t,r),o=a-i,u=0===a?0:o/a,s=a;if(0===o)e=0;else switch(a){case n:e=(t-r)/o/6+(t<r?1:0);break;case t:e=(r-n)/o/6+1/3;break;case r:e=(n-t)/o/6+2/3}return new c.HSV(e,u,s,this._alpha)}})},r=function(r){r.use(t),r.installColorSpace("HSL",["hue","saturation","lightness","alpha"],{hsv:function(){var e,n=2*this._lightness,t=this._saturation*(n<=1?n:2-n);return e=n+t<1e-9?0:2*t/(n+t),new r.HSV(this._hue,e,(n+t)/2,this._alpha)},rgb:function(){return this.hsv().rgb()},fromRgb:function(){return this.hsv().hsl()}})};return c.use(n).use(function(a){a.use(n),a.installColorSpace("LAB",["l","a","b","alpha"],{fromRgb:function(){return this.xyz().lab()},rgb:function(){return this.xyz().rgb()},xyz:function(){var e=function(e){var n=Math.pow(e,3);return.008856<n?n:(e-16/116)/7.87},n=(this._l+16)/116,t=this._a/500+n,r=n-this._b/200;return new a.XYZ(95.047*e(t),100*e(n),108.883*e(r),this._alpha)}})}).use(t).use(r).use(function(u){u.installColorSpace("CMYK",["cyan","magenta","yellow","black","alpha"],{rgb:function(){return new u.RGB(1-this._cyan*(1-this._black)-this._black,1-this._magenta*(1-this._black)-this._black,1-this._yellow*(1-this._black)-this._black,this._alpha)},fromRgb:function(){var e=this._red,n=this._green,t=this._blue,r=1-e,a=1-n,i=1-t,o=1;return e||n||t?(o=Math.min(r,Math.min(a,i)),r=(r-o)/(1-o),a=(a-o)/(1-o),i=(i-o)/(1-o)):o=1,new u.CMYK(r,a,i,o,this._alpha)}})}).use(function(e){e.namedColors={aliceblue:"f0f8ff",antiquewhite:"faebd7",aqua:"0ff",aquamarine:"7fffd4",azure:"f0ffff",beige:"f5f5dc",bisque:"ffe4c4",black:"000",blanchedalmond:"ffebcd",blue:"00f",blueviolet:"8a2be2",brown:"a52a2a",burlywood:"deb887",cadetblue:"5f9ea0",chartreuse:"7fff00",chocolate:"d2691e",coral:"ff7f50",cornflowerblue:"6495ed",cornsilk:"fff8dc",crimson:"dc143c",cyan:"0ff",darkblue:"00008b",darkcyan:"008b8b",darkgoldenrod:"b8860b",darkgray:"a9a9a9",darkgrey:"a9a9a9",darkgreen:"006400",darkkhaki:"bdb76b",darkmagenta:"8b008b",darkolivegreen:"556b2f",darkorange:"ff8c00",darkorchid:"9932cc",darkred:"8b0000",darksalmon:"e9967a",darkseagreen:"8fbc8f",darkslateblue:"483d8b",darkslategray:"2f4f4f",darkslategrey:"2f4f4f",darkturquoise:"00ced1",darkviolet:"9400d3",deeppink:"ff1493",deepskyblue:"00bfff",dimgray:"696969",dimgrey:"696969",dodgerblue:"1e90ff",firebrick:"b22222",floralwhite:"fffaf0",forestgreen:"228b22",fuchsia:"f0f",gainsboro:"dcdcdc",ghostwhite:"f8f8ff",gold:"ffd700",goldenrod:"daa520",gray:"808080",grey:"808080",green:"008000",greenyellow:"adff2f",honeydew:"f0fff0",hotpink:"ff69b4",indianred:"cd5c5c",indigo:"4b0082",ivory:"fffff0",khaki:"f0e68c",lavender:"e6e6fa",lavenderblush:"fff0f5",lawngreen:"7cfc00",lemonchiffon:"fffacd",lightblue:"add8e6",lightcoral:"f08080",lightcyan:"e0ffff",lightgoldenrodyellow:"fafad2",lightgray:"d3d3d3",lightgrey:"d3d3d3",lightgreen:"90ee90",lightpink:"ffb6c1",lightsalmon:"ffa07a",lightseagreen:"20b2aa",lightskyblue:"87cefa",lightslategray:"789",lightslategrey:"789",lightsteelblue:"b0c4de",lightyellow:"ffffe0",lime:"0f0",limegreen:"32cd32",linen:"faf0e6",magenta:"f0f",maroon:"800000",mediumaquamarine:"66cdaa",mediumblue:"0000cd",mediumorchid:"ba55d3",mediumpurple:"9370d8",mediumseagreen:"3cb371",mediumslateblue:"7b68ee",mediumspringgreen:"00fa9a",mediumturquoise:"48d1cc",mediumvioletred:"c71585",midnightblue:"191970",mintcream:"f5fffa",mistyrose:"ffe4e1",moccasin:"ffe4b5",navajowhite:"ffdead",navy:"000080",oldlace:"fdf5e6",olive:"808000",olivedrab:"6b8e23",orange:"ffa500",orangered:"ff4500",orchid:"da70d6",palegoldenrod:"eee8aa",palegreen:"98fb98",paleturquoise:"afeeee",palevioletred:"d87093",papayawhip:"ffefd5",peachpuff:"ffdab9",peru:"cd853f",pink:"ffc0cb",plum:"dda0dd",powderblue:"b0e0e6",purple:"800080",rebeccapurple:"639",red:"f00",rosybrown:"bc8f8f",royalblue:"4169e1",saddlebrown:"8b4513",salmon:"fa8072",sandybrown:"f4a460",seagreen:"2e8b57",seashell:"fff5ee",sienna:"a0522d",silver:"c0c0c0",skyblue:"87ceeb",slateblue:"6a5acd",slategray:"708090",slategrey:"708090",snow:"fffafa",springgreen:"00ff7f",steelblue:"4682b4",tan:"d2b48c",teal:"008080",thistle:"d8bfd8",tomato:"ff6347",turquoise:"40e0d0",violet:"ee82ee",wheat:"f5deb3",white:"fff",whitesmoke:"f5f5f5",yellow:"ff0",yellowgreen:"9acd32"}}).use(function(e){e.installMethod("clearer",function(e){return this.alpha(isNaN(e)?-.1:-e,!0)})}).use(function(e){e.use(r),e.installMethod("darken",function(e){return this.lightness(isNaN(e)?-.1:-e,!0)})}).use(function(e){e.use(r),e.installMethod("desaturate",function(e){return this.saturation(isNaN(e)?-.1:-e,!0)})}).use(function(t){function e(){var e=this.rgb(),n=.3*e._red+.59*e._green+.11*e._blue;return new t.RGB(n,n,n,e._alpha)}t.installMethod("greyscale",e).installMethod("grayscale",e)}).use(function(e){e.use(r),e.installMethod("lighten",function(e){return this.lightness(isNaN(e)?.1:e,!0)})}).use(function(u){u.installMethod("mix",function(e,n){e=u(e).rgb();var t=2*(n=1-(isNaN(n)?.5:n))-1,r=this._alpha-e._alpha,a=((t*r==-1?t:(t+r)/(1+t*r))+1)/2,i=1-a,o=this.rgb();return new u.RGB(o._red*a+e._red*i,o._green*a+e._green*i,o._blue*a+e._blue*i,o._alpha*n+e._alpha*(1-n))})}).use(function(n){n.installMethod("negate",function(){var e=this.rgb();return new n.RGB(1-e._red,1-e._green,1-e._blue,this._alpha)})}).use(function(e){e.installMethod("opaquer",function(e){return this.alpha(isNaN(e)?.1:e,!0)})}).use(function(e){e.use(r),e.installMethod("rotate",function(e){return this.hue((e||0)/360,!0)})}).use(function(e){e.use(r),e.installMethod("saturate",function(e){return this.saturation(isNaN(e)?.1:e,!0)})}).use(function(e){e.installMethod("toAlpha",function(e){var n=this.rgb(),t=e(e).rgb(),r=new e.RGB(0,0,0,n._alpha),a=["_red","_green","_blue"];return a.forEach(function(e){n[e]<1e-10?r[e]=n[e]:n[e]>t[e]?r[e]=(n[e]-t[e])/(1-t[e]):n[e]>t[e]?r[e]=(t[e]-n[e])/t[e]:r[e]=0}),r._red>r._green?r._red>r._blue?n._alpha=r._red:n._alpha=r._blue:r._green>r._blue?n._alpha=r._green:n._alpha=r._blue,n._alpha<1e-10||(a.forEach(function(e){n[e]=(n[e]-t[e])/n._alpha+t[e]}),n._alpha*=r._alpha),n})})}()}),g=n(b,"div");function b(e,n,t){var r=document.createElement(e);return r.className=n,t.appendChild(r),r}function n(e){var n=Array.prototype.slice,t=n.apply(arguments,[1]);return function(){return e.apply(null,t.concat(n.apply(arguments)))}}function t(e,n,t){return Math.min(Math.max(e,n),t)}var v={clamp:t,e:b,div:g,partial:n,labelInput:function(e,n,t,r){var a="colorPickerInput"+Math.floor(1001*Math.random()),i=g(e,t);return{label:(c=n,h=i,d=a,p=b("label","",h),p.innerHTML=c,d&&p.setAttribute("for",d),p),input:(o="text",u=i,s=r,l=a,f=b("input","",u),f.type=o,s&&(f.maxLength=s),l&&f.setAttribute("id",l),s&&(f.maxLength=s),f)};var o,u,s,l,f;var c,h,d,p},X:function(e,n){e.style.left=t(100*n,0,100)+"%"},Y:function(e,n){e.style.top=t(100*n,0,100)+"%"},BG:function(e,n){e.style.background=n}};var r={currentColor:function(e){var n=v.div("currentColorContainer",e),t=v.div("currentColor",n);return{change:function(e){v.BG(t,e.cssa())}}},fields:function(e,t,n){var r=n.space,a=n.limit||255,i=0<=n.fix?n.fix:0,o=(""+a).length+i;o=i?o+1:o;var u=r.split(""),s="A"==r[r.length-1];if(r=s?r.slice(0,-1):r,["RGB","HSL","HSV","CMYK"].indexOf(r)<0)return console.warn("Invalid field names",r);var l=v.div("colorFields",e),f=u.map(function(e){e=e.toLowerCase();var n=v.labelInput("color "+e,e,l,o);return n.input.onblur=c,n.input.onkeydown=h,n.input.onkeyup=d,{name:e,e:n}});function c(){t.done()}function h(e){e.ctrlKey||e.altKey||!/^[a-zA-Z]$/.test(e.key)||e.preventDefault()}function d(){var n=[r];f.forEach(function(e){n.push(e.e.input.value/a)}),s||n.push(t.getAlpha()),t.set(n)}return{change:function(n){f.forEach(function(e){e.e.input.value=(n[e.name]()*a).toFixed(i)})}}},hex:function(e,r,n){var t=v.labelInput("hex",n.label||"",e,7);return t.input.value="#",t.input.onkeyup=function(e){var n=e.keyCode||e.which,t=e.target.value;t=function(e,n,t){for(var r=e,a=e.length;a<n;a++)r+=t;return r}(t="#"==t[0]?t:"#"+t,7,"0"),13==n&&r.set(t)},t.input.onblur=function(e){r.set(e.target.value),r.done()},{change:function(e){t.input.value="#"==t.input.value[0]?"#":"",t.input.value+=e.hex().slice(1)}}},alpha:function(e,t){var n=p.slider({parent:e,class:"oned alpha",cbs:{begin:r,change:r,end:function(){t.done()}}});function r(e){var n=v.clamp(e.y,0,1);v.Y(e.pointer,n),t.setAlpha(1-n)}return{change:function(e){v.Y(n.pointer,1-e.alpha())}}},close:function(e,n,t){var r=v.e("a",t.class||"close",e);r.href="#",r.innerHTML=t.label||"Close",r.onclick=function(e){e.preventDefault(),n.hide()}}},y=function(r){return e=s,(n=[r.init,r.xy,r.z]).map(e).filter(l).length!=n.length?console.warn("colorjoe: missing cb"):function(e,n,t){return function(e){if(!e.e)return console.warn("colorjoe: missing element");var n=(t=e.e,"string"==typeof t?document.getElementById(e.e):e.e);var t;n.className="colorPicker";var r=e.cbs,a=p.xyslider({parent:n,class:"twod",cbs:{begin:i,change:i,end:h}});function i(e){l=r.xy(l,{x:v.clamp(e.x,0,1),y:v.clamp(e.y,0,1)},a,o),c()}var o=p.slider({parent:n,class:"oned",cbs:{begin:u,change:u,end:h}});function u(e){l=r.z(l,v.clamp(e.y,0,1),a,o),c()}var s=m(e.color),l=r.init(s,a,o),f={change:[],done:[]};function c(e){e=_(e)?e:[];for(var n,t=f.change,r=0,a=t.length;r<a;r++)n=t[r],-1==e.indexOf(n.name)&&n.fn(l)}function h(){if(!s.equals(l)){for(var e=0,n=f.done.length;e<n;e++)f.done[e].fn(l);s=l}}var d={e:n,done:function(){return h(),this},update:function(e){return c(e),this},hide:function(){return n.style.display="none",this},show:function(){return n.style.display="",this},get:function(){return l},set:function(e){var n=this.get();return l=r.init(m(e),a,o),n.equals(l)||this.update(),this},getAlpha:function(){return l.alpha()},setAlpha:function(e){return l=l.alpha(e),this.update(),this},on:function(e,n,t){return"change"==e||"done"==e?f[e].push({name:t,fn:n}):console.warn('Passed invalid evt name "'+e+'" to colorjoe.on'),this},removeAllListeners:function(e){if(e)f[e]=[];else for(var n in f)f[n]=[];return this}};return function(e,u,n){if(n){var s,l,f,c=v.div("extras",e);n.forEach(function(e,n){_(e)?(l=e[0],f=1<e.length?e[1]:{}):(l=e,f={});var t,r,a,i=l in y.extras?y.extras[l]:null;if(i)for(var o in s=i(c,(r=l+n,(a=function(e){var n={};for(var t in e)n[t]=e[t];return n}(t=u)).update=function(){t.update([r])},a),f))u.on(o,s[o],l)})}}(n,d,e.extras),c(),d}({e:e,color:n,cbs:r,extras:t})};var e,n};for(var i in y.rgb=y({init:function(e,n,t){var r=a(e).hsv();return this.xy(r,{x:r.saturation(),y:1-r.value()},n,t),this.z(r,r.hue(),n,t),r},xy:function(e,n,t){return v.X(t.pointer,n.x),v.Y(t.pointer,n.y),e.saturation(n.x).value(1-n.y)},z:function(e,n,t,r){return v.Y(r.pointer,n),o(t.background,n),e.hue(n)}}),y.hsl=y({init:function(e,n,t){var r=a(e).hsl();return this.xy(r,{x:r.hue(),y:1-r.saturation()},n,t),this.z(r,1-r.lightness(),n,t),r},xy:function(e,n,t,r){return v.X(t.pointer,n.x),v.Y(t.pointer,n.y),o(r.background,n.x),e.hue(n.x).saturation(1-n.y)},z:function(e,n,t,r){return v.Y(r.pointer,n),e.lightness(1-n)}}),y.extras={},y.registerExtra=function(e,n){e in y.extras&&console.warn('Extra "'+e+'"has been registered already!'),y.extras[e]=n},r)y.registerExtra(i,r[i]);function o(e,n){v.BG(e,new a.HSV(n,1,1).cssa())}function m(e){if(!u(e))return a("#000");if(e.isColor)return e;var n=a(e);return n||(u(e)&&console.warn("Passed invalid color to colorjoe, using black instead"),a("#000"))}function _(e){return"[object Array]"===Object.prototype.toString.call(e)}function u(e){return void 0!==e}function s(e){return"function"==typeof e}function l(e){return e}return y});
-//# sourceMappingURL=colorjoe.min.js.map
+// Spectrum Colorpicker v2.0.0
+// https://github.com/seballot/spectrum
+// Author: Brian Grinstead and spectrum contributors
+// License: MIT
+
+(function (factory) {
+    "use strict";
+
+    if (typeof define === 'function' && define.amd) { // AMD
+        define(['jquery'], factory);
+    }
+    else if (typeof exports == "object" && typeof module == "object") { // CommonJS
+        module.exports = factory(require('jquery'));
+    }
+    else { // Browser
+        factory(jQuery);
+    }
+})(function ($, undefined) {
+    "use strict";
+
+    var defaultOpts = {
+
+        // Callbacks
+        beforeShow: noop,
+        move: noop,
+        change: noop,
+        show: noop,
+        hide: noop,
+
+        // Options
+        color: false,
+        flat: false, // Deprecated - use type instead
+        type: '', // text, color, component or flat
+        showInput: false,
+        allowEmpty: true,
+        showButtons: true,
+        clickoutFiresChange: true,
+        showInitial: false,
+        showPalette: true,
+        showPaletteOnly: false,
+        hideAfterPaletteSelect: false,
+        togglePaletteOnly: false,
+        showSelectionPalette: true,
+        localStorageKey: false,
+        appendTo: "body",
+        maxSelectionSize: 8,
+        locale: "en",
+        cancelText: "cancel",
+        chooseText: "choose",
+        togglePaletteMoreText: "more",
+        togglePaletteLessText: "less",
+        clearText: "Clear Color Selection",
+        noColorSelectedText: "No Color Selected",
+        preferredFormat: "name",
+        className: "", // Deprecated - use containerClassName and replacerClassName instead.
+        containerClassName: "",
+        replacerClassName: "",
+        showAlpha: true,
+        theme: "sp-light",
+        palette: [
+            ["#000000", "#444444", "#5b5b5b", "#999999", "#bcbcbc", "#eeeeee", "#f3f6f4", "#ffffff"],
+            ["#f44336", "#744700", "#ce7e00", "#8fce00", "#2986cc", "#16537e", "#6a329f", "#c90076"],
+            ["#f4cccc", "#fce5cd", "#fff2cc", "#d9ead3", "#d0e0e3", "#cfe2f3", "#d9d2e9", "#ead1dc"],
+            ["#ea9999", "#f9cb9c", "#ffe599", "#b6d7a8", "#a2c4c9", "#9fc5e8", "#b4a7d6", "#d5a6bd"],
+            ["#e06666", "#f6b26b", "#ffd966", "#93c47d", "#76a5af", "#6fa8dc", "#8e7cc3", "#c27ba0"],
+            ["#cc0000", "#e69138", "#f1c232", "#6aa84f", "#45818e", "#3d85c6", "#674ea7", "#a64d79"],
+            ["#990000", "#b45f06", "#bf9000", "#38761d", "#134f5c", "#0b5394", "#351c75", "#741b47"],
+            ["#660000", "#783f04", "#7f6000", "#274e13", "#0c343d", "#073763", "#20124d", "#4c1130"]
+        ],
+        selectionPalette: [],
+        disabled: false,
+        offset: null
+    },
+        spectrums = [],
+        IE = !!/msie/i.exec(window.navigator.userAgent),
+        rgbaSupport = (function () {
+            function contains(str, substr) {
+                return !!~('' + str).indexOf(substr);
+            }
+
+            var elem = document.createElement('div');
+            var style = elem.style;
+            style.cssText = 'background-color:rgba(0,0,0,.5)';
+            return contains(style.backgroundColor, 'rgba') || contains(style.backgroundColor, 'hsla');
+        })(),
+        replaceInput = [
+            "<div class='sp-replacer'>",
+            "<div class='sp-preview'><div class='sp-preview-inner'></div></div>",
+            "<div class='sp-dd'>&#9660;</div>",
+            "</div>"
+        ].join(''),
+        markup = (function () {
+
+            // IE does not support gradients with multiple stops, so we need to simulate
+            //  that for the rainbow slider with 8 divs that each have a single gradient
+            var gradientFix = "";
+            if (IE) {
+                for (var i = 1; i <= 6; i++) {
+                    gradientFix += "<div class='sp-" + i + "'></div>";
+                }
+            }
+
+            return [
+                "<div class='sp-container sp-hidden'>",
+                "<div class='sp-palette-container'>",
+                "<div class='sp-palette sp-thumb sp-cf'></div>",
+                "<div class='sp-palette-button-container sp-cf'>",
+                "<button type='button' class='sp-palette-toggle'></button>",
+                "</div>",
+                "</div>",
+                "<div class='sp-picker-container'>",
+                "<div class='sp-top sp-cf'>",
+                "<div class='sp-fill'></div>",
+                "<div class='sp-top-inner'>",
+                "<div class='sp-color'>",
+                "<div class='sp-sat'>",
+                "<div class='sp-val'>",
+                "<div class='sp-dragger'></div>",
+                "</div>",
+                "</div>",
+                "</div>",
+                "<div class='sp-clear sp-clear-display'>",
+                "</div>",
+                "<div class='sp-hue'>",
+                "<div class='sp-slider'></div>",
+                gradientFix,
+                "</div>",
+                "</div>",
+                "<div class='sp-alpha'><div class='sp-alpha-inner'><div class='sp-alpha-handle'></div></div></div>",
+                "</div>",
+                "<div class='sp-input-container sp-cf'>",
+                "<input class='sp-input' type='text' spellcheck='false'  />",
+                "</div>",
+                "<div class='sp-initial sp-thumb sp-cf'></div>",
+                "<div class='sp-button-container sp-cf'>",
+                "<button class='sp-cancel' href='#'></button>",
+                "<button type='button' class='sp-choose'></button>",
+                "</div>",
+                "</div>",
+                "</div>"
+            ].join("");
+        })();
+
+    function paletteTemplate(p, color, className, opts) {
+        var html = [];
+        for (var i = 0; i < p.length; i++) {
+            var current = p[i];
+            if (current) {
+                var tiny = tinycolor(current);
+                var c = tiny.toHsl().l < 0.5 ? "sp-thumb-el sp-thumb-dark" : "sp-thumb-el sp-thumb-light";
+                c += (tinycolor.equals(color, current)) ? " sp-thumb-active" : "";
+                var formattedString = tiny.toString(opts.preferredFormat || "rgb");
+                var swatchStyle = rgbaSupport ? ("background-color:" + tiny.toRgbString()) : "filter:" + tiny.toFilter();
+                html.push('<span title="' + formattedString + '" data-color="' + tiny.toRgbString() + '" class="' + c + '"><span class="sp-thumb-inner" style="' + swatchStyle + ';"></span></span>');
+            } else {
+                html.push('<span class="sp-thumb-el sp-clear-display" ><span class="sp-clear-palette-only" style="background-color: transparent;"></span></span>');
+            }
+        }
+        return "<div class='sp-cf " + className + "'>" + html.join('') + "</div>";
+    }
+
+    function hideAll() {
+        for (var i = 0; i < spectrums.length; i++) {
+            if (spectrums[i]) {
+                spectrums[i].hide();
+            }
+        }
+    }
+
+    function instanceOptions(o, callbackContext) {
+        o.locale = o.locale || window.navigator.language;
+        if (o.locale) o.locale = o.locale.split('-')[0].toLowerCase(); // handle locale like "fr-FR"
+        if (o.locale != 'en' && $.spectrum.localization[o.locale]) {
+            o = $.extend({}, $.spectrum.localization[o.locale], o);
+        }
+        var opts = $.extend({}, defaultOpts, o);
+
+        opts.callbacks = {
+            'move': bind(opts.move, callbackContext),
+            'change': bind(opts.change, callbackContext),
+            'show': bind(opts.show, callbackContext),
+            'hide': bind(opts.hide, callbackContext),
+            'beforeShow': bind(opts.beforeShow, callbackContext)
+        };
+
+        return opts;
+    }
+
+    function spectrum(element, o) {
+
+        var opts = instanceOptions(o, element),
+            type = opts.type,
+            flat = (type == 'flat'),
+            showSelectionPalette = opts.showSelectionPalette,
+            localStorageKey = opts.localStorageKey,
+            theme = opts.theme,
+            callbacks = opts.callbacks,
+            resize = throttle(reflow, 10),
+            visible = false,
+            isDragging = false,
+            dragWidth = 0,
+            dragHeight = 0,
+            dragHelperHeight = 0,
+            slideHeight = 0,
+            slideWidth = 0,
+            alphaWidth = 0,
+            alphaSlideHelperWidth = 0,
+            slideHelperHeight = 0,
+            currentHue = 0,
+            currentSaturation = 0,
+            currentValue = 0,
+            currentAlpha = 1,
+            palette = [],
+            paletteArray = [],
+            paletteLookup = {},
+            selectionPalette = opts.selectionPalette.slice(0),
+            maxSelectionSize = opts.maxSelectionSize,
+            draggingClass = "sp-dragging",
+            abortNextInputChange = false,
+            shiftMovementDirection = null;
+
+        var doc = element.ownerDocument,
+            body = doc.body,
+            boundElement = $(element),
+            disabled = false,
+            container = $(markup, doc).addClass(theme),
+            pickerContainer = container.find(".sp-picker-container"),
+            dragger = container.find(".sp-color"),
+            dragHelper = container.find(".sp-dragger"),
+            slider = container.find(".sp-hue"),
+            slideHelper = container.find(".sp-slider"),
+            alphaSliderInner = container.find(".sp-alpha-inner"),
+            alphaSlider = container.find(".sp-alpha"),
+            alphaSlideHelper = container.find(".sp-alpha-handle"),
+            textInput = container.find(".sp-input"),
+            paletteContainer = container.find(".sp-palette"),
+            initialColorContainer = container.find(".sp-initial"),
+            cancelButton = container.find(".sp-cancel"),
+            clearButton = container.find(".sp-clear"),
+            chooseButton = container.find(".sp-choose"),
+            toggleButton = container.find(".sp-palette-toggle"),
+            isInput = boundElement.is("input"),
+            isInputTypeColor = isInput && boundElement.attr("type") === "color" && inputTypeColorSupport(),
+            shouldReplace = isInput && type == 'color',
+            replacer = (shouldReplace) ? $(replaceInput).addClass(theme).addClass(opts.className).addClass(opts.replacerClassName) : $([]),
+            offsetElement = (shouldReplace) ? replacer : boundElement,
+            previewElement = replacer.find(".sp-preview-inner"),
+            initialColor = opts.color || (isInput && boundElement.val()),
+            colorOnShow = false,
+            currentPreferredFormat = opts.preferredFormat,
+            clickoutFiresChange = !opts.showButtons || opts.clickoutFiresChange,
+            isEmpty = !initialColor,
+            allowEmpty = opts.allowEmpty;
+
+        // Element to be updated with the input color. Populated in initialize method
+        var originalInputContainer = null,
+            colorizeElement = null,
+            colorizeElementInitialColor = null,
+            colorizeElementInitialBackground = null;
+
+        //If there is a label for this element, when clicked on, show the colour picker
+        var thisId = boundElement.attr('id');
+        if (thisId !== undefined && thisId.length > 0) {
+            var label = $('label[for="' + thisId + '"]');
+            if (label.length) {
+                label.on('click', function (e) {
+                    e.preventDefault();
+                    boundElement.spectrum('show');
+                    return false;
+                });
+            }
+        }
+
+        function applyOptions() {
+
+            if (opts.showPaletteOnly) {
+                opts.showPalette = true;
+            }
+
+            toggleButton.text(opts.showPaletteOnly ? opts.togglePaletteMoreText : opts.togglePaletteLessText);
+
+            if (opts.palette) {
+                palette = opts.palette.slice(0);
+                paletteArray = $.isArray(palette[0]) ? palette : [palette];
+                paletteLookup = {};
+                for (var i = 0; i < paletteArray.length; i++) {
+                    for (var j = 0; j < paletteArray[i].length; j++) {
+                        var rgb = tinycolor(paletteArray[i][j]).toRgbString();
+                        paletteLookup[rgb] = true;
+                    }
+                }
+
+                // if showPaletteOnly and didn't set initialcolor
+                // set initialcolor to first palette
+                if (opts.showPaletteOnly && !initialColor) {
+                    initialColor = (palette[0][0] === '') ? palette[0][0] : Object.keys(paletteLookup)[0];
+                }
+            }
+
+            container.toggleClass("sp-flat", flat);
+            container.toggleClass("sp-input-disabled", !opts.showInput);
+            container.toggleClass("sp-alpha-enabled", opts.showAlpha);
+            container.toggleClass("sp-clear-enabled", allowEmpty);
+            container.toggleClass("sp-buttons-disabled", !opts.showButtons);
+            container.toggleClass("sp-palette-buttons-disabled", !opts.togglePaletteOnly);
+            container.toggleClass("sp-palette-disabled", !opts.showPalette);
+            container.toggleClass("sp-palette-only", opts.showPaletteOnly);
+            container.toggleClass("sp-initial-disabled", !opts.showInitial);
+            container.addClass(opts.className).addClass(opts.containerClassName);
+
+            reflow();
+        }
+
+        function initialize() {
+
+            if (IE) {
+                container.find("*:not(input)").attr("unselectable", "on");
+            }
+
+            applyOptions();
+
+            originalInputContainer = $('<span class="sp-original-input-container"></span>');
+            ['margin'].forEach(function (cssProp) {
+                originalInputContainer.css(cssProp, boundElement.css(cssProp));
+            });
+            // inline-flex by default, switching to flex if needed
+            if (boundElement.css('display') == 'block') originalInputContainer.css('display', 'flex');
+
+            if (shouldReplace) {
+                boundElement.after(replacer).hide();
+            } else if (type == 'text') {
+                originalInputContainer.addClass('sp-colorize-container');
+                boundElement.addClass('spectrum sp-colorize').wrap(originalInputContainer);
+            } else if (type == 'component') {
+                boundElement.addClass('spectrum').wrap(originalInputContainer);
+                var addOn = $(["<div class='sp-colorize-container sp-add-on'>",
+                    "<div class='sp-colorize'></div> ",
+                    "</div>"].join(''));
+                addOn.width(boundElement.outerHeight() + 'px')
+                    .css('border-radius', boundElement.css('border-radius'))
+                    .css('border', boundElement.css('border'));
+                boundElement.addClass('with-add-on').before(addOn);
+            }
+
+            colorizeElement = boundElement.parent().find('.sp-colorize');
+            colorizeElementInitialColor = colorizeElement.css('color');
+            colorizeElementInitialBackground = colorizeElement.css('background-color');
+
+            if (!allowEmpty) {
+                clearButton.hide();
+            }
+
+            if (flat) {
+                boundElement.after(container).hide();
+            }
+            else {
+
+                var appendTo = opts.appendTo === "parent" ? boundElement.parent() : $(opts.appendTo);
+                if (appendTo.length !== 1) {
+                    appendTo = $("body");
+                }
+
+                appendTo.append(container);
+            }
+
+            updateSelectionPaletteFromStorage();
+
+            offsetElement.on("click.spectrum touchstart.spectrum", function (e) {
+                if (!disabled) {
+                    toggle();
+                }
+
+                e.stopPropagation();
+
+                if (!$(e.target).is("input")) {
+                    e.preventDefault();
+                }
+            });
+
+            if (boundElement.is(":disabled") || (opts.disabled === true)) {
+                disable();
+            }
+
+            // Prevent clicks from bubbling up to document.  This would cause it to be hidden.
+            container.click(stopPropagation);
+
+            // Handle user typed input
+            [textInput, boundElement].forEach(function (input) {
+                input.change(function () { setFromTextInput(input.val()); });
+                input.on("paste", function () {
+                    setTimeout(function () { setFromTextInput(input.val()); }, 1);
+                });
+                input.keydown(function (e) {
+                    if (e.keyCode == 13) {
+                        setFromTextInput($(input).val());
+                        if (input == boundElement) hide();
+                    }
+                });
+            });
+
+            cancelButton.text(opts.cancelText);
+            cancelButton.on("click.spectrum", function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                revert();
+                hide();
+            });
+
+            clearButton.attr("title", opts.clearText);
+            clearButton.on("click.spectrum", function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                isEmpty = true;
+                move();
+
+                if (flat) {
+                    //for the flat style, this is a change event
+                    updateOriginalInput(true);
+                }
+            });
+
+            chooseButton.text(opts.chooseText);
+            chooseButton.on("click.spectrum", function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                if (IE && textInput.is(":focus")) {
+                    textInput.trigger('change');
+                }
+
+                if (isValid()) {
+                    updateOriginalInput(true);
+                    hide();
+                }
+            });
+
+            toggleButton.text(opts.showPaletteOnly ? opts.togglePaletteMoreText : opts.togglePaletteLessText);
+            toggleButton.on("click.spectrum", function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                opts.showPaletteOnly = !opts.showPaletteOnly;
+
+                // To make sure the Picker area is drawn on the right, next to the
+                // Palette area (and not below the palette), first move the Palette
+                // to the left to make space for the picker, plus 5px extra.
+                // The 'applyOptions' function puts the whole container back into place
+                // and takes care of the button-text and the sp-palette-only CSS class.
+                if (!opts.showPaletteOnly && !flat) {
+                    container.css('left', '-=' + (pickerContainer.outerWidth(true) + 5));
+                }
+                applyOptions();
+            });
+
+            draggable(alphaSlider, function (dragX, dragY, e) {
+                currentAlpha = (dragX / alphaWidth);
+                isEmpty = false;
+                if (e.shiftKey) {
+                    currentAlpha = Math.round(currentAlpha * 10) / 10;
+                }
+
+                move();
+            }, dragStart, dragStop);
+
+            draggable(slider, function (dragX, dragY) {
+                currentHue = parseFloat(dragY / slideHeight);
+                isEmpty = false;
+                if (!opts.showAlpha) {
+                    currentAlpha = 1;
+                }
+                move();
+            }, dragStart, dragStop);
+
+            draggable(dragger, function (dragX, dragY, e) {
+
+                // shift+drag should snap the movement to either the x or y axis.
+                if (!e.shiftKey) {
+                    shiftMovementDirection = null;
+                }
+                else if (!shiftMovementDirection) {
+                    var oldDragX = currentSaturation * dragWidth;
+                    var oldDragY = dragHeight - (currentValue * dragHeight);
+                    var furtherFromX = Math.abs(dragX - oldDragX) > Math.abs(dragY - oldDragY);
+
+                    shiftMovementDirection = furtherFromX ? "x" : "y";
+                }
+
+                var setSaturation = !shiftMovementDirection || shiftMovementDirection === "x";
+                var setValue = !shiftMovementDirection || shiftMovementDirection === "y";
+
+                if (setSaturation) {
+                    currentSaturation = parseFloat(dragX / dragWidth);
+                }
+                if (setValue) {
+                    currentValue = parseFloat((dragHeight - dragY) / dragHeight);
+                }
+
+                isEmpty = false;
+                if (!opts.showAlpha) {
+                    currentAlpha = 1;
+                }
+
+                move();
+
+            }, dragStart, dragStop);
+
+            if (!!initialColor) {
+                set(initialColor);
+
+                // In case color was black - update the preview UI and set the format
+                // since the set function will not run (default color is black).
+                updateUI();
+                currentPreferredFormat = tinycolor(initialColor).format || opts.preferredFormat;
+                addColorToSelectionPalette(initialColor);
+            } else if (initialColor === '') {
+                set(initialColor);
+                updateUI();
+            } else {
+                updateUI();
+            }
+
+            if (flat) {
+                show();
+            }
+
+            function paletteElementClick(e) {
+                if (e.data && e.data.ignore) {
+                    set($(e.target).closest(".sp-thumb-el").data("color"));
+                    move();
+                }
+                else {
+                    set($(e.target).closest(".sp-thumb-el").data("color"));
+                    move();
+
+                    // If the picker is going to close immediately, a palette selection
+                    // is a change.  Otherwise, it's a move only.
+                    if (opts.hideAfterPaletteSelect) {
+                        updateOriginalInput(true);
+                        hide();
+                    } else {
+                        updateOriginalInput();
+                    }
+                }
+
+                return false;
+            }
+
+            var paletteEvent = IE ? "mousedown.spectrum" : "click.spectrum touchstart.spectrum";
+            paletteContainer.on(paletteEvent, ".sp-thumb-el", paletteElementClick);
+            initialColorContainer.on(paletteEvent, ".sp-thumb-el:nth-child(1)", { ignore: true }, paletteElementClick);
+        }
+
+        function updateSelectionPaletteFromStorage() {
+
+            if (localStorageKey) {
+                // Migrate old palettes over to new format.  May want to remove this eventually.
+                try {
+                    var localStorage = window.localStorage;
+                    var oldPalette = localStorage[localStorageKey].split(",#");
+                    if (oldPalette.length > 1) {
+                        delete localStorage[localStorageKey];
+                        $.each(oldPalette, function (i, c) {
+                            addColorToSelectionPalette(c);
+                        });
+                    }
+                }
+                catch (e) { }
+
+                try {
+                    selectionPalette = window.localStorage[localStorageKey].split(";");
+                }
+                catch (e) { }
+            }
+        }
+
+        function addColorToSelectionPalette(color) {
+            if (showSelectionPalette) {
+                var rgb = tinycolor(color).toRgbString();
+                if (!paletteLookup[rgb] && $.inArray(rgb, selectionPalette) === -1) {
+                    selectionPalette.push(rgb);
+                    while (selectionPalette.length > maxSelectionSize) {
+                        selectionPalette.shift();
+                    }
+                }
+
+                if (localStorageKey) {
+                    try {
+                        window.localStorage[localStorageKey] = selectionPalette.join(";");
+                    }
+                    catch (e) { }
+                }
+            }
+        }
+
+        function getUniqueSelectionPalette() {
+            var unique = [];
+            if (opts.showPalette) {
+                for (var i = 0; i < selectionPalette.length; i++) {
+                    var rgb = tinycolor(selectionPalette[i]).toRgbString();
+
+                    if (!paletteLookup[rgb]) {
+                        unique.push(selectionPalette[i]);
+                    }
+                }
+            }
+
+            return unique.reverse().slice(0, opts.maxSelectionSize);
+        }
+
+        function drawPalette() {
+
+            var currentColor = get();
+
+            var html = $.map(paletteArray, function (palette, i) {
+                return paletteTemplate(palette, currentColor, "sp-palette-row sp-palette-row-" + i, opts);
+            });
+
+            updateSelectionPaletteFromStorage();
+
+            if (selectionPalette) {
+                html.push(paletteTemplate(getUniqueSelectionPalette(), currentColor, "sp-palette-row sp-palette-row-selection", opts));
+            }
+
+            paletteContainer.html(html.join(""));
+        }
+
+        function drawInitial() {
+            if (opts.showInitial) {
+                var initial = colorOnShow;
+                var current = get();
+                initialColorContainer.html(paletteTemplate([initial, current], current, "sp-palette-row-initial", opts));
+            }
+        }
+
+        function dragStart() {
+            if (dragHeight <= 0 || dragWidth <= 0 || slideHeight <= 0) {
+                reflow();
+            }
+            isDragging = true;
+            container.addClass(draggingClass);
+            shiftMovementDirection = null;
+            boundElement.trigger('dragstart.spectrum', [get()]);
+        }
+
+        function dragStop() {
+            isDragging = false;
+            container.removeClass(draggingClass);
+            boundElement.trigger('dragstop.spectrum', [get()]);
+        }
+
+        function setFromTextInput(value) {
+            if (abortNextInputChange) { abortNextInputChange = false; return; }
+            if ((value === null || value === "") && allowEmpty) {
+                set(null);
+                move();
+                updateOriginalInput();
+            }
+            else {
+                var tiny = tinycolor(value);
+                if (tiny.isValid()) {
+                    set(tiny);
+                    move();
+                    updateOriginalInput();
+                }
+                else {
+                    textInput.addClass("sp-validation-error");
+                }
+            }
+        }
+
+        function toggle() {
+            if (visible) {
+                hide();
+            }
+            else {
+                show();
+            }
+        }
+
+        function show() {
+            // debugger;
+            var event = $.Event('beforeShow.spectrum');
+
+            if (visible) {
+                reflow();
+                return;
+            }
+
+            boundElement.trigger(event, [get()]);
+
+            if (callbacks.beforeShow(get()) === false || event.isDefaultPrevented()) {
+                return;
+            }
+
+            hideAll();
+            visible = true;
+
+            $(doc).on("keydown.spectrum", onkeydown);
+            $(doc).on("click.spectrum", clickout);
+            $(window).on("resize.spectrum", resize);
+            replacer.addClass("sp-active");
+            container.removeClass("sp-hidden");
+
+            reflow();
+            updateUI();
+
+            colorOnShow = get();
+
+            drawInitial();
+            callbacks.show(colorOnShow);
+            boundElement.trigger('show.spectrum', [colorOnShow]);
+        }
+
+        function onkeydown(e) {
+            // Close on ESC
+            if (e.keyCode === 27) {
+                hide();
+            }
+        }
+
+        function clickout(e) {
+            // Return on right click.
+            if (e.button == 2) { return; }
+
+            // If a drag event was happening during the mouseup, don't hide
+            // on click.
+            if (isDragging) { return; }
+
+            if (clickoutFiresChange) {
+                updateOriginalInput(true);
+            }
+            else {
+                revert();
+            }
+            hide();
+        }
+
+        function hide() {
+            // Return if hiding is unnecessary
+            if (!visible || flat) { return; }
+            visible = false;
+
+            $(doc).off("keydown.spectrum", onkeydown);
+            $(doc).off("click.spectrum", clickout);
+            $(window).off("resize.spectrum", resize);
+
+            replacer.removeClass("sp-active");
+            container.addClass("sp-hidden");
+
+            callbacks.hide(get());
+            boundElement.trigger('hide.spectrum', [get()]);
+        }
+
+        function revert() {
+            set(colorOnShow, true);
+            updateOriginalInput(true);
+        }
+
+        function set(color, ignoreFormatChange) {
+            if (tinycolor.equals(color, get())) {
+                // Update UI just in case a validation error needs
+                // to be cleared.
+                updateUI();
+                return;
+            }
+
+            var newColor, newHsv;
+            if ((!color || color === undefined) && allowEmpty) {
+                isEmpty = true;
+            } else {
+                isEmpty = false;
+                newColor = tinycolor(color);
+                newHsv = newColor.toHsv();
+
+                currentHue = (newHsv.h % 360) / 360;
+                currentSaturation = newHsv.s;
+                currentValue = newHsv.v;
+                currentAlpha = newHsv.a;
+            }
+            updateUI();
+
+            if (newColor && newColor.isValid() && !ignoreFormatChange) {
+                currentPreferredFormat = opts.preferredFormat || newColor.getFormat();
+            }
+        }
+
+        function get(opts) {
+            opts = opts || {};
+
+            if (allowEmpty && isEmpty) {
+                return null;
+            }
+
+            return tinycolor.fromRatio({
+                h: currentHue,
+                s: currentSaturation,
+                v: currentValue,
+                a: Math.round(currentAlpha * 1000) / 1000
+            }, { format: opts.format || currentPreferredFormat });
+        }
+
+        function isValid() {
+            return !textInput.hasClass("sp-validation-error");
+        }
+
+        function move() {
+            updateUI();
+
+            callbacks.move(get());
+            boundElement.trigger('move.spectrum', [get()]);
+        }
+
+        function updateUI() {
+
+            textInput.removeClass("sp-validation-error");
+
+            updateHelperLocations();
+
+            // Update dragger background color (gradients take care of saturation and value).
+            var flatColor = tinycolor.fromRatio({ h: currentHue, s: 1, v: 1 });
+            dragger.css("background-color", flatColor.toHexString());
+
+            // Get a format that alpha will be included in (hex and names ignore alpha)
+            var format = currentPreferredFormat;
+            if (currentAlpha < 1 && !(currentAlpha === 0 && format === "name")) {
+                if (format === "hex" || format === "hex3" || format === "hex6" || format === "name") {
+                    format = "rgb";
+                }
+            }
+
+            var realColor = get({ format: format }),
+                displayColor = '';
+
+            //reset background info for preview element
+            previewElement.removeClass("sp-clear-display");
+            previewElement.css('background-color', 'transparent');
+
+            if (!realColor && allowEmpty) {
+                // Update the replaced elements background with icon indicating no color selection
+                previewElement.addClass("sp-clear-display");
+            }
+            else {
+                var realHex = realColor.toHexString(),
+                    realRgb = realColor.toRgbString();
+
+                // Update the replaced elements background color (with actual selected color)
+                if (rgbaSupport || realColor.alpha === 1) {
+                    previewElement.css("background-color", realRgb);
+                }
+                else {
+                    previewElement.css("background-color", "transparent");
+                    previewElement.css("filter", realColor.toFilter());
+                }
+
+                if (opts.showAlpha) {
+                    var rgb = realColor.toRgb();
+                    rgb.a = 0;
+                    var realAlpha = tinycolor(rgb).toRgbString();
+                    var gradient = "linear-gradient(left, " + realAlpha + ", " + realHex + ")";
+
+                    if (IE) {
+                        alphaSliderInner.css("filter", tinycolor(realAlpha).toFilter({ gradientType: 1 }, realHex));
+                    }
+                    else {
+                        alphaSliderInner.css("background", "-webkit-" + gradient);
+                        alphaSliderInner.css("background", "-moz-" + gradient);
+                        alphaSliderInner.css("background", "-ms-" + gradient);
+                        // Use current syntax gradient on unprefixed property.
+                        alphaSliderInner.css("background",
+                            "linear-gradient(to right, " + realAlpha + ", " + realHex + ")");
+                    }
+                }
+
+                displayColor = realColor.toString(format);
+            }
+
+            // Update the text entry input as it changes happen
+            if (opts.showInput) {
+                textInput.val(displayColor);
+            }
+            boundElement.val(displayColor);
+            if (opts.type == "text" || opts.type == "component") {
+                var color = realColor;
+                if (color && colorizeElement) {
+                    var textColor = (color.isLight() || color.getAlpha() < 0.4) ? 'black' : 'white';
+                    colorizeElement.css('background-color', color.toRgbString()).css('color', textColor);
+                } else {
+                    colorizeElement.css('background-color', colorizeElementInitialBackground)
+                        .css('color', colorizeElementInitialColor);
+                }
+            }
+
+            if (opts.showPalette) {
+                drawPalette();
+            }
+
+            drawInitial();
+        }
+
+        function updateHelperLocations() {
+            var s = currentSaturation;
+            var v = currentValue;
+
+            if (allowEmpty && isEmpty) {
+                //if selected color is empty, hide the helpers
+                alphaSlideHelper.hide();
+                slideHelper.hide();
+                dragHelper.hide();
+            }
+            else {
+                //make sure helpers are visible
+                alphaSlideHelper.show();
+                slideHelper.show();
+                dragHelper.show();
+
+                // Where to show the little circle in that displays your current selected color
+                var dragX = s * dragWidth;
+                var dragY = dragHeight - (v * dragHeight);
+                dragX = Math.max(
+                    -dragHelperHeight,
+                    Math.min(dragWidth - dragHelperHeight, dragX - dragHelperHeight)
+                );
+                dragY = Math.max(
+                    -dragHelperHeight,
+                    Math.min(dragHeight - dragHelperHeight, dragY - dragHelperHeight)
+                );
+                dragHelper.css({
+                    "top": dragY + "px",
+                    "left": dragX + "px"
+                });
+
+                var alphaX = currentAlpha * alphaWidth;
+                alphaSlideHelper.css({
+                    "left": (alphaX - (alphaSlideHelperWidth / 2)) + "px"
+                });
+
+                // Where to show the bar that displays your current selected hue
+                var slideY = (currentHue) * slideHeight;
+                slideHelper.css({
+                    "top": (slideY - slideHelperHeight) + "px"
+                });
+            }
+        }
+
+        function updateOriginalInput(fireCallback) {
+            var color = get(),
+                displayColor = '',
+                hasChanged = !tinycolor.equals(color, colorOnShow);
+
+            if (color) {
+                displayColor = color.toString(currentPreferredFormat);
+                // Update the selection palette with the current color
+                addColorToSelectionPalette(color);
+            }
+
+            if (fireCallback && hasChanged) {
+                callbacks.change(color);
+                // we trigger the change event or input, but the input change event is also binded
+                // to some spectrum processing, that we do no need
+                abortNextInputChange = true;
+                boundElement.trigger('change', [color]);
+            }
+        }
+
+        function reflow() {
+            if (!visible) {
+                return; // Calculations would be useless and wouldn't be reliable anyways
+            }
+            dragWidth = dragger.width();
+            dragHeight = dragger.height();
+            dragHelperHeight = dragHelper.height();
+            slideWidth = slider.width();
+            slideHeight = slider.height();
+            slideHelperHeight = slideHelper.height();
+            alphaWidth = alphaSlider.width();
+            alphaSlideHelperWidth = alphaSlideHelper.width();
+
+            if (!flat) {
+                container.css("position", "absolute");
+                if (opts.offset) {
+                    container.offset(opts.offset);
+                } else {
+                    container.offset(getOffset(container, offsetElement));
+                }
+            }
+
+            updateHelperLocations();
+
+            if (opts.showPalette) {
+                drawPalette();
+            }
+
+            boundElement.trigger('reflow.spectrum');
+        }
+
+        function destroy() {
+            boundElement.show().removeClass('spectrum with-add-on sp-colorize');
+            offsetElement.off("click.spectrum touchstart.spectrum");
+            container.remove();
+            replacer.remove();
+            if (colorizeElement) {
+                colorizeElement.css('background-color', colorizeElementInitialBackground)
+                    .css('color', colorizeElementInitialColor);
+            }
+            var originalInputContainer = boundElement.closest('.sp-original-input-container');
+            if (originalInputContainer.length > 0) {
+                originalInputContainer.after(boundElement).remove();
+            }
+            spectrums[spect.id] = null;
+        }
+
+        function option(optionName, optionValue) {
+            if (optionName === undefined) {
+                return $.extend({}, opts);
+            }
+            if (optionValue === undefined) {
+                return opts[optionName];
+            }
+
+            opts[optionName] = optionValue;
+
+            if (optionName === "preferredFormat") {
+                currentPreferredFormat = opts.preferredFormat;
+            }
+            applyOptions();
+        }
+
+        function enable() {
+            disabled = false;
+            boundElement.attr("disabled", false);
+            offsetElement.removeClass("sp-disabled");
+        }
+
+        function disable() {
+            hide();
+            disabled = true;
+            boundElement.attr("disabled", true);
+            offsetElement.addClass("sp-disabled");
+        }
+
+        function setOffset(coord) {
+            opts.offset = coord;
+            reflow();
+        }
+
+        initialize();
+
+        var spect = {
+            show: show,
+            hide: hide,
+            toggle: toggle,
+            reflow: reflow,
+            option: option,
+            enable: enable,
+            disable: disable,
+            offset: setOffset,
+            set: function (c) {
+                set(c);
+                updateOriginalInput();
+            },
+            get: get,
+            destroy: destroy,
+            container: container
+        };
+
+        spect.id = spectrums.push(spect) - 1;
+
+        return spect;
+    }
+
+    /**
+    * checkOffset - get the offset below/above and left/right element depending on screen position
+    * Thanks https://github.com/jquery/jquery-ui/blob/master/ui/jquery.ui.datepicker.js
+    */
+    function getOffset(picker, input) {
+        var extraY = 0;
+        var dpWidth = picker.outerWidth();
+        var dpHeight = picker.outerHeight();
+        var inputHeight = input.outerHeight();
+        var doc = picker[0].ownerDocument;
+        var docElem = doc.documentElement;
+        var viewWidth = docElem.clientWidth + $(doc).scrollLeft();
+        var viewHeight = docElem.clientHeight + $(doc).scrollTop();
+        var offset = input.offset();
+        var offsetLeft = offset.left;
+        var offsetTop = offset.top;
+
+        offsetTop += inputHeight;
+
+        offsetLeft -=
+            Math.min(offsetLeft, (offsetLeft + dpWidth > viewWidth && viewWidth > dpWidth) ?
+                Math.abs(offsetLeft + dpWidth - viewWidth) : 0);
+
+        offsetTop -=
+            Math.min(offsetTop, ((offsetTop + dpHeight > viewHeight && viewHeight > dpHeight) ?
+                Math.abs(dpHeight + inputHeight - extraY) : extraY));
+
+        return {
+            top: offsetTop,
+            bottom: offset.bottom,
+            left: offsetLeft,
+            right: offset.right,
+            width: offset.width,
+            height: offset.height
+        };
+    }
+
+    /**
+    * noop - do nothing
+    */
+    function noop() {
+
+    }
+
+    /**
+    * stopPropagation - makes the code only doing this a little easier to read in line
+    */
+    function stopPropagation(e) {
+        e.stopPropagation();
+    }
+
+    /**
+    * Create a function bound to a given object
+    * Thanks to underscore.js
+    */
+    function bind(func, obj) {
+        var slice = Array.prototype.slice;
+        var args = slice.call(arguments, 2);
+        return function () {
+            return func.apply(obj, args.concat(slice.call(arguments)));
+        };
+    }
+
+    /**
+    * Lightweight drag helper.  Handles containment within the element, so that
+    * when dragging, the x is within [0,element.width] and y is within [0,element.height]
+    */
+    function draggable(element, onmove, onstart, onstop) {
+        onmove = onmove || function () { };
+        onstart = onstart || function () { };
+        onstop = onstop || function () { };
+        var doc = document;
+        var dragging = false;
+        var offset = {};
+        var maxHeight = 0;
+        var maxWidth = 0;
+        var hasTouch = ('ontouchstart' in window);
+
+        var duringDragEvents = {};
+        duringDragEvents["selectstart"] = prevent;
+        duringDragEvents["dragstart"] = prevent;
+        duringDragEvents["touchmove mousemove"] = move;
+        duringDragEvents["touchend mouseup"] = stop;
+
+        function prevent(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.returnValue = false;
+        }
+
+        function move(e) {
+            if (dragging) {
+                // Mouseup happened outside of window
+                if (IE && doc.documentMode < 9 && !e.button) {
+                    return stop();
+                }
+
+                var t0 = e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0];
+                var pageX = t0 && t0.pageX || e.pageX;
+                var pageY = t0 && t0.pageY || e.pageY;
+
+                var dragX = Math.max(0, Math.min(pageX - offset.left, maxWidth));
+                var dragY = Math.max(0, Math.min(pageY - offset.top, maxHeight));
+
+                if (hasTouch) {
+                    // Stop scrolling in iOS
+                    prevent(e);
+                }
+
+                onmove.apply(element, [dragX, dragY, e]);
+            }
+        }
+
+        function start(e) {
+            var rightclick = (e.which) ? (e.which == 3) : (e.button == 2);
+
+            if (!rightclick && !dragging) {
+                if (onstart.apply(element, arguments) !== false) {
+                    dragging = true;
+                    maxHeight = $(element).height();
+                    maxWidth = $(element).width();
+                    offset = $(element).offset();
+
+                    $(doc).on(duringDragEvents);
+                    $(doc.body).addClass("sp-dragging");
+
+                    move(e);
+
+                    prevent(e);
+                }
+            }
+        }
+
+        function stop() {
+            if (dragging) {
+                $(doc).off(duringDragEvents);
+                $(doc.body).removeClass("sp-dragging");
+
+                // Wait a tick before notifying observers to allow the click event
+                // to fire in Chrome.
+                setTimeout(function () {
+                    onstop.apply(element, arguments);
+                }, 0);
+            }
+            dragging = false;
+        }
+
+        $(element).on("touchstart mousedown", start);
+    }
+
+    function throttle(func, wait, debounce) {
+        var timeout;
+        return function () {
+            var context = this, args = arguments;
+            var throttler = function () {
+                timeout = null;
+                func.apply(context, args);
+            };
+            if (debounce) clearTimeout(timeout);
+            if (debounce || !timeout) timeout = setTimeout(throttler, wait);
+        };
+    }
+
+    function inputTypeColorSupport() {
+        return $.fn.spectrum.inputTypeColorSupport();
+    }
+
+    /**
+    * Define a jQuery plugin
+    */
+    var dataID = "spectrum.id";
+    $.fn.spectrum = function (opts, extra) {
+
+        if (typeof opts == "string") {
+
+            var returnValue = this;
+            var args = Array.prototype.slice.call(arguments, 1);
+
+            this.each(function () {
+                var spect = spectrums[$(this).data(dataID)];
+                if (spect) {
+                    var method = spect[opts];
+                    if (!method) {
+                        throw new Error("Spectrum: no such method: '" + opts + "'");
+                    }
+
+                    if (opts == "get") {
+                        returnValue = spect.get();
+                    }
+                    else if (opts == "container") {
+                        returnValue = spect.container;
+                    }
+                    else if (opts == "option") {
+                        returnValue = spect.option.apply(spect, args);
+                    }
+                    else if (opts == "destroy") {
+                        spect.destroy();
+                        $(this).removeData(dataID);
+                    }
+                    else {
+                        method.apply(spect, args);
+                    }
+                }
+            });
+
+            return returnValue;
+        }
+
+        // Initializing a new instance of spectrum
+        return this.spectrum("destroy").each(function () {
+            var options = $.extend({}, $(this).data(), opts);
+            // Infer default type from input params and deprecated options
+            if (!$(this).is('input')) options.type = 'noInput';
+            else if (options.flat || options.type == "flat") options.type = 'flat';
+            else if ($(this).attr('type') == 'color') options.type = 'color';
+            else options.type = options.type || 'component';
+
+            var spect = spectrum(this, options);
+            $(this).data(dataID, spect.id);
+        });
+    };
+
+    $.fn.spectrum.load = true;
+    $.fn.spectrum.loadOpts = {};
+    $.fn.spectrum.draggable = draggable;
+    $.fn.spectrum.defaults = defaultOpts;
+    $.fn.spectrum.inputTypeColorSupport = function inputTypeColorSupport() {
+        if (typeof inputTypeColorSupport._cachedResult === "undefined") {
+            var colorInput = $("<input type='color'/>")[0]; // if color element is supported, value will default to not null
+            inputTypeColorSupport._cachedResult = colorInput.type === "color" && colorInput.value !== "";
+        }
+        return inputTypeColorSupport._cachedResult;
+    };
+
+    $.spectrum = {};
+    $.spectrum.localization = {};
+    $.spectrum.palettes = {};
+
+    $.fn.spectrum.processNativeColorInputs = function () {
+        var colorInputs = $("input[type=color]");
+        if (colorInputs.length && !inputTypeColorSupport()) {
+            colorInputs.spectrum({
+                preferredFormat: "hex6"
+            });
+        }
+    };
+
+    // TinyColor v1.1.2
+    // https://github.com/bgrins/TinyColor
+    // Brian Grinstead, MIT License
+
+    (function () {
+
+        var trimLeft = /^[\s,#]+/,
+            trimRight = /\s+$/,
+            tinyCounter = 0,
+            math = Math,
+            mathRound = math.round,
+            mathMin = math.min,
+            mathMax = math.max,
+            mathRandom = math.random;
+
+        var tinycolor = function (color, opts) {
+
+            color = (color) ? color : '';
+            opts = opts || {};
+
+            // If input is already a tinycolor, return itself
+            if (color instanceof tinycolor) {
+                return color;
+            }
+            // If we are called as a function, call using new instead
+            if (!(this instanceof tinycolor)) {
+                return new tinycolor(color, opts);
+            }
+
+            var rgb = inputToRGB(color);
+            this._originalInput = color;
+            this._r = rgb.r;
+            this._g = rgb.g;
+            this._b = rgb.b;
+            this._a = rgb.a;
+            this._roundA = mathRound(1000 * this._a) / 1000;
+            this._format = opts.format || rgb.format;
+            this._gradientType = opts.gradientType;
+
+            // Don't let the range of [0,255] come back in [0,1].
+            // Potentially lose a little bit of precision here, but will fix issues where
+            // .5 gets interpreted as half of the total, instead of half of 1
+            // If it was supposed to be 128, this was already taken care of by `inputToRgb`
+            if (this._r < 1) { this._r = mathRound(this._r); }
+            if (this._g < 1) { this._g = mathRound(this._g); }
+            if (this._b < 1) { this._b = mathRound(this._b); }
+
+            this._ok = rgb.ok;
+            this._tc_id = tinyCounter++;
+        };
+
+        tinycolor.prototype = {
+            isDark: function () {
+                return this.getBrightness() < 128;
+            },
+            isLight: function () {
+                return !this.isDark();
+            },
+            isValid: function () {
+                return this._ok;
+            },
+            getOriginalInput: function () {
+                return this._originalInput;
+            },
+            getFormat: function () {
+                return this._format;
+            },
+            getAlpha: function () {
+                return this._a;
+            },
+            getBrightness: function () {
+                var rgb = this.toRgb();
+                return (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+            },
+            setAlpha: function (value) {
+                this._a = boundAlpha(value);
+                this._roundA = mathRound(1000 * this._a) / 1000;
+                return this;
+            },
+            toHsv: function () {
+                var hsv = rgbToHsv(this._r, this._g, this._b);
+                return { h: hsv.h * 360, s: hsv.s, v: hsv.v, a: this._a };
+            },
+            toHsvString: function () {
+                var hsv = rgbToHsv(this._r, this._g, this._b);
+                var h = mathRound(hsv.h * 360), s = mathRound(hsv.s * 100), v = mathRound(hsv.v * 100);
+                return (this._a == 1) ?
+                    "hsv(" + h + ", " + s + "%, " + v + "%)" :
+                    "hsva(" + h + ", " + s + "%, " + v + "%, " + this._roundA + ")";
+            },
+            toHsl: function () {
+                var hsl = rgbToHsl(this._r, this._g, this._b);
+                return { h: hsl.h * 360, s: hsl.s, l: hsl.l, a: this._a };
+            },
+            toHslString: function () {
+                var hsl = rgbToHsl(this._r, this._g, this._b);
+                var h = mathRound(hsl.h * 360), s = mathRound(hsl.s * 100), l = mathRound(hsl.l * 100);
+                return (this._a == 1) ?
+                    "hsl(" + h + ", " + s + "%, " + l + "%)" :
+                    "hsla(" + h + ", " + s + "%, " + l + "%, " + this._roundA + ")";
+            },
+            toHex: function (allow3Char) {
+                return rgbToHex(this._r, this._g, this._b, allow3Char);
+            },
+            toHexString: function (allow3Char) {
+                return '#' + this.toHex(allow3Char);
+            },
+            toHex8: function () {
+                return rgbaToHex(this._r, this._g, this._b, this._a);
+            },
+            toHex8String: function () {
+                return '#' + this.toHex8();
+            },
+            toRgb: function () {
+                return { r: mathRound(this._r), g: mathRound(this._g), b: mathRound(this._b), a: this._a };
+            },
+            toRgbString: function () {
+                return (this._a == 1) ?
+                    "rgb(" + mathRound(this._r) + ", " + mathRound(this._g) + ", " + mathRound(this._b) + ")" :
+                    "rgba(" + mathRound(this._r) + ", " + mathRound(this._g) + ", " + mathRound(this._b) + ", " + this._roundA + ")";
+            },
+            toPercentageRgb: function () {
+                return { r: mathRound(bound01(this._r, 255) * 100) + "%", g: mathRound(bound01(this._g, 255) * 100) + "%", b: mathRound(bound01(this._b, 255) * 100) + "%", a: this._a };
+            },
+            toPercentageRgbString: function () {
+                return (this._a == 1) ?
+                    "rgb(" + mathRound(bound01(this._r, 255) * 100) + "%, " + mathRound(bound01(this._g, 255) * 100) + "%, " + mathRound(bound01(this._b, 255) * 100) + "%)" :
+                    "rgba(" + mathRound(bound01(this._r, 255) * 100) + "%, " + mathRound(bound01(this._g, 255) * 100) + "%, " + mathRound(bound01(this._b, 255) * 100) + "%, " + this._roundA + ")";
+            },
+            toName: function () {
+                if (this._a === 0) {
+                    return "transparent";
+                }
+
+                if (this._a < 1) {
+                    return false;
+                }
+
+                return hexNames[rgbToHex(this._r, this._g, this._b, true)] || false;
+            },
+            toFilter: function (secondColor) {
+                var hex8String = '#' + rgbaToHex(this._r, this._g, this._b, this._a);
+                var secondHex8String = hex8String;
+                var gradientType = this._gradientType ? "GradientType = 1, " : "";
+
+                if (secondColor) {
+                    var s = tinycolor(secondColor);
+                    secondHex8String = s.toHex8String();
+                }
+
+                return "progid:DXImageTransform.Microsoft.gradient(" + gradientType + "startColorstr=" + hex8String + ",endColorstr=" + secondHex8String + ")";
+            },
+            toString: function (format) {
+                var formatSet = !!format;
+                format = format || this._format;
+
+                var formattedString = false;
+                var hasAlpha = this._a < 1 && this._a >= 0;
+                var needsAlphaFormat = !formatSet && hasAlpha && (format === "hex" || format === "hex6" || format === "hex3" || format === "name");
+
+                if (needsAlphaFormat) {
+                    // Special case for "transparent", all other non-alpha formats
+                    // will return rgba when there is transparency.
+                    if (format === "name" && this._a === 0) {
+                        return this.toName();
+                    }
+                    return this.toRgbString();
+                }
+                if (format === "rgb") {
+                    formattedString = this.toRgbString();
+                }
+                if (format === "prgb") {
+                    formattedString = this.toPercentageRgbString();
+                }
+                if (format === "hex" || format === "hex6") {
+                    formattedString = this.toHexString();
+                }
+                if (format === "hex3") {
+                    formattedString = this.toHexString(true);
+                }
+                if (format === "hex8") {
+                    formattedString = this.toHex8String();
+                }
+                if (format === "name") {
+                    formattedString = this.toName();
+                }
+                if (format === "hsl") {
+                    formattedString = this.toHslString();
+                }
+                if (format === "hsv") {
+                    formattedString = this.toHsvString();
+                }
+
+                return formattedString || this.toHexString();
+            },
+
+            _applyModification: function (fn, args) {
+                var color = fn.apply(null, [this].concat([].slice.call(args)));
+                this._r = color._r;
+                this._g = color._g;
+                this._b = color._b;
+                this.setAlpha(color._a);
+                return this;
+            },
+            lighten: function () {
+                return this._applyModification(lighten, arguments);
+            },
+            brighten: function () {
+                return this._applyModification(brighten, arguments);
+            },
+            darken: function () {
+                return this._applyModification(darken, arguments);
+            },
+            desaturate: function () {
+                return this._applyModification(desaturate, arguments);
+            },
+            saturate: function () {
+                return this._applyModification(saturate, arguments);
+            },
+            greyscale: function () {
+                return this._applyModification(greyscale, arguments);
+            },
+            spin: function () {
+                return this._applyModification(spin, arguments);
+            },
+
+            _applyCombination: function (fn, args) {
+                return fn.apply(null, [this].concat([].slice.call(args)));
+            },
+            analogous: function () {
+                return this._applyCombination(analogous, arguments);
+            },
+            complement: function () {
+                return this._applyCombination(complement, arguments);
+            },
+            monochromatic: function () {
+                return this._applyCombination(monochromatic, arguments);
+            },
+            splitcomplement: function () {
+                return this._applyCombination(splitcomplement, arguments);
+            },
+            triad: function () {
+                return this._applyCombination(triad, arguments);
+            },
+            tetrad: function () {
+                return this._applyCombination(tetrad, arguments);
+            }
+        };
+
+        // If input is an object, force 1 into "1.0" to handle ratios properly
+        // String input requires "1.0" as input, so 1 will be treated as 1
+        tinycolor.fromRatio = function (color, opts) {
+            if (typeof color == "object") {
+                var newColor = {};
+                for (var i in color) {
+                    if (color.hasOwnProperty(i)) {
+                        if (i === "a") {
+                            newColor[i] = color[i];
+                        }
+                        else {
+                            newColor[i] = convertToPercentage(color[i]);
+                        }
+                    }
+                }
+                color = newColor;
+            }
+
+            return tinycolor(color, opts);
+        };
+
+        // Given a string or object, convert that input to RGB
+        // Possible string inputs:
+        //
+        //     "red"
+        //     "#f00" or "f00"
+        //     "#ff0000" or "ff0000"
+        //     "#ff000000" or "ff000000"
+        //     "rgb 255 0 0" or "rgb (255, 0, 0)"
+        //     "rgb 1.0 0 0" or "rgb (1, 0, 0)"
+        //     "rgba (255, 0, 0, 1)" or "rgba 255, 0, 0, 1"
+        //     "rgba (1.0, 0, 0, 1)" or "rgba 1.0, 0, 0, 1"
+        //     "hsl(0, 100%, 50%)" or "hsl 0 100% 50%"
+        //     "hsla(0, 100%, 50%, 1)" or "hsla 0 100% 50%, 1"
+        //     "hsv(0, 100%, 100%)" or "hsv 0 100% 100%"
+        //
+        function inputToRGB(color) {
+
+            var rgb = { r: 0, g: 0, b: 0 };
+            var a = 1;
+            var ok = false;
+            var format = false;
+
+            if (typeof color == "string") {
+                color = stringInputToObject(color);
+            }
+
+            if (typeof color == "object") {
+                if (color.hasOwnProperty("r") && color.hasOwnProperty("g") && color.hasOwnProperty("b")) {
+                    rgb = rgbToRgb(color.r, color.g, color.b);
+                    ok = true;
+                    format = String(color.r).substr(-1) === "%" ? "prgb" : "rgb";
+                }
+                else if (color.hasOwnProperty("h") && color.hasOwnProperty("s") && color.hasOwnProperty("v")) {
+                    color.s = convertToPercentage(color.s);
+                    color.v = convertToPercentage(color.v);
+                    rgb = hsvToRgb(color.h, color.s, color.v);
+                    ok = true;
+                    format = "hsv";
+                }
+                else if (color.hasOwnProperty("h") && color.hasOwnProperty("s") && color.hasOwnProperty("l")) {
+                    color.s = convertToPercentage(color.s);
+                    color.l = convertToPercentage(color.l);
+                    rgb = hslToRgb(color.h, color.s, color.l);
+                    ok = true;
+                    format = "hsl";
+                }
+
+                if (color.hasOwnProperty("a")) {
+                    a = color.a;
+                }
+            }
+
+            a = boundAlpha(a);
+
+            return {
+                ok: ok,
+                format: color.format || format,
+                r: mathMin(255, mathMax(rgb.r, 0)),
+                g: mathMin(255, mathMax(rgb.g, 0)),
+                b: mathMin(255, mathMax(rgb.b, 0)),
+                a: a
+            };
+        }
+
+
+        // Conversion Functions
+        // --------------------
+
+        // `rgbToHsl`, `rgbToHsv`, `hslToRgb`, `hsvToRgb` modified from:
+        // <http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript>
+
+        // `rgbToRgb`
+        // Handle bounds / percentage checking to conform to CSS color spec
+        // <http://www.w3.org/TR/css3-color/>
+        // *Assumes:* r, g, b in [0, 255] or [0, 1]
+        // *Returns:* { r, g, b } in [0, 255]
+        function rgbToRgb(r, g, b) {
+            return {
+                r: bound01(r, 255) * 255,
+                g: bound01(g, 255) * 255,
+                b: bound01(b, 255) * 255
+            };
+        }
+
+        // `rgbToHsl`
+        // Converts an RGB color value to HSL.
+        // *Assumes:* r, g, and b are contained in [0, 255] or [0, 1]
+        // *Returns:* { h, s, l } in [0,1]
+        function rgbToHsl(r, g, b) {
+
+            r = bound01(r, 255);
+            g = bound01(g, 255);
+            b = bound01(b, 255);
+
+            var max = mathMax(r, g, b), min = mathMin(r, g, b);
+            var h, s, l = (max + min) / 2;
+
+            if (max == min) {
+                h = s = 0; // achromatic
+            }
+            else {
+                var d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+
+                h /= 6;
+            }
+
+            return { h: h, s: s, l: l };
+        }
+
+        // `hslToRgb`
+        // Converts an HSL color value to RGB.
+        // *Assumes:* h is contained in [0, 1] or [0, 360] and s and l are contained [0, 1] or [0, 100]
+        // *Returns:* { r, g, b } in the set [0, 255]
+        function hslToRgb(h, s, l) {
+            var r, g, b;
+
+            h = bound01(h, 360);
+            s = bound01(s, 100);
+            l = bound01(l, 100);
+
+            function hue2rgb(p, q, t) {
+                if (t < 0) t += 1;
+                if (t > 1) t -= 1;
+                if (t < 1 / 6) return p + (q - p) * 6 * t;
+                if (t < 1 / 2) return q;
+                if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                return p;
+            }
+
+            if (s === 0) {
+                r = g = b = l; // achromatic
+            }
+            else {
+                var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                var p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+
+            return { r: r * 255, g: g * 255, b: b * 255 };
+        }
+
+        // `rgbToHsv`
+        // Converts an RGB color value to HSV
+        // *Assumes:* r, g, and b are contained in the set [0, 255] or [0, 1]
+        // *Returns:* { h, s, v } in [0,1]
+        function rgbToHsv(r, g, b) {
+
+            r = bound01(r, 255);
+            g = bound01(g, 255);
+            b = bound01(b, 255);
+
+            var max = mathMax(r, g, b), min = mathMin(r, g, b);
+            var h, s, v = max;
+
+            var d = max - min;
+            s = max === 0 ? 0 : d / max;
+
+            if (max == min) {
+                h = 0; // achromatic
+            }
+            else {
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return { h: h, s: s, v: v };
+        }
+
+        // `hsvToRgb`
+        // Converts an HSV color value to RGB.
+        // *Assumes:* h is contained in [0, 1] or [0, 360] and s and v are contained in [0, 1] or [0, 100]
+        // *Returns:* { r, g, b } in the set [0, 255]
+        function hsvToRgb(h, s, v) {
+
+            h = bound01(h, 360) * 6;
+            s = bound01(s, 100);
+            v = bound01(v, 100);
+
+            var i = math.floor(h),
+                f = h - i,
+                p = v * (1 - s),
+                q = v * (1 - f * s),
+                t = v * (1 - (1 - f) * s),
+                mod = i % 6,
+                r = [v, q, p, p, t, v][mod],
+                g = [t, v, v, q, p, p][mod],
+                b = [p, p, t, v, v, q][mod];
+
+            return { r: r * 255, g: g * 255, b: b * 255 };
+        }
+
+        // `rgbToHex`
+        // Converts an RGB color to hex
+        // Assumes r, g, and b are contained in the set [0, 255]
+        // Returns a 3 or 6 character hex
+        function rgbToHex(r, g, b, allow3Char) {
+
+            var hex = [
+                pad2(mathRound(r).toString(16)),
+                pad2(mathRound(g).toString(16)),
+                pad2(mathRound(b).toString(16))
+            ];
+
+            // Return a 3 character hex if possible
+            if (allow3Char && hex[0].charAt(0) == hex[0].charAt(1) && hex[1].charAt(0) == hex[1].charAt(1) && hex[2].charAt(0) == hex[2].charAt(1)) {
+                return hex[0].charAt(0) + hex[1].charAt(0) + hex[2].charAt(0);
+            }
+
+            return hex.join("");
+        }
+        // `rgbaToHex`
+        // Converts an RGBA color plus alpha transparency to hex
+        // Assumes r, g, b and a are contained in the set [0, 255]
+        // Returns an 8 character hex
+        function rgbaToHex(r, g, b, a) {
+
+            var hex = [
+                pad2(convertDecimalToHex(a)),
+                pad2(mathRound(r).toString(16)),
+                pad2(mathRound(g).toString(16)),
+                pad2(mathRound(b).toString(16))
+            ];
+
+            return hex.join("");
+        }
+
+        // `equals`
+        // Can be called with any tinycolor input
+        tinycolor.equals = function (color1, color2) {
+            if (!color1 || !color2) { return false; }
+            return tinycolor(color1).toRgbString() == tinycolor(color2).toRgbString();
+        };
+        tinycolor.random = function () {
+            return tinycolor.fromRatio({
+                r: mathRandom(),
+                g: mathRandom(),
+                b: mathRandom()
+            });
+        };
+
+
+        // Modification Functions
+        // ----------------------
+        // Thanks to less.js for some of the basics here
+        // <https://github.com/cloudhead/less.js/blob/master/lib/less/functions.js>
+
+        function desaturate(color, amount) {
+            amount = (amount === 0) ? 0 : (amount || 10);
+            var hsl = tinycolor(color).toHsl();
+            hsl.s -= amount / 100;
+            hsl.s = clamp01(hsl.s);
+            return tinycolor(hsl);
+        }
+
+        function saturate(color, amount) {
+            amount = (amount === 0) ? 0 : (amount || 10);
+            var hsl = tinycolor(color).toHsl();
+            hsl.s += amount / 100;
+            hsl.s = clamp01(hsl.s);
+            return tinycolor(hsl);
+        }
+
+        function greyscale(color) {
+            return tinycolor(color).desaturate(100);
+        }
+
+        function lighten(color, amount) {
+            amount = (amount === 0) ? 0 : (amount || 10);
+            var hsl = tinycolor(color).toHsl();
+            hsl.l += amount / 100;
+            hsl.l = clamp01(hsl.l);
+            return tinycolor(hsl);
+        }
+
+        function brighten(color, amount) {
+            amount = (amount === 0) ? 0 : (amount || 10);
+            var rgb = tinycolor(color).toRgb();
+            rgb.r = mathMax(0, mathMin(255, rgb.r - mathRound(255 * - (amount / 100))));
+            rgb.g = mathMax(0, mathMin(255, rgb.g - mathRound(255 * - (amount / 100))));
+            rgb.b = mathMax(0, mathMin(255, rgb.b - mathRound(255 * - (amount / 100))));
+            return tinycolor(rgb);
+        }
+
+        function darken(color, amount) {
+            amount = (amount === 0) ? 0 : (amount || 10);
+            var hsl = tinycolor(color).toHsl();
+            hsl.l -= amount / 100;
+            hsl.l = clamp01(hsl.l);
+            return tinycolor(hsl);
+        }
+
+        // Spin takes a positive or negative amount within [-360, 360] indicating the change of hue.
+        // Values outside of this range will be wrapped into this range.
+        function spin(color, amount) {
+            var hsl = tinycolor(color).toHsl();
+            var hue = (mathRound(hsl.h) + amount) % 360;
+            hsl.h = hue < 0 ? 360 + hue : hue;
+            return tinycolor(hsl);
+        }
+
+        // Combination Functions
+        // ---------------------
+        // Thanks to jQuery xColor for some of the ideas behind these
+        // <https://github.com/infusion/jQuery-xcolor/blob/master/jquery.xcolor.js>
+
+        function complement(color) {
+            var hsl = tinycolor(color).toHsl();
+            hsl.h = (hsl.h + 180) % 360;
+            return tinycolor(hsl);
+        }
+
+        function triad(color) {
+            var hsl = tinycolor(color).toHsl();
+            var h = hsl.h;
+            return [
+                tinycolor(color),
+                tinycolor({ h: (h + 120) % 360, s: hsl.s, l: hsl.l }),
+                tinycolor({ h: (h + 240) % 360, s: hsl.s, l: hsl.l })
+            ];
+        }
+
+        function tetrad(color) {
+            var hsl = tinycolor(color).toHsl();
+            var h = hsl.h;
+            return [
+                tinycolor(color),
+                tinycolor({ h: (h + 90) % 360, s: hsl.s, l: hsl.l }),
+                tinycolor({ h: (h + 180) % 360, s: hsl.s, l: hsl.l }),
+                tinycolor({ h: (h + 270) % 360, s: hsl.s, l: hsl.l })
+            ];
+        }
+
+        function splitcomplement(color) {
+            var hsl = tinycolor(color).toHsl();
+            var h = hsl.h;
+            return [
+                tinycolor(color),
+                tinycolor({ h: (h + 72) % 360, s: hsl.s, l: hsl.l }),
+                tinycolor({ h: (h + 216) % 360, s: hsl.s, l: hsl.l })
+            ];
+        }
+
+        function analogous(color, results, slices) {
+            results = results || 6;
+            slices = slices || 30;
+
+            var hsl = tinycolor(color).toHsl();
+            var part = 360 / slices;
+            var ret = [tinycolor(color)];
+
+            for (hsl.h = ((hsl.h - (part * results >> 1)) + 720) % 360; --results;) {
+                hsl.h = (hsl.h + part) % 360;
+                ret.push(tinycolor(hsl));
+            }
+            return ret;
+        }
+
+        function monochromatic(color, results) {
+            results = results || 6;
+            var hsv = tinycolor(color).toHsv();
+            var h = hsv.h, s = hsv.s, v = hsv.v;
+            var ret = [];
+            var modification = 1 / results;
+
+            while (results--) {
+                ret.push(tinycolor({ h: h, s: s, v: v }));
+                v = (v + modification) % 1;
+            }
+
+            return ret;
+        }
+
+        // Utility Functions
+        // ---------------------
+
+        tinycolor.mix = function (color1, color2, amount) {
+            amount = (amount === 0) ? 0 : (amount || 50);
+
+            var rgb1 = tinycolor(color1).toRgb();
+            var rgb2 = tinycolor(color2).toRgb();
+
+            var p = amount / 100;
+            var w = p * 2 - 1;
+            var a = rgb2.a - rgb1.a;
+
+            var w1;
+
+            if (w * a == -1) {
+                w1 = w;
+            } else {
+                w1 = (w + a) / (1 + w * a);
+            }
+
+            w1 = (w1 + 1) / 2;
+
+            var w2 = 1 - w1;
+
+            var rgba = {
+                r: rgb2.r * w1 + rgb1.r * w2,
+                g: rgb2.g * w1 + rgb1.g * w2,
+                b: rgb2.b * w1 + rgb1.b * w2,
+                a: rgb2.a * p + rgb1.a * (1 - p)
+            };
+
+            return tinycolor(rgba);
+        };
+
+
+        // Readability Functions
+        // ---------------------
+        // <http://www.w3.org/TR/AERT#color-contrast>
+
+        // `readability`
+        // Analyze the 2 colors and returns an object with the following properties:
+        //    `brightness`: difference in brightness between the two colors
+        //    `color`: difference in color/hue between the two colors
+        tinycolor.readability = function (color1, color2) {
+            var c1 = tinycolor(color1);
+            var c2 = tinycolor(color2);
+            var rgb1 = c1.toRgb();
+            var rgb2 = c2.toRgb();
+            var brightnessA = c1.getBrightness();
+            var brightnessB = c2.getBrightness();
+            var colorDiff = (
+                Math.max(rgb1.r, rgb2.r) - Math.min(rgb1.r, rgb2.r) +
+                Math.max(rgb1.g, rgb2.g) - Math.min(rgb1.g, rgb2.g) +
+                Math.max(rgb1.b, rgb2.b) - Math.min(rgb1.b, rgb2.b)
+            );
+
+            return {
+                brightness: Math.abs(brightnessA - brightnessB),
+                color: colorDiff
+            };
+        };
+
+        // `readable`
+        // http://www.w3.org/TR/AERT#color-contrast
+        // Ensure that foreground and background color combinations provide sufficient contrast.
+        // *Example*
+        //    tinycolor.isReadable("#000", "#111") => false
+        tinycolor.isReadable = function (color1, color2) {
+            var readability = tinycolor.readability(color1, color2);
+            return readability.brightness > 125 && readability.color > 500;
+        };
+
+        // `mostReadable`
+        // Given a base color and a list of possible foreground or background
+        // colors for that base, returns the most readable color.
+        // *Example*
+        //    tinycolor.mostReadable("#123", ["#fff", "#000"]) => "#000"
+        tinycolor.mostReadable = function (baseColor, colorList) {
+            var bestColor = null;
+            var bestScore = 0;
+            var bestIsReadable = false;
+            for (var i = 0; i < colorList.length; i++) {
+
+                // We normalize both around the "acceptable" breaking point,
+                // but rank brightness constrast higher than hue.
+
+                var readability = tinycolor.readability(baseColor, colorList[i]);
+                var readable = readability.brightness > 125 && readability.color > 500;
+                var score = 3 * (readability.brightness / 125) + (readability.color / 500);
+
+                if ((readable && !bestIsReadable) ||
+                    (readable && bestIsReadable && score > bestScore) ||
+                    ((!readable) && (!bestIsReadable) && score > bestScore)) {
+                    bestIsReadable = readable;
+                    bestScore = score;
+                    bestColor = tinycolor(colorList[i]);
+                }
+            }
+            return bestColor;
+        };
+
+
+        // Big List of Colors
+        // ------------------
+        // <http://www.w3.org/TR/css3-color/#svg-color>
+        var names = tinycolor.names = {
+            aliceblue: "f0f8ff",
+            antiquewhite: "faebd7",
+            aqua: "0ff",
+            aquamarine: "7fffd4",
+            azure: "f0ffff",
+            beige: "f5f5dc",
+            bisque: "ffe4c4",
+            black: "000",
+            blanchedalmond: "ffebcd",
+            blue: "00f",
+            blueviolet: "8a2be2",
+            brown: "a52a2a",
+            burlywood: "deb887",
+            burntsienna: "ea7e5d",
+            cadetblue: "5f9ea0",
+            chartreuse: "7fff00",
+            chocolate: "d2691e",
+            coral: "ff7f50",
+            cornflowerblue: "6495ed",
+            cornsilk: "fff8dc",
+            crimson: "dc143c",
+            cyan: "0ff",
+            darkblue: "00008b",
+            darkcyan: "008b8b",
+            darkgoldenrod: "b8860b",
+            darkgray: "a9a9a9",
+            darkgreen: "006400",
+            darkgrey: "a9a9a9",
+            darkkhaki: "bdb76b",
+            darkmagenta: "8b008b",
+            darkolivegreen: "556b2f",
+            darkorange: "ff8c00",
+            darkorchid: "9932cc",
+            darkred: "8b0000",
+            darksalmon: "e9967a",
+            darkseagreen: "8fbc8f",
+            darkslateblue: "483d8b",
+            darkslategray: "2f4f4f",
+            darkslategrey: "2f4f4f",
+            darkturquoise: "00ced1",
+            darkviolet: "9400d3",
+            deeppink: "ff1493",
+            deepskyblue: "00bfff",
+            dimgray: "696969",
+            dimgrey: "696969",
+            dodgerblue: "1e90ff",
+            firebrick: "b22222",
+            floralwhite: "fffaf0",
+            forestgreen: "228b22",
+            fuchsia: "f0f",
+            gainsboro: "dcdcdc",
+            ghostwhite: "f8f8ff",
+            gold: "ffd700",
+            goldenrod: "daa520",
+            gray: "808080",
+            green: "008000",
+            greenyellow: "adff2f",
+            grey: "808080",
+            honeydew: "f0fff0",
+            hotpink: "ff69b4",
+            indianred: "cd5c5c",
+            indigo: "4b0082",
+            ivory: "fffff0",
+            khaki: "f0e68c",
+            lavender: "e6e6fa",
+            lavenderblush: "fff0f5",
+            lawngreen: "7cfc00",
+            lemonchiffon: "fffacd",
+            lightblue: "add8e6",
+            lightcoral: "f08080",
+            lightcyan: "e0ffff",
+            lightgoldenrodyellow: "fafad2",
+            lightgray: "d3d3d3",
+            lightgreen: "90ee90",
+            lightgrey: "d3d3d3",
+            lightpink: "ffb6c1",
+            lightsalmon: "ffa07a",
+            lightseagreen: "20b2aa",
+            lightskyblue: "87cefa",
+            lightslategray: "789",
+            lightslategrey: "789",
+            lightsteelblue: "b0c4de",
+            lightyellow: "ffffe0",
+            lime: "0f0",
+            limegreen: "32cd32",
+            linen: "faf0e6",
+            magenta: "f0f",
+            maroon: "800000",
+            mediumaquamarine: "66cdaa",
+            mediumblue: "0000cd",
+            mediumorchid: "ba55d3",
+            mediumpurple: "9370db",
+            mediumseagreen: "3cb371",
+            mediumslateblue: "7b68ee",
+            mediumspringgreen: "00fa9a",
+            mediumturquoise: "48d1cc",
+            mediumvioletred: "c71585",
+            midnightblue: "191970",
+            mintcream: "f5fffa",
+            mistyrose: "ffe4e1",
+            moccasin: "ffe4b5",
+            navajowhite: "ffdead",
+            navy: "000080",
+            oldlace: "fdf5e6",
+            olive: "808000",
+            olivedrab: "6b8e23",
+            orange: "ffa500",
+            orangered: "ff4500",
+            orchid: "da70d6",
+            palegoldenrod: "eee8aa",
+            palegreen: "98fb98",
+            paleturquoise: "afeeee",
+            palevioletred: "db7093",
+            papayawhip: "ffefd5",
+            peachpuff: "ffdab9",
+            peru: "cd853f",
+            pink: "ffc0cb",
+            plum: "dda0dd",
+            powderblue: "b0e0e6",
+            purple: "800080",
+            rebeccapurple: "663399",
+            red: "f00",
+            rosybrown: "bc8f8f",
+            royalblue: "4169e1",
+            saddlebrown: "8b4513",
+            salmon: "fa8072",
+            sandybrown: "f4a460",
+            seagreen: "2e8b57",
+            seashell: "fff5ee",
+            sienna: "a0522d",
+            silver: "c0c0c0",
+            skyblue: "87ceeb",
+            slateblue: "6a5acd",
+            slategray: "708090",
+            slategrey: "708090",
+            snow: "fffafa",
+            springgreen: "00ff7f",
+            steelblue: "4682b4",
+            tan: "d2b48c",
+            teal: "008080",
+            thistle: "d8bfd8",
+            tomato: "ff6347",
+            turquoise: "40e0d0",
+            violet: "ee82ee",
+            wheat: "f5deb3",
+            white: "fff",
+            whitesmoke: "f5f5f5",
+            yellow: "ff0",
+            yellowgreen: "9acd32"
+        };
+
+        // Make it easy to access colors via `hexNames[hex]`
+        var hexNames = tinycolor.hexNames = flip(names);
+
+
+        // Utilities
+        // ---------
+
+        // `{ 'name1': 'val1' }` becomes `{ 'val1': 'name1' }`
+        function flip(o) {
+            var flipped = {};
+            for (var i in o) {
+                if (o.hasOwnProperty(i)) {
+                    flipped[o[i]] = i;
+                }
+            }
+            return flipped;
+        }
+
+        // Return a valid alpha value [0,1] with all invalid values being set to 1
+        function boundAlpha(a) {
+            a = parseFloat(a);
+
+            if (isNaN(a) || a < 0 || a > 1) {
+                a = 1;
+            }
+
+            return a;
+        }
+
+        // Take input from [0, n] and return it as [0, 1]
+        function bound01(n, max) {
+            if (isOnePointZero(n)) { n = "100%"; }
+
+            var processPercent = isPercentage(n);
+            n = mathMin(max, mathMax(0, parseFloat(n)));
+
+            // Automatically convert percentage into number
+            if (processPercent) {
+                n = parseInt(n * max, 10) / 100;
+            }
+
+            // Handle floating point rounding errors
+            if ((math.abs(n - max) < 0.000001)) {
+                return 1;
+            }
+
+            // Convert into [0, 1] range if it isn't already
+            return (n % max) / parseFloat(max);
+        }
+
+        // Force a number between 0 and 1
+        function clamp01(val) {
+            return mathMin(1, mathMax(0, val));
+        }
+
+        // Parse a base-16 hex value into a base-10 integer
+        function parseIntFromHex(val) {
+            return parseInt(val, 16);
+        }
+
+        // Need to handle 1.0 as 100%, since once it is a number, there is no difference between it and 1
+        // <http://stackoverflow.com/questions/7422072/javascript-how-to-detect-number-as-a-decimal-including-1-0>
+        function isOnePointZero(n) {
+            return typeof n == "string" && n.indexOf('.') != -1 && parseFloat(n) === 1;
+        }
+
+        // Check to see if string passed in is a percentage
+        function isPercentage(n) {
+            return typeof n === "string" && n.indexOf('%') != -1;
+        }
+
+        // Force a hex value to have 2 characters
+        function pad2(c) {
+            return c.length == 1 ? '0' + c : '' + c;
+        }
+
+        // Replace a decimal with it's percentage value
+        function convertToPercentage(n) {
+            if (n <= 1) {
+                n = (n * 100) + "%";
+            }
+
+            return n;
+        }
+
+        // Converts a decimal to a hex value
+        function convertDecimalToHex(d) {
+            return Math.round(parseFloat(d) * 255).toString(16);
+        }
+        // Converts a hex value to a decimal
+        function convertHexToDecimal(h) {
+            return (parseIntFromHex(h) / 255);
+        }
+
+        var matchers = (function () {
+
+            // <http://www.w3.org/TR/css3-values/#integers>
+            var CSS_INTEGER = "[-\\+]?\\d+%?";
+
+            // <http://www.w3.org/TR/css3-values/#number-value>
+            var CSS_NUMBER = "[-\\+]?\\d*\\.\\d+%?";
+
+            // Allow positive/negative integer/number.  Don't capture the either/or, just the entire outcome.
+            var CSS_UNIT = "(?:" + CSS_NUMBER + ")|(?:" + CSS_INTEGER + ")";
+
+            // Actual matching.
+            // Parentheses and commas are optional, but not required.
+            // Whitespace can take the place of commas or opening paren
+            var PERMISSIVE_MATCH3 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+            var PERMISSIVE_MATCH4 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+
+            return {
+                rgb: new RegExp("rgb" + PERMISSIVE_MATCH3),
+                rgba: new RegExp("rgba" + PERMISSIVE_MATCH4),
+                hsl: new RegExp("hsl" + PERMISSIVE_MATCH3),
+                hsla: new RegExp("hsla" + PERMISSIVE_MATCH4),
+                hsv: new RegExp("hsv" + PERMISSIVE_MATCH3),
+                hsva: new RegExp("hsva" + PERMISSIVE_MATCH4),
+                hex3: /^([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+                hex6: /^([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/,
+                hex8: /^([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/
+            };
+        })();
+
+        // `stringInputToObject`
+        // Permissive string parsing.  Take in a number of formats, and output an object
+        // based on detected format.  Returns `{ r, g, b }` or `{ h, s, l }` or `{ h, s, v}`
+        function stringInputToObject(color) {
+
+            color = color.replace(trimLeft, '').replace(trimRight, '').toLowerCase();
+            var named = false;
+            if (names[color]) {
+                color = names[color];
+                named = true;
+            }
+            else if (color == 'transparent') {
+                return { r: 0, g: 0, b: 0, a: 0, format: "name" };
+            }
+
+            // Try to match string input using regular expressions.
+            // Keep most of the number bounding out of this function - don't worry about [0,1] or [0,100] or [0,360]
+            // Just return an object and let the conversion functions handle that.
+            // This way the result will be the same whether the tinycolor is initialized with string or object.
+            var match;
+            if ((match = matchers.rgb.exec(color))) {
+                return { r: match[1], g: match[2], b: match[3] };
+            }
+            if ((match = matchers.rgba.exec(color))) {
+                return { r: match[1], g: match[2], b: match[3], a: match[4] };
+            }
+            if ((match = matchers.hsl.exec(color))) {
+                return { h: match[1], s: match[2], l: match[3] };
+            }
+            if ((match = matchers.hsla.exec(color))) {
+                return { h: match[1], s: match[2], l: match[3], a: match[4] };
+            }
+            if ((match = matchers.hsv.exec(color))) {
+                return { h: match[1], s: match[2], v: match[3] };
+            }
+            if ((match = matchers.hsva.exec(color))) {
+                return { h: match[1], s: match[2], v: match[3], a: match[4] };
+            }
+            if ((match = matchers.hex8.exec(color))) {
+                return {
+                    a: convertHexToDecimal(match[1]),
+                    r: parseIntFromHex(match[2]),
+                    g: parseIntFromHex(match[3]),
+                    b: parseIntFromHex(match[4]),
+                    format: named ? "name" : "hex8"
+                };
+            }
+            if ((match = matchers.hex6.exec(color))) {
+                return {
+                    r: parseIntFromHex(match[1]),
+                    g: parseIntFromHex(match[2]),
+                    b: parseIntFromHex(match[3]),
+                    format: named ? "name" : "hex"
+                };
+            }
+            if ((match = matchers.hex3.exec(color))) {
+                return {
+                    r: parseIntFromHex(match[1] + '' + match[1]),
+                    g: parseIntFromHex(match[2] + '' + match[2]),
+                    b: parseIntFromHex(match[3] + '' + match[3]),
+                    format: named ? "name" : "hex"
+                };
+            }
+
+            return false;
+        }
+
+        window.tinycolor = tinycolor;
+    })();
+
+    $(function () {
+        if ($.fn.spectrum.load) {
+            $.fn.spectrum.processNativeColorInputs();
+        }
+    });
+
+});
+
+// Spectrum Colorpicker
+// Arabic (ar) localization
+// https://github.com/seballot/spectrum
+(function ( $ ) {
+
+  var localization = $.spectrum.localization["ar"] = {
+      cancelText: "إلغاء",
+      chooseText: "إختار",
+      clearText: "إرجاع الألوان على ما كانت",
+      noColorSelectedText: "لم تختار أي لون",
+      togglePaletteMoreText: "أكثر",
+      togglePaletteLessText: "أقل"
+  };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Catalan (ca) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["ca"] = {
+        cancelText: "Cancel·lar",
+        chooseText: "Escollir",
+        clearText: "Esborrar color seleccionat",
+        noColorSelectedText: "Cap color seleccionat",
+        togglePaletteMoreText: "Més",
+        togglePaletteLessText: "Menys"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Czech (cs) localization
+// https://github.com/seballot/spectrum
+// author localization cs Pavel Laupe Dvorak pavel@pavel-dvorak.cz
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["cs"] = {
+        cancelText: "zrušit",
+        chooseText: "vybrat",
+        clearText: "Resetovat výměr barev",
+        noColorSelectedText: "Žádná barva nebyla vybrána",
+        togglePaletteMoreText: "více",
+        togglePaletteLessText: "méně"
+    };
+
+})( jQuery );
+// Spectrum Colorpicker
+// German (de) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["de"] = {
+        cancelText: "Abbrechen",
+        chooseText: "Wählen",
+        clearText: "Farbauswahl zurücksetzen",
+        noColorSelectedText: "Keine Farbe ausgewählt",
+        togglePaletteMoreText: "Mehr",
+        togglePaletteLessText: "Weniger"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Danish (dk) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["dk"] = {
+		cancelText: "annuller",
+		chooseText: "Vælg"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Spanish (es) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["es"] = {
+        cancelText: "Cancelar",
+        chooseText: "Elegir",
+        clearText: "Borrar color seleccionado",
+        noColorSelectedText: "Ningún color seleccionado",
+        togglePaletteMoreText: "Más",
+        togglePaletteLessText: "Menos"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Estonian (et) localization
+// https://github.com/bgrins/spectrum
+
+ (function ( $ ) {
+
+     var localization = $.spectrum.localization["et"] = {
+        cancelText: "Katkesta",
+        chooseText: "Vali",
+        clearText: "Tühista värvivalik",
+        noColorSelectedText: "Ühtki värvi pole valitud",
+        togglePaletteMoreText: "Rohkem",
+        togglePaletteLessText: "Vähem"
+    };
+
+ })( jQuery );
+
+// Spectrum Colorpicker
+// Persian (fa) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["fa"] = {
+        cancelText: "لغو",
+        chooseText: "انتخاب",
+        clearText: "تنظیم مجدد رنگ",
+        noColorSelectedText: "هیچ رنگی انتخاب نشده است!",
+        togglePaletteMoreText: "بیشتر",
+        togglePaletteLessText: "کمتر"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Finnish (fi) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["fi"] = {
+        cancelText: "Kumoa",
+        chooseText: "Valitse"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// French (fr) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["fr"] = {
+        cancelText: "Annuler",
+        chooseText: "Valider",
+        clearText: "Effacer couleur sélectionnée",
+        noColorSelectedText: "Aucune couleur sélectionnée",
+        togglePaletteMoreText: "Plus",
+        togglePaletteLessText: "Moins"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Greek (gr) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["gr"] = {
+        cancelText: "Ακύρωση",
+        chooseText: "Επιλογή",
+        clearText: "Καθαρισμός επιλεγμένου χρώματος",
+        noColorSelectedText: "Δεν έχει επιλεχθεί κάποιο χρώμα",
+        togglePaletteMoreText: "Περισσότερα",
+        togglePaletteLessText: "Λιγότερα"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Hebrew (he) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["he"] = {
+        cancelText: "בטל בחירה",
+        chooseText: "בחר צבע",
+        clearText: "אפס בחירה",
+        noColorSelectedText: "לא נבחר צבע",
+        togglePaletteMoreText: "עוד צבעים",
+        togglePaletteLessText: "פחות צבעים"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Croatian (hr) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["hr"] = {
+        cancelText: "Odustani",
+        chooseText: "Odaberi",
+        clearText: "Poništi odabir",
+        noColorSelectedText: "Niti jedna boja nije odabrana",
+        togglePaletteMoreText: "Više",
+        togglePaletteLessText: "Manje"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Hungarian (hu) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+  var localization = $.spectrum.localization["hu"] = {
+      cancelText: "Mégsem",
+      chooseText: "Mentés",
+      clearText: "A színválasztás visszaállítása",
+      noColorSelectedText: "Nincs szín kijelölve",
+      togglePaletteMoreText: "Több",
+      togglePaletteLessText: "Kevesebb"
+  };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Indonesia/Bahasa Indonesia (id) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["id"] = {
+        cancelText: "Batal",
+        chooseText: "Pilih",
+        clearText: "Hapus Pilihan Warna",
+        noColorSelectedText: "Warna Tidak Dipilih",
+        togglePaletteMoreText: "tambah",
+        togglePaletteLessText: "kurangi"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Italian (it) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["it"] = {
+		cancelText: "annulla",
+		chooseText: "scegli",
+		clearText: "Annulla selezione colore",
+		noColorSelectedText: "Nessun colore selezionato"
+	};
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Japanese (ja) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["ja"] = {
+        cancelText: "中止",
+        chooseText: "選択"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Korean (ko) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["ko"] = {
+        cancelText: "취소",
+        chooseText: "선택",
+        clearText: "선택 초기화",
+        noColorSelectedText: "선택된 색상 없음",
+        togglePaletteMoreText: "더보기",
+        togglePaletteLessText: "줄이기"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Lithuanian (lt) localization
+// https://github.com/liesislukas
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["lt"] = {
+        cancelText: "Atšaukti",
+        chooseText: "Pasirinkti",
+        clearText: "Išvalyti pasirinkimą",
+        noColorSelectedText: "Spalva nepasirinkta",
+        togglePaletteMoreText: "Daugiau",
+        togglePaletteLessText: "Mažiau"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Norwegian, Bokmål (nb-no) localization
+// https://github.com/greendimka
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["nb-no"] = {
+        cancelText: "Avbryte",
+        chooseText: "Velg",
+        clearText: "Tilbakestill",
+        noColorSelectedText: "Farge er ikke valgt",
+        togglePaletteMoreText: "Mer",
+        togglePaletteLessText: "Mindre"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Dutch (nl-nl) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["nl-nl"] = {
+        cancelText: "Annuleer",
+        chooseText: "Kies",
+        clearText: "Wis kleur selectie",
+        togglePaletteMoreText: 'Meer',
+        togglePaletteLessText: 'Minder'
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Polish (pl) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["pl"] = {
+        cancelText: "Anuluj",
+        chooseText: "Wybierz",
+        clearText: "Usuń wybór koloru",
+        noColorSelectedText: "Nie wybrano koloru",
+        togglePaletteMoreText: "Więcej",
+        togglePaletteLessText: "Mniej"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Brazilian (pt-br) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["pt-br"] = {
+        cancelText: "Cancelar",
+        chooseText: "Escolher",
+        clearText: "Limpar cor selecionada",
+        noColorSelectedText: "Nenhuma cor selecionada",
+        togglePaletteMoreText: "Mais",
+        togglePaletteLessText: "Menos"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Portuguese (pt-pt) localization
+// https://github.com/bgrins/spectrum
+
+ (function ( $ ) {
+
+     var localization = $.spectrum.localization["pt-pt"] = {
+        cancelText: "Cancelar",
+        chooseText: "Escolher",
+        clearText: "Limpar cor seleccionada",
+        noColorSelectedText: "Nenhuma cor seleccionada",
+        togglePaletteMoreText: "Mais",
+        togglePaletteLessText: "Menos"
+    };
+
+ })( jQuery );
+
+// Spectrum Colorpicker
+// Russian (ru) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["ru"] = {
+        cancelText: "Отмена",
+        chooseText: "Выбрать",
+        clearText: "Сбросить",
+        noColorSelectedText: "Цвет не выбран",
+        togglePaletteMoreText: "Ещё",
+        togglePaletteLessText: "Скрыть"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Swedish (sv) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["sv"] = {
+        cancelText: "Avbryt",
+        chooseText: "Välj"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Turkish (tr) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["tr"] = {
+		cancelText: "iptal",
+		chooseText: "tamam"
+	};
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Simplified Chinese (zh-cn) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["zh-cn"] = {
+        cancelText: "取消",
+        chooseText: "选择",
+        clearText: "清除",
+        togglePaletteMoreText: "更多选项",
+        togglePaletteLessText: "隐藏",
+        noColorSelectedText: "尚未选择任何颜色"
+    };
+
+})( jQuery );
+
+// Spectrum Colorpicker
+// Traditional Chinese (zh-tw) localization
+// https://github.com/seballot/spectrum
+
+(function ( $ ) {
+
+    var localization = $.spectrum.localization["zh-tw"] = {
+        cancelText: "取消",
+        chooseText: "選擇",
+        clearText: "清除",
+        togglePaletteMoreText: "更多選項",
+        togglePaletteLessText: "隱藏",
+        noColorSelectedText: "尚未選擇任何顏色"
+    };
+
+})( jQuery );

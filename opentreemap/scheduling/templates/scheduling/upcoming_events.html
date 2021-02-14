@@ -3,7 +3,7 @@
 {% load i18n static %}
 {% load form_extras %}
 
-{% block admin_title %}{% trans "Upcoming Events" %}{% endblock %}
+{% block admin_title %}{% trans "Task Calendar" %}{% endblock %}
 {% block head_extra %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -29,7 +29,7 @@
             <i class="icon-menu" id="toggle-sidebar"></i>
         </div>
         <div class="page-header-title">
-            <h1>{% trans "Upcoming Events" %}</h1>
+            <h1>{% trans "Task Calendar" %}</h1>
         </div>
     </div>
     <div class="content">
@@ -184,11 +184,16 @@
                 var selectedTitle = event.event.title;
                 var selectedEventColor = event.event.borderColor;
                 var selectedPlotId = event.event.extendedProps.plot_id;
-                const joe = colorjoe.rgb('edit-color-picker', '#000');
-                joe.on("change", color => {
-                    selectedEventColor = color.hex();
-                });
-
+                
+                $('#edit-color-picker').spectrum({
+                    color: selectedEventColor,
+                    type: "color",
+                    showPalette: "false",
+                    showPaletteOnly: "true",
+                    hideAfterPaletteSelect: "true",
+                    showButtons: "false"
+                })
+                
                 if (event.event.end != null) {
                     selectedEndDate = formatDate(event.event.end);
                     selectedEndTime = event.event.end.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', '');
@@ -297,6 +302,10 @@
                         $("#edit-plot-id").on("change", function () {
                             selectedPlotId = $(this).val();
                         });
+                        $("#edit-color-picker").on("change", function () {
+                            console.log(`color is ${$(this).val()}`);
+                            selectedEventColor = $(this).val();
+                        });
                     }
                 })
             }
@@ -311,10 +320,15 @@
                 var selectedTitle;
                 var selectedPlotId;
                 var selectedEventColor;
-                const joe = colorjoe.rgb('create-color-picker', '#000');
-                joe.on("change", color => {
-                    selectedEventColor = color.hex();
-                });
+                
+                $('#create-color-picker').spectrum({
+                    color: '#000',
+                    type: 'color',
+                    showPalette: "false",
+                    showPaletteOnly: "true",
+                    hideAfterPaletteSelect: "true",
+                    showButtons: "false"
+                })
 
                 $('#create-dialog').dialog({
                     closeOnEscape: false,
@@ -406,6 +420,9 @@
                         $("#create-plot-id").on("change", function () {
                             selectedPlotId = $(this).val();
                         });
+                        $("#create-color-picker").on("change", function () {
+                            selectedEventColor = $(this).val();
+                        });
                     }
                 })
             }
@@ -463,7 +480,7 @@
             <p>Title: <input type="text" id="edit-title"></p>
             <p>Description: <textarea type="text" id="edit-description"></textarea></p>
             <p>Task Color:</p>
-            <div id="edit-color-picker" style="width: 29.4rem; margin: 0 !important;"></div>
+            <input id="edit-color-picker"/>
         </div>
     </div>
 </div>
@@ -487,7 +504,7 @@
             <p>Title: <input type="text" id="create-title"></p>
             <p>Description: <textarea type="text" id="create-description"></textarea></p>
             <p>Task Color:</p>
-            <div id="create-color-picker" style="width: 29.4rem; margin: 0 !important;"></div>
+            <input id="create-color-picker"/>
         </div>
     </div>
 </div>
