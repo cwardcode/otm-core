@@ -6,7 +6,7 @@ from __future__ import division
 from django.shortcuts import redirect
 from django.views.decorators.http import require_POST 
 import dateutil.parser
-from schedule.models import Event, Calendar
+from schedule.models import Event, Calendar, Rule
 from schedule.utils import (
     check_calendar_permissions,
 )
@@ -47,23 +47,40 @@ def api_create_event(request, **kwargs):
     calendar_slug = request.POST.get("calendar")
     plot_id = request.POST.get("plotId")
     color_event = request.POST.get("eventColor")
+    frequency = request.POST.get("frequency")
+    repeat_until = request.POST.get("repeatUntil")
 
     response_data = _api_create_event(start, end, calendar_slug, title,
-                    description, plot_id, color_event)
+                    description, plot_id, color_event, frequency, repeat_until)
     return JsonResponse(response_data)
 
 def _api_create_event(start, end, calendar_slug, title, description, plot_id,
-                      color_event):
+                      color_event, frequency, repeat_until):
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
+    rule = None
+        
+    if frequency == "Once":
+        frequency = None
+    elif frequency is not None:
+        rule = Rule.objects.get(name=frequency)
     calendar = Calendar.objects.get(slug=calendar_slug)
     if (plot_id is None):
         plot_id = ''
+    if (color_event is None):
+        color_event = '#000000'
+    if rule:
+        Event.objects.create(
+            start=start, end=end, title=title, calendar=calendar,
+            description=description, plot_id=plot_id, color_event=color_event,
+            rule=rule, end_recurring_period=repeat_until
+        )
+    else:
+        Event.objects.create(
+            start=start, end=end, title=title, calendar=calendar,
+            description=description, plot_id=plot_id, color_event=color_event,
+        )
 
-    Event.objects.create(
-        start=start, end=end, title=title, calendar=calendar,
-        description=description, plot_id=plot_id, color_event=color_event
-    )
 
     response_data = {}
     response_data["status"] = "OK"

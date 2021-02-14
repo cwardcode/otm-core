@@ -318,6 +318,8 @@
                 var selectedTitle;
                 var selectedPlotId;
                 var selectedEventColor;
+                var selectedRepeatUntil;
+                var selectedFrequency;
                 
                 $('#create-color-picker').spectrum({
                     color: '#000',
@@ -360,6 +362,8 @@
                                             'calendar': 'tree-maintenance',
                                             'plotId': selectedPlotId,
                                             'eventColor': selectedEventColor,
+                                            'frequency': selectedFrequency,
+                                            'repeatUntil': selectedRepeatUntil
                                         },
                                         success: function (result) {
                                             calendar.refetchEvents();
@@ -373,8 +377,11 @@
                                 }
                                 $(this).dialog("close");
                                 $('#create-dialog').addClass('hidden');
-                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description').val('');
+                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
                                 $("#create-color-picker").empty();
+                                $('#create-frequency').val("Once");
+                                $('#create-frequency').selectmenu("refresh");
+
                             }
                         },
                         {
@@ -383,6 +390,9 @@
                                 $(this).dialog("close");
                                 $('#create-dialog').addClass('hidden');
                                 $("#create-color-picker").empty();
+                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
+                                $('#create-frequency').val("Once");
+                                $('#create-frequency').selectmenu("refresh");
                             }
                         }
                     ],
@@ -420,6 +430,16 @@
                         });
                         $("#create-color-picker").on("change", function () {
                             selectedEventColor = $(this).val();
+                        });
+                        $('#create-frequency').selectmenu();
+                        $('#create-frequency').on("selectmenuchange", function () {
+                            selectedFrequency = $(this).val();
+                        });
+                        $('#create-repeat-until').datepicker({
+                            dateFormat: 'yy-mm-dd'
+                        });
+                        $("#create-repeat-until").on("change", function () {
+                            selectedRepeatUntil = $(this).val();
                         });
                     }
                 })
@@ -503,6 +523,15 @@
             <p>Description: <textarea type="text" id="create-description"></textarea></p>
             <p>Task Color:</p>
             <input id="create-color-picker"/>
+            <p>Frequency:</p>
+            <select id="create-frequency" name="create-frequency">
+                <option selected="selected">Once</option>
+                <option>Daily</option>
+                <option>Weekly</option>
+                <option>Monthly</option>
+                <option>Yearly</option>
+            </select>
+            <p>Repeat Until: <input type="text" id="create-repeat-until"></p>
         </div>
     </div>
 </div>
