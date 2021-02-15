@@ -25,7 +25,7 @@
       var selectedEndTime;
       var selectedDesc;
       var selectedTitle;
-      var selectedPlotId = location.href.split('/').filter(e => e).slice(-1)[0];
+      var selectedPlotId;
       var selectedEventColor;
       var selectedRepeatUntil;
       var selectedFrequency;
@@ -55,8 +55,49 @@
             {
                text: 'Add Task',
                click: function () {
-                  const eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
-                  const eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
+                  let eventStartDate;
+                  let eventEndDate;
+                  let dialogContext = this;
+
+                  //validation checks
+                  if (!selectedStartDate || !selectedStartTime) {
+                     showError('create-dialog-error', 'Start Date / Time is required');
+                     return;
+                  }
+                  if (!selectedEndDate || !selectedEndTime) {
+                     showError('create-dialog-error', 'End Date / Time is required');
+                     return;
+                  }
+
+                  eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`)
+                  eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`)
+
+                  if (eventStartDate.getTime() >= eventEndDate.getTime()) {
+                     showError('create-dialog-error', 'Start Date/Time must be before End Date/Time');
+                     return;
+                  }
+
+                  if (!selectedTitle) {
+                     showError('create-dialog-error', 'Title is required');
+                     return;
+                  }
+
+                  if (!selectedDesc) {
+                     showError('create-dialog-error', 'Description is required');
+                     return;
+                  }
+
+                  if (selectedFrequency && selectedFrequency !== 'Once' && selectedRepeatUntil) {
+                     repeatDate = new Date(selectedRepeatUntil)
+                     adjustedStartDate = eventStartDate;
+                     adjustedStartDate.setDate(adjustedStartDate.getDate() + 1);
+                     if (adjustedStartDate.getTime() >= repeatDate.getTime()) {
+                        showError('create-dialog-error', 'Repeat Until Date must be after Start Date');
+                        return;
+                     }
+
+                  }
+
                   if (!isNaN(eventStartDate.valueOf())) {
                      $.ajax({
                         type: 'POST',
@@ -71,26 +112,26 @@
                            'calendar': 'tree-maintenance',
                            'plotId': selectedPlotId,
                            'eventColor': selectedEventColor,
-                                            'frequency': selectedFrequency,
-                                            'repeatUntil': selectedRepeatUntil
+                           'frequency': selectedFrequency,
+                           'repeatUntil': selectedRepeatUntil
                         },
                         success: function (result) {
                            alert(`${selectedTitle} added to schedule!`)
+                           $(dialogContext).dialog("close");
+                           $('#create-dialog').addClass('hidden');
+                           $('#create-dialog-error').addClass('hidden');
+                           $("#create-color-picker").empty();
+                           $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
+                           $('#create-frequency').val("Once");
+                           $('#create-frequency').selectmenu("refresh");
                         },
                         error: function (req, status, error) {
-                           console.log(error);
+                           showError('create-dialog-error', req.responseText.split('Request Method:')[0]);
                         }
                      });
                   } else {
-                     console.log('Invalid date.');
+                     showError('create-dialog-error', 'Invalid Date provided. Please enter a date with format yyyy-mm-dd.');
                   }
-                  $(this).dialog("close");
-                  $('#create-dialog').addClass('hidden');
-                  $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description').val('');
-                  $("#create-color-picker").empty();
-                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
-                                $('#create-frequency').val("Once");
-                                $('#create-frequency').selectmenu("refresh");
                }
             },
             {
@@ -98,15 +139,19 @@
                click: function () {
                   $(this).dialog("close");
                   $('#create-dialog').addClass('hidden');
+                  $('#create-dialog-error').addClass('hidden');
                   $("#create-color-picker").empty();
-                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
-                                $('#create-frequency').val("Once");
-                                $('#create-frequency').selectmenu("refresh");
+                  $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
+                  $('#create-frequency').val("Once");
+                  $('#create-frequency').selectmenu("refresh");
                }
             }
          ],
          open: function () {
             $(this).parent().css('position', 'fixed');
+            if ($('#create-frequency').val() === 'Once') {
+               $('#create-repeat-until-label').hide();
+            }
             $('#create-dialog').removeClass('hidden');
             $('#create-date-start').datepicker({
                dateFormat: 'yy-mm-dd'
@@ -142,16 +187,30 @@
             });
             $('#create-frequency').selectmenu();
             $('#create-frequency').on("selectmenuchange", function () {
-                  selectedFrequency = $(this).val();
+               selectedFrequency = $(this).val();
+               if (selectedFrequency.toLowerCase() !== 'once') {
+                  $('#create-repeat-until-label').show();
+                  $('#create-date-end-label').hide();
+                  $('#create-time-end-label').hide();
+               } else {
+                  $('#create-repeat-until-label').hide();
+                  $('#create-date-end-label').show();
+                  $('#create-time-end-label').show();
+               }
             });
             $('#create-repeat-until').datepicker({
-                  dateFormat: 'yy-mm-dd'
+               dateFormat: 'yy-mm-dd'
             });
             $("#create-repeat-until").on("change", function () {
-                  selectedRepeatUntil = $(this).val();
+               selectedRepeatUntil = $(this).val();
             });
          }
       })
+   }
+
+   function showError(errorElementId, errorText) {
+      $(`#${errorElementId}`).removeClass('hidden')
+      $(`#${errorElementId}-message`).text(errorText)
    }
 
    function formatDate(date) {
@@ -191,28 +250,33 @@
 
 <div id="create-dialog" class="hidden" style="width: 600px">
    {% csrf_token %}
+   <div class="alert hidden" id="create-dialog-error">
+      <span class="closebtn" onclick="$('#create-dialog-error').addClass('hidden');">&times;</span>
+      <p>Error: <span id="create-dialog-error-message"></span></p>
+   </div>
    <div class="row" style="display: flex">
-       <div class="column" style="flex: 50%; margin: 1em;">
-           <p>Date Start: <input type="text" id="create-date-start"></p>
-           <p>Time: <input type="text" id="create-time-start"></p>
-           <p>Date End: <input type="text" id="create-date-end"></p>
-           <p>Time: <input type="text" id="create-time-end"></p>
-       </div>
-       <div class="column" style="flex: 50%; margin: 1em;">
-           <p>Title: <input type="text" id="create-title"></p>
-           <p>Description: <textarea type="text" id="create-description"></textarea></p>
-           <p>Task Color:</p>
-           <input id="create-color-picker"/>
-            <p>Frequency:</p>
-            <select id="create-frequency" name="create-frequency">
-                <option selected="selected">Once</option>
-                <option>Daily</option>
-                <option>Weekly</option>
-                <option>Monthly</option>
-                <option>Yearly</option>
-            </select>
-            <p>Repeat Until: <input type="text" id="create-repeat-until"></p>
-       </div>
+      <div class="column" style="flex: 50%; margin: 1em;">
+         <p>Start Date: <input type="text" id="create-date-start" autocomplete="off"></p>
+         <p>Start Time: <input type="text" id="create-time-start" autocomplete="off"></p>
+         <p>Frequency:</p>
+         <select id="create-frequency" name="create-frequency">
+            <option selected="selected">Once</option>
+            <option>Daily</option>
+            <option>Weekly</option>
+            <option>Monthly</option>
+            <option>Yearly</option>
+         </select>
+         <p id="create-repeat-until-label">Repeat Until: <input type="text" id="create-repeat-until" autocomplete="off">
+         </p>
+         <p id="create-date-end-label">End Date: <input type="text" id="create-date-end" autocomplete="off"></p>
+         <p id="create-time-end-label">End Time: <input type="text" id="create-time-end" autocomplete="off"></p>
+      </div>
+      <div class="column" style="flex: 50%; margin: 1em;">
+         <p>Title: <input type="text" id="create-title" autocomplete="off"></p>
+         <p>Description: <textarea type="text" id="create-description" autocomplete="off"></textarea></p>
+         <p>Location (Plot ID): <input type="text" id="create-plot-id" autocomplete="off"></p>
+         <p>Task Color: <input id="create-color-picker" style="margin-bottom:1rem;" autocomplete="off" /></p>
+      </div>
    </div>
 </div>
 {% endif %}

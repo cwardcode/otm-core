@@ -123,9 +123,10 @@
                                                     },
                                                     success: function (result) {
                                                         calendar.refetchEvents();
+                                                        $('#delete-dialog-error').addClass('hidden');
                                                     },
                                                     error: function (req, status, error) {
-                                                        console.log(error);
+                                                        showError('delete-dialog-error', req.responseText.split('Request Method:')[0]);
                                                     }
                                                 });
                                                 $(this).dialog("close");
@@ -135,6 +136,7 @@
                                             text: "Close",
                                             click: function () {
                                                 $(this).dialog("close");
+                                                $('#delete-dialog-error').addClass('hidden');
                                             }
                                         }
                                     ],
@@ -175,13 +177,19 @@
             function openEditEventModal(calendar, event) {
                 var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                 var selectedStartDate = formatDate(event.event.start)
-                var selectedEndDate;
+                var selectedEndDate = formatDate(event.event.end);
                 var selectedStartTime = event.event.start.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', '');
                 var selectedEndTime;
                 var selectedDesc = event.event.extendedProps.description;
                 var selectedTitle = event.event.title;
                 var selectedEventColor = event.event.borderColor;
                 var selectedPlotId = event.event.extendedProps.plot_id;
+                var selectedFrequency = event.event.extendedProps.rule;
+                var selectedRepeatUntil = event.event.extendedProps.end_recurring_period;
+                
+                if (event.event.end) {
+                    selectedEndTime = event.event.end.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', '');
+                }
                 
                 $('#edit-color-picker').spectrum({
                     color: selectedEventColor,
@@ -191,11 +199,8 @@
                     hideAfterPaletteSelect: "true",
                     showButtons: "false"
                 })
+
                 
-                if (event.event.end != null) {
-                    selectedEndDate = formatDate(event.event.end);
-                    selectedEndTime = event.event.end.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', '');
-                }
                 $('#edit-dialog').dialog({
                     closeOnEscape: false,
                     dialogClass: 'no-close',
@@ -212,11 +217,37 @@
                         {
                             text: 'Update Task',
                             click: function () {
-                                const eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
+                                let dialogContext = this;
+                                let eventStartDate;
                                 let eventEndDate;
                                 if (selectedEndTime) {
                                     eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
                                 }
+                                //validation checks
+                                if (!selectedStartDate || !selectedStartTime) {
+                                    showError('edit-dialog-error', 'Start Date / Time is required');
+                                    return;
+                                } 
+                                if (!selectedEndDate || !selectedEndTime) {
+                                    showError('edit-dialog-error', 'End Date / Time is required');
+                                    return;
+                                } 
+                                
+                                eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`)
+                                eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`)
+                                
+                                if (eventStartDate.getTime() >= eventEndDate.getTime()) {
+                                    showError('edit-dialog-error', 'Start Date/Time must be before End Date/Time');
+                                    return;
+                                }
+                                if (!selectedTitle) {
+                                    showError('edit-dialog-error', 'Title is required');
+                                    return;
+                                } 
+                                if (!selectedDesc) {
+                                    showError('edit-dialog-error', 'Description is required');
+                                    return;
+                                } 
                                 if (!isNaN(eventStartDate.valueOf())) {
                                     $.ajax({
                                         type: 'POST',
@@ -232,22 +263,26 @@
                                             'primaryKey': event.event.extendedProps.event_id,
                                             'calendar': 'tree-maintenance',
                                             'eventColor': selectedEventColor,
+                                            'frequency': selectedFrequency,
+                                            'repeatUntil': selectedRepeatUntil
                                         },
                                         success: function (result) {
+                                            $(dialogContext).dialog('close');
                                             calendar.refetchEvents();
+                                            $('#edit-dialog').addClass('hidden');
+                                            $('#edit-dialog-error').addClass('hidden');
+                                            $("#edit-color-picker").empty();
+                                            $('#edit-frequency').val("Once");
+                                            $('#edit-frequency').selectmenu("refresh");
+                                            $('#edit-repeat-until-label').hide();
                                         },
                                         error: function (req, status, error) {
-                                            console.log(error);
+                                            showError('edit-dialog-error', req.responseText.split('Request Method:')[0]);
                                         }
                                     });
-                                    calendar.refetchEvents();
                                 } else {
-                                    console.log('Invalid date.');
+                                    showError('edit-dialog-error', 'Invalid Date provided. Please enter a date with format yyyy-mm-dd.');
                                 }
-                                $(this).dialog("close");
-                                $('#edit-dialog').addClass('hidden');
-                                $('#edit-date-start,#edit-time,#edit-title,#edit-description').val('');
-                                $("#edit-color-picker").empty();
                             }
                         },
                         {
@@ -255,7 +290,11 @@
                             click: function () {
                                 $(this).dialog("close");
                                 $('#edit-dialog').addClass('hidden');
+                                $('#edit-dialog-error').addClass('hidden');
                                 $("#edit-color-picker").empty();
+                                $('#edit-frequency').val("Once");
+                                $('#edit-frequency').selectmenu("refresh");
+                                $('#edit-repeat-until-label').hide();
                             }
                         }
                     ],
@@ -267,10 +306,30 @@
                         $('#edit-date-start').val(formatDate(event.event.start))
                         $('#edit-time-start').val(event.event.start.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', ''));
                         $('#edit-plot-id').val(event.event.extendedProps.plot_id)
-                        if (event.event.end != null) {
-                            $('#edit-date-end').val(formatDate(event.event.end))
-                            $('#edit-time-end').val(event.event.end.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', ''));
+                        $('#edit-frequency').selectmenu();
+                        if(event.event.extendedProps.rule) {
+                            $('#edit-frequency').val(event.event.extendedProps.rule)
+                            $('#edit-frequency').selectmenu('refresh');
                         }
+                        if(event.event.extendedProps.end_recurring_period) {
+                            $('#edit-repeat-until').val(event.event.extendedProps.end_recurring_period.split('T')[0])
+                            $('#edit-repeat-until-label').show();
+                        }
+                        
+                        if ($('#edit-frequency').val() === 'Once') {
+                            $('#edit-repeat-until-label').hide();
+                        }
+                        
+                        if (event.event.end != null) {
+                            $('#edit-date-end-label').show();
+                            $('#edit-date-end').val(formatDate(event.event.end))
+                            $('#edit-time-end-label').show();
+                            $('#edit-time-end').val(event.event.end.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', ''));
+                        } else {
+                            $('#edit-date-end-label').hide();
+                            $('#edit-time-end-label').hide();
+                        }
+                        
                         $('#edit-date-start').datepicker({
                             dateFormat: 'yy-mm-dd'
                         });
@@ -301,8 +360,25 @@
                             selectedPlotId = $(this).val();
                         });
                         $("#edit-color-picker").on("change", function () {
-                            console.log(`color is ${$(this).val()}`);
                             selectedEventColor = $(this).val();
+                        });
+                        $('#edit-frequency').on("selectmenuchange", function () {
+                            selectedFrequency = $(this).val();
+                            if (selectedFrequency.toLowerCase() !== 'once') {
+                                $('#edit-repeat-until-label').show();
+                                $('#edit-date-end-label').hide();
+                                $('#edit-time-end-label').hide();
+                            } else {
+                                $('#edit-repeat-until-label').hide();
+                                $('#edit-date-end-label').show();
+                                $('#edit-time-end-label').show();
+                            }
+                        });
+                        $('#edit-repeat-until').datepicker({
+                            dateFormat: 'yy-mm-dd'
+                        });
+                        $("#edit-repeat-until").on("change", function () {
+                            selectedRepeatUntil = $(this).val();
                         });
                     }
                 })
@@ -320,7 +396,7 @@
                 var selectedEventColor;
                 var selectedRepeatUntil;
                 var selectedFrequency;
-                
+
                 $('#create-color-picker').spectrum({
                     color: '#000',
                     type: 'color',
@@ -346,8 +422,49 @@
                         {
                             text: 'Add Task',
                             click: function () {
-                                const eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
-                                const eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
+                                let eventStartDate;
+                                let eventEndDate;
+                                let dialogContext = this;
+
+                                //validation checks
+                                if (!selectedStartDate || !selectedStartTime) {
+                                    showError('create-dialog-error', 'Start Date / Time is required');
+                                    return;
+                                } 
+                                if (!selectedEndDate || !selectedEndTime) {
+                                    showError('create-dialog-error', 'End Date / Time is required');
+                                    return;
+                                } 
+                                
+                                eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`)
+                                eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`)
+                                
+                                if (eventStartDate.getTime() >= eventEndDate.getTime()) {
+                                    showError('create-dialog-error', 'Start Date/Time must be before End Date/Time');
+                                    return;
+                                }
+
+                                if (!selectedTitle) {
+                                    showError('create-dialog-error', 'Title is required');
+                                    return;
+                                } 
+
+                                if (!selectedDesc) {
+                                    showError('create-dialog-error', 'Description is required');
+                                    return;
+                                }
+                                
+                                if (selectedFrequency && selectedFrequency !== 'Once' && selectedRepeatUntil) {
+                                    repeatDate = new Date(selectedRepeatUntil)
+                                    adjustedStartDate = eventStartDate;
+                                    adjustedStartDate.setDate(adjustedStartDate.getDate() + 1);
+                                    if (adjustedStartDate.getTime() >= repeatDate.getTime()) {
+                                        showError('create-dialog-error', 'Repeat Until Date must be after Start Date');
+                                        return;
+                                    }
+
+                                }
+
                                 if (!isNaN(eventStartDate.valueOf())) {
                                     $.ajax({
                                         type: 'POST',
@@ -367,21 +484,21 @@
                                         },
                                         success: function (result) {
                                             calendar.refetchEvents();
+                                            $(dialogContext).dialog("close");
+                                            $('#create-dialog').addClass('hidden');
+                                            $('#create-dialog-error').addClass('hidden');
+                                            $("#create-color-picker").empty();
+                                            $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
+                                            $('#create-frequency').val("Once");
+                                            $('#create-frequency').selectmenu("refresh");
                                         },
                                         error: function (req, status, error) {
-                                            console.log(error);
+                                            showError('create-dialog-error', req.responseText.split('Request Method:')[0]);
                                         }
                                     });
                                 } else {
-                                    console.log('Invalid date.');
+                                    showError('create-dialog-error', 'Invalid Date provided. Please enter a date with format yyyy-mm-dd.');
                                 }
-                                $(this).dialog("close");
-                                $('#create-dialog').addClass('hidden');
-                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
-                                $("#create-color-picker").empty();
-                                $('#create-frequency').val("Once");
-                                $('#create-frequency').selectmenu("refresh");
-
                             }
                         },
                         {
@@ -389,6 +506,7 @@
                             click: function () {
                                 $(this).dialog("close");
                                 $('#create-dialog').addClass('hidden');
+                                $('#create-dialog-error').addClass('hidden');
                                 $("#create-color-picker").empty();
                                 $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
                                 $('#create-frequency').val("Once");
@@ -398,6 +516,9 @@
                     ],
                     open: function () {
                         $(this).parent().css('position', 'fixed');
+                        if ($('#create-frequency').val() === 'Once') {
+                            $('#create-repeat-until-label').hide();
+                        }
                         $('#create-dialog').removeClass('hidden');
                         $('#create-date-start').datepicker({
                             dateFormat: 'yy-mm-dd'
@@ -434,6 +555,15 @@
                         $('#create-frequency').selectmenu();
                         $('#create-frequency').on("selectmenuchange", function () {
                             selectedFrequency = $(this).val();
+                            if (selectedFrequency.toLowerCase() !== 'once') {
+                                $('#create-repeat-until-label').show();
+                                $('#create-date-end-label').hide();
+                                $('#create-time-end-label').hide();
+                            } else {
+                                $('#create-repeat-until-label').hide();
+                                $('#create-date-end-label').show();
+                                $('#create-time-end-label').show();
+                            }
                         });
                         $('#create-repeat-until').datepicker({
                             dateFormat: 'yy-mm-dd'
@@ -443,6 +573,11 @@
                         });
                     }
                 })
+            }
+
+            function showError(errorElementId, errorText) {
+                $(`#${errorElementId}`).removeClass('hidden')
+                $(`#${errorElementId}-message`).text(errorText)
             }
 
             function formatDate(date) {
@@ -477,6 +612,7 @@
         </script>
     </div>
 </div>
+
 <div id="details-dialog">
     <p id="details-start"></p>
     <p id="details-end"></p>
@@ -486,43 +622,54 @@
 
 <div id="edit-dialog" class="hidden" style="width: 600px">
     {% csrf_token %}
+    <div class="alert hidden" id="edit-dialog-error">
+        <span class="closebtn" onclick="$('#edit-dialog-error').addClass('hidden');">&times;</span>
+        <p>Error: <span id="edit-dialog-error-message"></span></p>
+    </div>
     <div class="row" style="display: flex">
         <div class="column" style="flex: 50%; margin: 1em;">
-            <p>Date Start: <input type="text" id="edit-date-start"></p>
-            <p>Time: <input type="text" id="edit-time-start"></p>
-            <p>Date End: <input type="text" id="edit-date-end"></p>
-            <p>Time: <input type="text" id="edit-time-end"></p>
-            <p>Location (Plot ID): <input type="text" id="edit-plot-id"></p>
+            <p>Start Date: <input type="text" id="edit-date-start" autocomplete="off"></p>
+            <p>Start Time: <input type="text" id="edit-time-start" autocomplete="off"></p>
+            <p>Frequency:</p>
+            <select id="edit-frequency" name="edit-frequency">
+                <option selected="selected">Once</option>
+                <option>Daily</option>
+                <option>Weekly</option>
+                <option>Monthly</option>
+                <option>Yearly</option>
+            </select>
+            <p id="edit-repeat-until-label">Repeat Until: <input type="text" id="edit-repeat-until" autocomplete="off"></p>
+            <p id="edit-date-end-label">End Date: <input type="text" id="edit-date-end" autocomplete="off"></p>
+            <p id="edit-time-end-label">End Time: <input type="text" id="edit-time-end" autocomplete="off"></p>
         </div>
         <div class="column" style="flex: 50%; margin: 1em;">
-            <p>Title: <input type="text" id="edit-title"></p>
-            <p>Description: <textarea type="text" id="edit-description"></textarea></p>
-            <p>Task Color:</p>
-            <input id="edit-color-picker"/>
+            <p>Title: <input type="text" id="edit-title" autocomplete="off"></p>
+            <p>Description: <textarea type="text" id="edit-description" autocomplete="off"></textarea></p>
+            <p>Location (Plot ID): <input type="text" id="edit-plot-id" autocomplete="off"></p>
+            <p>Task Color: <input id="edit-color-picker" autocomplete="off"/></p>
         </div>
     </div>
 </div>
 
 <div id="delete-dialog">
     {% csrf_token %}
+    <div class="alert hidden" id="delete-dialog-error">
+        <span class="closebtn" onclick="$('#delete-dialog-error').addClass('hidden');">&times;</span>
+        <p>Error: <span id="delete-dialog-error-message"></span></p>
+    </div>
     <p id="delete-description"></p>
 </div>
 
 <div id="create-dialog" class="hidden" style="width: 600px">
     {% csrf_token %}
+    <div class="alert hidden" id="create-dialog-error">
+        <span class="closebtn" onclick="$('#create-dialog-error').addClass('hidden');">&times;</span>
+        <p>Error: <span id="create-dialog-error-message"></span></p>
+    </div>
     <div class="row" style="display: flex">
         <div class="column" style="flex: 50%; margin: 1em;">
-            <p>Date Start: <input type="text" id="create-date-start"></p>
-            <p>Time: <input type="text" id="create-time-start"></p>
-            <p>Date End: <input type="text" id="create-date-end"></p>
-            <p>Time: <input type="text" id="create-time-end"></p>
-            <p>Location (Plot ID): <input type="text" id="create-plot-id"></p>
-        </div>
-        <div class="column" style="flex: 50%; margin: 1em;">
-            <p>Title: <input type="text" id="create-title"></p>
-            <p>Description: <textarea type="text" id="create-description"></textarea></p>
-            <p>Task Color:</p>
-            <input id="create-color-picker"/>
+            <p>Start Date: <input type="text" id="create-date-start" autocomplete="off"></p>
+            <p>Start Time: <input type="text" id="create-time-start" autocomplete="off"></p>
             <p>Frequency:</p>
             <select id="create-frequency" name="create-frequency">
                 <option selected="selected">Once</option>
@@ -531,7 +678,15 @@
                 <option>Monthly</option>
                 <option>Yearly</option>
             </select>
-            <p>Repeat Until: <input type="text" id="create-repeat-until"></p>
+            <p id="create-repeat-until-label">Repeat Until: <input type="text" id="create-repeat-until" autocomplete="off"></p>
+            <p id="create-date-end-label">End Date: <input type="text" id="create-date-end" autocomplete="off"></p>
+            <p id="create-time-end-label">End Time: <input type="text" id="create-time-end" autocomplete="off"></p>
+        </div>
+        <div class="column" style="flex: 50%; margin: 1em;">
+            <p>Title: <input type="text" id="create-title" autocomplete="off"></p>
+            <p>Description: <textarea type="text" id="create-description" autocomplete="off"></textarea></p>
+            <p>Location (Plot ID): <input type="text" id="create-plot-id" autocomplete="off"></p>
+            <p>Task Color: <input id="create-color-picker" style="margin-bottom:1rem;" autocomplete="off" /></p>
         </div>
     </div>
 </div>

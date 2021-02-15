@@ -50,6 +50,11 @@ def api_create_event(request, **kwargs):
     frequency = request.POST.get("frequency")
     repeat_until = request.POST.get("repeatUntil")
 
+    if (color_event == "white"):
+        color_event = '#ffffff'
+    elif (color_event == "black"):
+        color_event = '#000000'
+
     response_data = _api_create_event(start, end, calendar_slug, title,
                     description, plot_id, color_event, frequency, repeat_until)
     return JsonResponse(response_data)
@@ -59,15 +64,16 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
     rule = None
-        
-    if frequency == "Once":
-        frequency = None
-    elif frequency is not None:
-        rule = Rule.objects.get(name=frequency)
+    event_freq = frequency
+
+    if event_freq == "" or event_freq == "Once":
+        event_freq = None
+    if event_freq is not None:
+        rule = Rule.objects.get(name=event_freq)
     calendar = Calendar.objects.get(slug=calendar_slug)
     if (plot_id is None):
         plot_id = ''
-    if (color_event is None):
+    if (color_event is None and color_event is not ""):
         color_event = '#000000'
     if rule:
         Event.objects.create(
@@ -97,6 +103,8 @@ def api_edit_event(request, **kwargs):
     primary_key = request.POST.get("primaryKey")
     plot_id = request.POST.get("plotId")
     color_event = request.POST.get("eventColor")
+    frequency = request.POST.get("frequency")
+    repeat_until = request.POST.get("repeatUntil")
 
     if (color_event == "white"):
         color_event = '#ffffff'
@@ -104,21 +112,37 @@ def api_edit_event(request, **kwargs):
         color_event = '#000000'
 
     response_data = _api_edit_event(start, end, title, description,
-        primary_key, plot_id, color_event)
+        primary_key, plot_id, color_event, frequency, repeat_until)
     return JsonResponse(response_data)
 
 def _api_edit_event(start, end, title, description, primary_key, plot_id,
-    color_event):
+    color_event, frequency, repeat_until):
     event = Event.objects.get(pk=primary_key)
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
+    event_rule = None
+    event_freq = frequency
 
+    if event_freq == "" or event_freq == "Once":
+        event_freq = None
+
+    if event_freq is not None:
+        event_rule = Rule.objects.get(name=event_freq)
+    if repeat_until is "":
+        repeat_until = None
+    if (plot_id is None):
+        plot_id = ''
+    if (color_event is None and color_event is not ""):
+        color_event = '#000000'
+    
     event.plot_id = plot_id
     event.start = start
     event.end = end
     event.title = title
     event.description = description
     event.color_event = color_event
+    event.rule = event_rule
+    event.end_recurring_period=repeat_until
     event.save()
 
     response_data = {}
