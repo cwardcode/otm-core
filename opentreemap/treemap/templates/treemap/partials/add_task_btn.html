@@ -25,7 +25,7 @@
       var selectedEndTime;
       var selectedDesc;
       var selectedTitle;
-      var selectedPlotId;
+      var selectedPlotId = location.href.split('/').filter(e => e).slice(-1)[0];
       var selectedEventColor;
       var selectedRepeatUntil;
       var selectedFrequency;
@@ -69,8 +69,9 @@
                      return;
                   }
 
-                  eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`)
-                  eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`)
+                  eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
+                  eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
+
 
                   if (eventStartDate.getTime() >= eventEndDate.getTime()) {
                      showError('create-dialog-error', 'Start Date/Time must be before End Date/Time');
@@ -87,15 +88,35 @@
                      return;
                   }
 
+                  if (selectedFrequency && selectedFrequency !== 'Once' && !selectedRepeatUntil) {
+                     showError('create-dialog-error', 'Repeat Until Date is required if Frequency is not "Once"');
+                     return;
+                  }
+                  
+                  repeatDate = new Date(`${selectedRepeatUntil}T${convertTo24Hour(selectedEndTime)}`);
+                  
                   if (selectedFrequency && selectedFrequency !== 'Once' && selectedRepeatUntil) {
-                     repeatDate = new Date(selectedRepeatUntil)
-                     adjustedStartDate = eventStartDate;
+                     adjustedStartDate = new Date(eventStartDate.getTime());
                      adjustedStartDate.setDate(adjustedStartDate.getDate() + 1);
                      if (adjustedStartDate.getTime() >= repeatDate.getTime()) {
-                        showError('create-dialog-error', 'Repeat Until Date must be after Start Date');
-                        return;
+                           showError('create-dialog-error', 'Repeat Until Date must be after Start Date');
+                           return;
                      }
+                  }
+                  const requestObj = {
+                     'csrfmiddlewaretoken': csrftoken,
+                     'title': selectedTitle,
+                     'description': selectedDesc,
+                     'start': eventStartDate.toISOString(),
+                     'end': eventEndDate.toISOString(),
+                     'calendar': 'tree-maintenance',
+                     'plotId': selectedPlotId,
+                     'eventColor': selectedEventColor,
+                     'frequency': selectedFrequency,
+                  }
 
+                  if (!isNaN(repeatDate.valueOf())) {
+                     requestObj['repeatUntil'] = repeatDate.toISOString();
                   }
 
                   if (!isNaN(eventStartDate.valueOf())) {
@@ -103,25 +124,14 @@
                         type: 'POST',
                         url: "{% url 'api_create_event' instance_url_name=request.instance.url_name %}",
                         dataType: 'json',
-                        data: {
-                           'csrfmiddlewaretoken': csrftoken,
-                           'title': selectedTitle,
-                           'description': selectedDesc,
-                           'start': eventStartDate.toISOString(),
-                           'end': eventEndDate.toISOString(),
-                           'calendar': 'tree-maintenance',
-                           'plotId': selectedPlotId,
-                           'eventColor': selectedEventColor,
-                           'frequency': selectedFrequency,
-                           'repeatUntil': selectedRepeatUntil
-                        },
+                        data: requestObj,
                         success: function (result) {
-                           alert(`${selectedTitle} added to schedule!`)
+                           alert(`Added ${selectedTitle} to calendar.`)
                            $(dialogContext).dialog("close");
                            $('#create-dialog').addClass('hidden');
                            $('#create-dialog-error').addClass('hidden');
                            $("#create-color-picker").empty();
-                           $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
+                           $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until').val('');
                            $('#create-frequency').val("Once");
                            $('#create-frequency').selectmenu("refresh");
                         },
@@ -141,7 +151,7 @@
                   $('#create-dialog').addClass('hidden');
                   $('#create-dialog-error').addClass('hidden');
                   $("#create-color-picker").empty();
-                  $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
+                  $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until').val('');
                   $('#create-frequency').val("Once");
                   $('#create-frequency').selectmenu("refresh");
                }
@@ -179,9 +189,6 @@
             $("#create-description").on("change", function () {
                selectedDesc = $(this).val();
             });
-            $("#create-plot-id").on("change", function () {
-               selectedPlotId = $(this).val();
-            });
             $("#create-color-picker").on("change", function () {
                selectedEventColor = $(this).val();
             });
@@ -190,12 +197,8 @@
                selectedFrequency = $(this).val();
                if (selectedFrequency.toLowerCase() !== 'once') {
                   $('#create-repeat-until-label').show();
-                  $('#create-date-end-label').hide();
-                  $('#create-time-end-label').hide();
                } else {
                   $('#create-repeat-until-label').hide();
-                  $('#create-date-end-label').show();
-                  $('#create-time-end-label').show();
                }
             });
             $('#create-repeat-until').datepicker({
@@ -250,33 +253,31 @@
 
 <div id="create-dialog" class="hidden" style="width: 600px">
    {% csrf_token %}
-   <div class="alert hidden" id="create-dialog-error">
-      <span class="closebtn" onclick="$('#create-dialog-error').addClass('hidden');">&times;</span>
-      <p>Error: <span id="create-dialog-error-message"></span></p>
+   <div class="validation-error hidden" id="create-dialog-error">
+       <span class="closebtn" onclick="$('#create-dialog-error').addClass('hidden');">&times;</span>
+       <p>Error: <span id="create-dialog-error-message"></span></p>
    </div>
    <div class="row" style="display: flex">
-      <div class="column" style="flex: 50%; margin: 1em;">
-         <p>Start Date: <input type="text" id="create-date-start" autocomplete="off"></p>
-         <p>Start Time: <input type="text" id="create-time-start" autocomplete="off"></p>
-         <p>Frequency:</p>
-         <select id="create-frequency" name="create-frequency">
-            <option selected="selected">Once</option>
-            <option>Daily</option>
-            <option>Weekly</option>
-            <option>Monthly</option>
-            <option>Yearly</option>
-         </select>
-         <p id="create-repeat-until-label">Repeat Until: <input type="text" id="create-repeat-until" autocomplete="off">
-         </p>
-         <p id="create-date-end-label">End Date: <input type="text" id="create-date-end" autocomplete="off"></p>
-         <p id="create-time-end-label">End Time: <input type="text" id="create-time-end" autocomplete="off"></p>
-      </div>
-      <div class="column" style="flex: 50%; margin: 1em;">
-         <p>Title: <input type="text" id="create-title" autocomplete="off"></p>
-         <p>Description: <textarea type="text" id="create-description" autocomplete="off"></textarea></p>
-         <p>Location (Plot ID): <input type="text" id="create-plot-id" autocomplete="off"></p>
-         <p>Task Color: <input id="create-color-picker" style="margin-bottom:1rem;" autocomplete="off" /></p>
-      </div>
+       <div class="column" style="flex: 50%; margin: 1em;">
+           <p>Start Date: <input type="text" id="create-date-start" autocomplete="off"></p>
+           <p>Start Time: <input type="text" id="create-time-start" autocomplete="off"></p>
+           <p id="create-date-end-label">End Date: <input type="text" id="create-date-end" autocomplete="off"></p>
+           <p id="create-time-end-label">End Time: <input type="text" id="create-time-end" autocomplete="off"></p>
+           <p>Frequency:</p>
+           <select id="create-frequency" name="create-frequency">
+               <option selected="selected">Once</option>
+               <option>Daily</option>
+               <option>Weekly</option>
+               <option>Monthly</option>
+               <option>Yearly</option>
+           </select>
+           <p id="create-repeat-until-label" style="padding-top: 1rem;">Repeat Until: <input type="text" id="create-repeat-until" autocomplete="off"></p>
+       </div>
+       <div class="column" style="flex: 50%; margin: 1em;">
+           <p>Title: <input type="text" id="create-title" autocomplete="off"></p>
+           <p>Description: <textarea type="text" id="create-description" autocomplete="off"></textarea></p>
+           <p>Task Color: <input id="create-color-picker" style="margin-bottom:1rem;" autocomplete="off" /></p>
+       </div>
    </div>
 </div>
 {% endif %}

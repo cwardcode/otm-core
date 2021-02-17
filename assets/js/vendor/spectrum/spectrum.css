@@ -429,8 +429,8 @@ Here are the basic themeable display options (colors, fonts, global widths)
     color: #666;
     transition: border-color .3s;
     vertical-align: middle;
-    width: 3rem;
-    height: 1.5rem;
+    width: 4rem;
+    height: 2rem;
 }
 .sp-replacer:hover, .sp-replacer.sp-active {
     border: 1px solid #666;
