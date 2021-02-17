@@ -710,7 +710,6 @@ def process_csv(request, instance, import_type, **kwargs):
 
     file_obj = io.BytesIO(decode(file_obj.read()).encode('utf-8'))
 
-
     owner = request.user
     ImportEventModel = get_import_event_model(import_type)
     ie = ImportEventModel(file_name=filename,
@@ -721,6 +720,7 @@ def process_csv(request, instance, import_type, **kwargs):
     run_import_event_validation(import_type, ie.pk, file_obj)
 
     return ie.pk
+
 
 # http://stackoverflow.com/a/8898439/362702
 def decode(s):

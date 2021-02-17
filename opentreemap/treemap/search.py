@@ -205,7 +205,7 @@ def create_filter(instance, filterstr, mapping):
 
 def _parse_filter(query, mapping):
     if type(query) is dict:
-        parsed_query = _parse_query_dict(query, mapping) 
+        parsed_query = _parse_query_dict(query, mapping)
         return parsed_query
     elif type(query) is list:
         predicates = [_parse_filter(p, mapping) for p in query[1:]]
@@ -291,7 +291,7 @@ def _parse_by_is_collection_udf(query_dict, mapping):
     grouped = groupby(sorted(query_dict_list, key=lambda qd: qd['type']),
                       lambda qd: qd['type'])
     rtnVal = {k: list(v) for k, v in grouped}
-    return rtnVal 
+    return rtnVal
 
 
 def _parse_by_key_type(key, mapping):
@@ -306,8 +306,8 @@ def _parse_by_key_type(key, mapping):
     model, prefix, field = _parse_predicate_key(key, mapping)
     typ = model if _is_udf(model) else '*'
     rtnVal = {'type': typ, 'prefix': prefix, 'model': model,
-            'field': field, 'key': key}
-    return rtnVal 
+              'field': field, 'key': key}
+    return rtnVal
 
 
 def _unparse_scalars(scalars):
@@ -353,6 +353,7 @@ def _parse_udf_collection(udfd_id, query_parts):
 
     parse_udf_dict_value = partial(_parse_dict_value_for_mapping,
                                    COLLECTION_HSTORE_PREDICATE_TYPES)
+
     def parse_collection_udf_dict(key, value):
         __, field = _split_key(key)
         if isinstance(value, dict):

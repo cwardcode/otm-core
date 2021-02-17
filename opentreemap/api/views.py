@@ -40,7 +40,8 @@ from api.decorators import (check_signature, check_signature_and_require_login,
                             login_required, set_api_version)
 from api.instance import (instance_info, instances_closest_to_point,
                           public_instances, transform_instance_info_response)
-from api.tags import (get_tags_by_plot_id, get_related_tags, create_tag, remove_tag)
+from api.tags import (get_tags_by_plot_id, get_related_tags, create_tag,
+                      remove_tag)
 
 from api.plots import (plots_closest_to_point, get_plot, update_or_create_plot,
                        transform_plot_update_dict)

@@ -28,7 +28,6 @@ var boolToText = function(bool) {
 };
 
 var filterObjectIsEmpty = exports.filterObjectIsEmpty = function(filterObj) {
-    console.log(`filterObjectIsEmpty: isEmpty: ${_.keys(filterObj).length === 0}`)
     return filterObj ? _.keys(filterObj).length === 0 : true;
 };
 
@@ -43,14 +42,11 @@ var isEmpty = exports.isEmpty = function(obj) {
 var makeQueryStringFromFilters = exports.makeQueryStringFromFilters = function(filters) {
     var query = {};
     if ( ! filterObjectIsEmpty(filters.filter)) {
-        console.log('makeQueryStringFromFilters-filterObjectIsEmpty: filters.filter', filters.filter)
         query[config.urls.filterQueryArgumentName] = JSON.stringify(filters.filter);
     }
     if ( ! displayListIsEmpty(filters.display)) {
-        console.log('makeQueryStringFromFilters-filterObjectIsEmpty: filters.display', filters.display)
         query[config.urls.displayQueryArgumentName] = JSON.stringify(filters.display);
     }
-    console.log('makeQueryStringFromFilters: query', filters.display)
     return querystring.stringify(query);
 };
 
@@ -81,7 +77,6 @@ exports._buildElems = buildElems;
 
 function executeSearch(filters) {
     var query = makeQueryStringFromFilters(filters);
-    console.log('executeSearch: query', query);
     var search = $.ajax({
         url: reverse.benefit_search(config.instance.url_name),
         data: query,
@@ -108,26 +103,19 @@ function applyFilterObjectToDom(search) {
         var pred = search[keyAndPred.key];
         var value;
 
-        console.log('applyFIlterObjectToDom: predicate is ' + pred)
         if (isCombinator(pred)) {
-            console.log('applyFIlterObjectToDom: isCombinator')
             value = pred ? pred[1][keyAndPred.pred] : null;
         } else {
-            console.log('applyFIlterObjectToDom: not isCombinator')
             value = pred ? pred[keyAndPred.pred] : null;
         }
 
         if ($domElem.is('[type="hidden"]')) {
             $domElem.trigger('restore', value);
-            console.log('applyFIlterObjectToDom: ')
         } else if ($domElem.is('[data-date-format]')) {
-            console.log('applyFIlterObjectToDom: is data-date-format')
             FH.applyDateToDatepicker($domElem, value);
         } else if ($domElem.is(':checkbox')) {
-            console.log('applyFIlterObjectToDom: is checkbox')
             $domElem.prop('checked', boolToText(value) === $domElem.val());
         } else if ($domElem.is('input,select')) {
-            console.log('applyFIlterObjectToDom: is input,select')
             $domElem.val(value || '');
         }
     });
@@ -156,7 +144,6 @@ function applyAddressToBoundaryTypeahead(filter, address) {
 }
 
 function applySearchToDom(search) {
-    console.log('applySearchToDom: search', search)
     applyFilterObjectToDom(search.filter || {});
     applyDisplayListToDom(search.display);
     applyAddressToBoundaryTypeahead(search.filter, search.address);
@@ -178,7 +165,6 @@ exports.buildSearch = function () {
 function buildFilterObject () {
     var elems = buildElems();
 
-    console.log('buildFilterObject: elements', elems);
     return _.reduce(elems, function(preds, key_and_pred, id) {
         var $elem = $(document.getElementById(id)),
             val = $elem.val(),
@@ -186,7 +172,6 @@ function buildFilterObject () {
             pred = {},
             query = {};
 
-        console.log('buildFilterObject: $elem is', $elem);
         if ($elem.is(':checked') || ($elem.is(':not(:checkbox)') && val && val.length > 0)) {
             if ($elem.is('[data-date-format]')) {
                 var date = moment($elem.datepicker('getDate') || $elem.val());
@@ -221,7 +206,6 @@ function buildFilterObject () {
             $.extend(true, preds, query);
         }
 
-        console.log('buildFilterObject: returning preds', preds)
         return preds;
     }, {});
 }

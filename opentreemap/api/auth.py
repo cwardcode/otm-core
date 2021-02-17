@@ -7,7 +7,7 @@ import base64
 import hashlib
 import hmac
 import re
-import urllib
+#import urllib
 
 from django.http import HttpResponse
 from django.contrib.auth import authenticate
@@ -21,22 +21,21 @@ def get_signature_for_request(request, secret_key):
     http://docs.aws.amazon.com/AmazonSimpleDB/latest/
     DeveloperGuide/HMACAuth.html
     """
-    httpverb = request.method
-    hostheader = request.META.get('HTTP_HOST', '').lower()
+    #httpverb = request.method
+    #hostheader = request.META.get('HTTP_HOST', '').lower()
 
-    request_uri = request.path
+    #request_uri = request.path
 
     # This used to use request.REQUEST, but after some testing and analysis it
     # seems that both iOS & Android always pass named parameters in the query
     # string, even for non-GET requests
-    params = sorted(request.GET.iteritems(), key=lambda a: a[0])
+    #params = sorted(request.GET.iteritems(), key=lambda a: a[0])
 
-    paramstr = '&'.join(['%s=%s' % (k, urllib.quote_plus(str(v)))
-                         for (k, v) in params
-                         if k.lower() != "signature"])
-    
+    #paramstr = '&'.join(['%s=%s' % (k, urllib.quote_plus(str(v)))
+    #                     for (k, v) in params
+    #                     if k.lower() != "signature"])
 
-    sign_string = '\n'.join([httpverb, hostheader, request_uri, paramstr])
+    #sign_string = '\n'.join([httpverb, hostheader, request_uri, paramstr])
 
     # Sometimes reeading from body fails, so try reading as a file-like
     try:

@@ -182,7 +182,7 @@ STATICFILES_DIRS = (
     # This is the directory where webpack gets its source data from
     # We use this as a static directory so that images can be referenced in CSS
     # but also be collected by collectstatic
-    os.path.join(PROJECT_ROOT, 'assets/'),
+    str(os.path.join(PROJECT_ROOT, 'assets/')),
 )
 
 # List of finder classes that know how to find static files in
@@ -191,6 +191,16 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'djangobower.finders.BowerFinder',
+)
+
+BOWER_COMPONENTS_ROOT = '/usr/local/otm/app/components'
+
+BOWER_INSTALLED_APPS = (
+    'jquery',
+    'jquery-ui',
+    'bootstrap',
+    'fullcalendar#3.8.2'
 )
 
 # Make this unique, and don't share it with anybody.
@@ -285,6 +295,7 @@ INSTALLED_APPS = (
     'appevents',
     'stormwater',
     'manage_treemap',
+    'scheduling',
     'modeling',
     'tagging',
     'registration',
@@ -297,7 +308,9 @@ INSTALLED_APPS = (
     'django.contrib.postgres',
     'django_js_reverse',
     'webpack_loader',
-    'ddtrace.contrib.django',
+    # 'ddtrace.contrib.django',
+    'schedule',
+    'djangobower',
 )
 
 I18N_APPS = (
@@ -417,40 +430,3 @@ if os.environ.get('RECAPTCHA_PUBLIC_KEY', '') != '':
     USE_RECAPTCHA = True
 else:
     USE_RECAPTCHA = False
-
-#LOGGING = {
-#    "version": 1,
-#    "disable_existing_loggers": True,
-#    "formatters": {"json": {"()": "pythonjsonlogger.jsonlogger.JsonFormatter"}},
-#    "handlers": {
-#        'default': {
-#            'level':'DEBUG',
-#            'class': 'logging.handlers.RotatingFileHandler',
-#            'filename': '/var/log/otm/django.log',
-#            'maxBytes': 1024*1024*5, # 5 MB
-#            'backupCount': 5,
-#            'formatter':'json',
-#        },
-#        'request_handler': {
-#            'level':'DEBUG',
-#            'class':'logging.handlers.RotatingFileHandler',
-#            'filename': '/var/log/otm/django_request.log',
-#            'maxBytes': 1024*1024*5, # 5 MB
-#            'backupCount': 5,
-#            'formatter':'json',
-#        }
-#    },
-#    'loggers': {
-#        '': {
-#            'handlers': ['default'],
-#            'level': 'ERROR',
-#            'propagate': True
-#        },
-#        'django.request': { # Stop SQL debug from logging to main logger
-#            'handlers': ['request_handler'],
-#            'level': 'DEBUG',
-#            'propagate': False
-#        },
-#    }
-#
-#}

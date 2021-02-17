@@ -1,0 +1,284 @@
+{% load i18n %}
+{% load static %}
+{% load instance_config %}
+{% if request.user.is_authenticated %}
+{% if 'features' in request.path %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet"
+   href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
+<link rel="stylesheet" href="{% static 'js/vendor/spectrum/spectrum.css' %}">
+</link>
+
+<script type='text/javascript' src="{% static 'jquery/dist/jquery.js' %}"></script>
+<script type='text/javascript' src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
+<script type='text/javascript' src="{% static 'moment/moment.js' %}"></script>
+<script type='text/javascript' src="{% static 'js/vendor/spectrum/spectrum.js' %}"></script>
+<script type='text/javascript'
+   src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
+
+<script>
+   function showDialog() {
+      var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      var selectedStartDate;
+      var selectedEndDate;
+      var selectedStartTime;
+      var selectedEndTime;
+      var selectedDesc;
+      var selectedTitle;
+      var selectedPlotId = location.href.split('/').filter(e => e).slice(-1)[0];
+      var selectedEventColor;
+      var selectedRepeatUntil;
+      var selectedFrequency;
+
+      $('#create-color-picker').spectrum({
+         color: '#000',
+         type: 'color',
+         showPalette: "false",
+         showPaletteOnly: "true",
+         hideAfterPaletteSelect: "true",
+         showButtons: "false"
+      })
+
+      $('#create-dialog').dialog({
+         closeOnEscape: false,
+         dialogClass: 'no-close',
+         title: 'Create a New Task',
+         modal: true,
+         width: '600px',
+         position: {
+            my: "center top",
+            at: "center top",
+            of: '.container',
+            collision: "none"
+         },
+         buttons: [
+            {
+               text: 'Add Task',
+               click: function () {
+                  let eventStartDate;
+                  let eventEndDate;
+                  let dialogContext = this;
+
+                  //validation checks
+                  if (!selectedStartDate || !selectedStartTime) {
+                     showError('create-dialog-error', 'Start Date / Time is required');
+                     return;
+                  }
+                  if (!selectedEndDate || !selectedEndTime) {
+                     showError('create-dialog-error', 'End Date / Time is required');
+                     return;
+                  }
+
+                  eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
+                  eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
+
+
+                  if (eventStartDate.getTime() >= eventEndDate.getTime()) {
+                     showError('create-dialog-error', 'Start Date/Time must be before End Date/Time');
+                     return;
+                  }
+
+                  if (!selectedTitle) {
+                     showError('create-dialog-error', 'Title is required');
+                     return;
+                  }
+
+                  if (!selectedDesc) {
+                     showError('create-dialog-error', 'Description is required');
+                     return;
+                  }
+
+                  if (selectedFrequency && selectedFrequency !== 'Once' && !selectedRepeatUntil) {
+                     showError('create-dialog-error', 'Repeat Until Date is required if Frequency is not "Once"');
+                     return;
+                  }
+                  
+                  repeatDate = new Date(`${selectedRepeatUntil}T${convertTo24Hour(selectedEndTime)}`);
+                  
+                  if (selectedFrequency && selectedFrequency !== 'Once' && selectedRepeatUntil) {
+                     adjustedStartDate = new Date(eventStartDate.getTime());
+                     adjustedStartDate.setDate(adjustedStartDate.getDate() + 1);
+                     if (adjustedStartDate.getTime() >= repeatDate.getTime()) {
+                           showError('create-dialog-error', 'Repeat Until Date must be after Start Date');
+                           return;
+                     }
+                  }
+                  const requestObj = {
+                     'csrfmiddlewaretoken': csrftoken,
+                     'title': selectedTitle,
+                     'description': selectedDesc,
+                     'start': eventStartDate.toISOString(),
+                     'end': eventEndDate.toISOString(),
+                     'calendar': 'tree-maintenance',
+                     'plotId': selectedPlotId,
+                     'eventColor': selectedEventColor,
+                     'frequency': selectedFrequency,
+                  }
+
+                  if (!isNaN(repeatDate.valueOf())) {
+                     requestObj['repeatUntil'] = repeatDate.toISOString();
+                  }
+
+                  if (!isNaN(eventStartDate.valueOf())) {
+                     $.ajax({
+                        type: 'POST',
+                        url: "{% url 'api_create_event' instance_url_name=request.instance.url_name %}",
+                        dataType: 'json',
+                        data: requestObj,
+                        success: function (result) {
+                           alert(`Added ${selectedTitle} to calendar.`)
+                           $(dialogContext).dialog("close");
+                           $('#create-dialog').addClass('hidden');
+                           $('#create-dialog-error').addClass('hidden');
+                           $("#create-color-picker").empty();
+                           $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until').val('');
+                           $('#create-frequency').val("Once");
+                           $('#create-frequency').selectmenu("refresh");
+                        },
+                        error: function (req, status, error) {
+                           showError('create-dialog-error', req.responseText.split('Request Method:')[0]);
+                        }
+                     });
+                  } else {
+                     showError('create-dialog-error', 'Invalid Date provided. Please enter a date with format yyyy-mm-dd.');
+                  }
+               }
+            },
+            {
+               text: "Close",
+               click: function () {
+                  $(this).dialog("close");
+                  $('#create-dialog').addClass('hidden');
+                  $('#create-dialog-error').addClass('hidden');
+                  $("#create-color-picker").empty();
+                  $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until').val('');
+                  $('#create-frequency').val("Once");
+                  $('#create-frequency').selectmenu("refresh");
+               }
+            }
+         ],
+         open: function () {
+            $(this).parent().css('position', 'fixed');
+            if ($('#create-frequency').val() === 'Once') {
+               $('#create-repeat-until-label').hide();
+            }
+            $('#create-dialog').removeClass('hidden');
+            $('#create-date-start').datepicker({
+               dateFormat: 'yy-mm-dd'
+            });
+            $('#create-date-end').datepicker({
+               dateFormat: 'yy-mm-dd'
+            });
+            $("#create-date-start").on("change", function () {
+               selectedStartDate = $(this).val();
+            });
+            $("#create-date-end").on("change", function () {
+               selectedEndDate = $(this).val();
+            });
+            $('#create-time-start').timepicker({ 'scrollDefault': 'now' });
+            $("#create-time-start").on("change", function () {
+               selectedStartTime = $(this).val();
+            });
+            $('#create-time-end').timepicker({ 'scrollDefault': 'now' });
+            $("#create-time-end").on("change", function () {
+               selectedEndTime = $(this).val();
+            });
+            $("#create-title").on("change", function () {
+               selectedTitle = $(this).val();
+            });
+            $("#create-description").on("change", function () {
+               selectedDesc = $(this).val();
+            });
+            $("#create-color-picker").on("change", function () {
+               selectedEventColor = $(this).val();
+            });
+            $('#create-frequency').selectmenu();
+            $('#create-frequency').on("selectmenuchange", function () {
+               selectedFrequency = $(this).val();
+               if (selectedFrequency.toLowerCase() !== 'once') {
+                  $('#create-repeat-until-label').show();
+               } else {
+                  $('#create-repeat-until-label').hide();
+               }
+            });
+            $('#create-repeat-until').datepicker({
+               dateFormat: 'yy-mm-dd'
+            });
+            $("#create-repeat-until").on("change", function () {
+               selectedRepeatUntil = $(this).val();
+            });
+         }
+      })
+   }
+
+   function showError(errorElementId, errorText) {
+      $(`#${errorElementId}`).removeClass('hidden')
+      $(`#${errorElementId}-message`).text(errorText)
+   }
+
+   function formatDate(date) {
+      var d = new Date(date),
+         month = '' + (d.getMonth() + 1),
+         day = '' + d.getDate(),
+         year = d.getFullYear();
+
+      if (month.length < 2)
+         month = '0' + month;
+      if (day.length < 2)
+         day = '0' + day;
+
+      return [year, month, day].join('-');
+   }
+
+   function convertTo24Hour(time) {
+      var hours = parseInt(time.substr(0, 2));
+      if (time.toLowerCase().indexOf('am') != -1) {
+         if (hours == 12) {
+            time = '0' + time.replace('12', '0');
+         }
+         if (hours.toString().length < 2) {
+            time = '0' + time;
+         }
+      }
+      if (time.toLowerCase().indexOf('pm') != -1 && hours < 12) {
+         time = time.replace(hours, (hours + 12));
+      }
+      return time.replace(/(am|pm)/i, '');
+   }
+</script>
+
+<button class="btn btn-primary" onclick="showDialog()">
+   <i class="icon-plus"></i> {% trans "Add a Task" %}
+</button>
+
+<div id="create-dialog" class="hidden" style="width: 600px">
+   {% csrf_token %}
+   <div class="validation-error hidden" id="create-dialog-error">
+       <span class="closebtn" onclick="$('#create-dialog-error').addClass('hidden');">&times;</span>
+       <p>Error: <span id="create-dialog-error-message"></span></p>
+   </div>
+   <div class="row" style="display: flex">
+       <div class="column" style="flex: 50%; margin: 1em;">
+           <p>Start Date: <input type="text" id="create-date-start" autocomplete="off"></p>
+           <p>Start Time: <input type="text" id="create-time-start" autocomplete="off"></p>
+           <p id="create-date-end-label">End Date: <input type="text" id="create-date-end" autocomplete="off"></p>
+           <p id="create-time-end-label">End Time: <input type="text" id="create-time-end" autocomplete="off"></p>
+           <p>Frequency:</p>
+           <select id="create-frequency" name="create-frequency">
+               <option selected="selected">Once</option>
+               <option>Daily</option>
+               <option>Weekly</option>
+               <option>Monthly</option>
+               <option>Yearly</option>
+           </select>
+           <p id="create-repeat-until-label" style="padding-top: 1rem;">Repeat Until: <input type="text" id="create-repeat-until" autocomplete="off"></p>
+       </div>
+       <div class="column" style="flex: 50%; margin: 1em;">
+           <p>Title: <input type="text" id="create-title" autocomplete="off"></p>
+           <p>Description: <textarea type="text" id="create-description" autocomplete="off"></textarea></p>
+           <p>Task Color: <input id="create-color-picker" style="margin-bottom:1rem;" autocomplete="off" /></p>
+       </div>
+   </div>
+</div>
+{% endif %}
+{% endif %}

@@ -8,7 +8,7 @@ var $ = require('jquery'),
     _ = require('lodash');
 
 // For modal dialog on jquery
-require('bootstrap')
+require('bootstrap');
 
 
 module.exports.init = function(opts) {
@@ -28,8 +28,8 @@ module.exports.init = function(opts) {
 
     return {
         actionStream: actionStream.map(_.identity),
-        saveStream,
-        deleteStream,
-        tagInputStream
+        saveStream: saveStream,
+        deleteStream: deleteStream,
+        tagInputStream: tagInputStream
     };
 };

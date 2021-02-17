@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "otm_base.html" %}
 {% load render_bundle get_files from webpack_loader %}
 {% load i18n %}
 {% load instance_config %}
@@ -83,6 +83,9 @@ ga('set', 'page', pathname);
 <li class="hidden-xs {% block activemanagement %}{% endblock %}">
   <a href="{% url "management" instance_url_name=request.instance.url_name %}">{% trans "Manage" %}</a>
 </li>
+<li class="hidden-xs {% block activescheduling %}{% endblock %}">
+  <a href="{% url 'scheduling' instance_url_name=request.instance.url_name %}">{% trans "Schedule" %}</a>
+</li>
 {% endif %}
 {% endblock instancetopnav %}
 
@@ -132,6 +135,7 @@ ga('set', 'page', pathname);
       {% if request.instance|feature_enabled:'add_plot' and last_effective_instance_user %}
         {% if request.instance.has_resources %}
           <div class="btn-group">
+            {% include "treemap/partials/add_task_btn.html" %}
             {% include "treemap/partials/add_plot_btn.html" %}
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="caret"></span>
@@ -140,6 +144,7 @@ ga('set', 'page', pathname);
             {% include "treemap/partials/add_feature_menu.html" with dropdown_class="dropdown-menu-right" %}
           </div>
         {% else %}
+          {% include "treemap/partials/add_task_btn.html" %}
           {% include "treemap/partials/add_plot_btn.html" %}
         {% endif %}
       {% endif %}
