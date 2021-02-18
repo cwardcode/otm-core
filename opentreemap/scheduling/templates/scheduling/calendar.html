@@ -161,7 +161,7 @@
                         }
                         if (plotId != null && plotId !== '') {
                             $("#details-location-div").append('<h5 id="details-location-header" style="text-decoration:underline">Location</h5>')
-                            $("#details-location-div").append(`<a style="color: #337ab7" target="_blank" href="${location.origin}/{{request.instance.url_name }}/features/${plotId}">Tree ${plotId}</a>`)
+                            $("#details-location-div").append(`<a style="color: #337ab7" target="_blank" href="${location.origin}/{{request.instance.url_name }}/features/${plotId}">Tree Plot: ${plotId}</a>`)
                         }
                     }
                 })
@@ -273,7 +273,7 @@
                                     'description': selectedDesc,
                                     'start': eventStartDate.toISOString(),
                                     'end': eventEndDate.toISOString(),
-                                    'plotId': selectedPlotId,
+                                    'treeId': selectedPlotId,
                                     'primaryKey': event.event.extendedProps.event_id,
                                     'calendar': 'tree-maintenance',
                                     'eventColor': selectedEventColor,
@@ -499,7 +499,7 @@
                                     'start': eventStartDate.toISOString(),
                                     'end': eventEndDate.toISOString(),
                                     'calendar': 'tree-maintenance',
-                                    'plotId': selectedPlotId,
+                                    'treeId': selectedPlotId,
                                     'eventColor': selectedEventColor,
                                     'frequency': selectedFrequency,
                                 }
@@ -674,7 +674,7 @@
         <div class="column" style="flex: 50%; margin: 1em;">
             <p>Title: <input type="text" id="edit-title" autocomplete="off"></p>
             <p>Description: <textarea type="text" id="edit-description" autocomplete="off"></textarea></p>
-            <p>Location (Plot ID): <input type="text" id="edit-plot-id" autocomplete="off"></p>
+            <p>Location (Tree ID): <input type="text" id="edit-plot-id" autocomplete="off"></p>
             <p>Task Color: <input id="edit-color-picker" autocomplete="off" /></p>
         </div>
     </div>
@@ -715,7 +715,7 @@
         <div class="column" style="flex: 50%; margin: 1em;">
             <p>Title: <input type="text" id="create-title" autocomplete="off"></p>
             <p>Description: <textarea type="text" id="create-description" autocomplete="off"></textarea></p>
-            <p>Location (Plot ID): <input type="text" id="create-plot-id" autocomplete="off"></p>
+            <p>Location (Tree ID): <input type="text" id="create-plot-id" autocomplete="off"></p>
             <p>Task Color: <input id="create-color-picker" style="margin-bottom:1rem;" autocomplete="off" /></p>
         </div>
     </div>

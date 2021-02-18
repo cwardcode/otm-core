@@ -11,6 +11,8 @@ from schedule.utils import (
     check_calendar_permissions,
 )
 from django.http import JsonResponse
+from treemap.models import Tree
+import rollbar
 
 def management_root(request, instance_url_name):
     return redirect('calendars', instance_url_name=instance_url_name)
@@ -45,10 +47,12 @@ def api_create_event(request, **kwargs):
     title = request.POST.get("title")
     description = request.POST.get("description")
     calendar_slug = request.POST.get("calendar")
-    plot_id = request.POST.get("plotId")
+    tree_id = request.POST.get("treeId")
     color_event = request.POST.get("eventColor")
     frequency = request.POST.get("frequency")
     repeat_until = request.POST.get("repeat")
+    
+    act_plot_id=Tree.objects.get(pk=tree_id).plot.id
 
     if (color_event == "white"):
         color_event = '#ffffff'
@@ -56,7 +60,7 @@ def api_create_event(request, **kwargs):
         color_event = '#000000'
 
     response_data = _api_create_event(start, end, calendar_slug, title,
-                    description, plot_id, color_event, frequency, repeat_until)
+                    description, act_plot_id, color_event, frequency, repeat_until)
     return JsonResponse(response_data)
 
 def _api_create_event(start, end, calendar_slug, title, description, plot_id,
@@ -122,6 +126,11 @@ def _api_edit_event(start, end, title, description, primary_key, plot_id,
     end = dateutil.parser.parse(end)
     event_rule = None
     event_freq = frequency
+    
+    #occurrence = Event.objects.get(pk=primary_key).get_occurrence(start.replace(tzinfo=None))
+    # event = occurrence.event
+    #rollbar.report_message('occurrence found: ', 'warning', occurrence)
+    # rollbar.report_message('occurrence event found: ', 'warning', event)
 
     if event_freq == "" or event_freq == "Once":
         event_freq = None
@@ -163,3 +172,4 @@ def _api_delete_event(event_id):
     response_data = {}
     response_data["status"] = "OK"
     return response_data
+
