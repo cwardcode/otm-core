@@ -182,7 +182,8 @@
                 var selectedFrequency = event.event.extendedProps.rule || 'Once';
                 var selectedRepeatUntil;
 
-                if (event.event.extendedProps.end_recurring_period.includes('T')) {
+                if (event.event.extendedProps.end_recurring_period
+                    && event.event.extendedProps.end_recurring_period.includes('T')) {
                     selectedRepeatUntil = event.event.extendedProps.end_recurring_period.split('T')[0];
                 } else {
                     selectedRepeatUntil = event.event.extendedProps.end_recurring_period;
