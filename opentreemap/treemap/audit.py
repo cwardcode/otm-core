@@ -1195,8 +1195,12 @@ class _PendingAuditable(Auditable):
         self.is_pending_insert = False
 
     def full_clean(self, *args, **kwargs):
-        raise TypeError("all calls to full clean must be done via "
-                        "'full_clean_with_user'")
+        kwargs.pop("exclude")
+        kwargs.pop("validate_unique")
+        models.Model.save(self, *args, **kwargs)
+        self.populate_previous_state()
+        #raise TypeError("all calls to full clean must be done via "
+        #                "'full_clean_with_user'")
 
     def full_clean_with_user(self, user):
         if self.user_can_create(user):
