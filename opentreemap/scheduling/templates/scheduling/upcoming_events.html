@@ -180,7 +180,13 @@
                 var selectedEventColor = event.event.borderColor;
                 var selectedPlotId = event.event.extendedProps.plot_id;
                 var selectedFrequency = event.event.extendedProps.rule || 'Once';
-                var selectedRepeatUntil = event.event.extendedProps.end_recurring_period;
+                var selectedRepeatUntil;
+
+                if (event.event.extendedProps.end_recurring_period.includes('T')) {
+                    selectedRepeatUntil = event.event.extendedProps.end_recurring_period.split('T')[0];
+                } else {
+                    selectedRepeatUntil = event.event.extendedProps.end_recurring_period;
+                }
 
                 if (event.event.end) {
                     selectedEndTime = event.event.end.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', '');
