@@ -177,7 +177,7 @@
                 var selectedTitle = event.event.title;
                 var selectedEventColor = event.event.borderColor;
                 var selectedPlotId = event.event.extendedProps.plot_id;
-                var selectedFrequency = event.event.extendedProps.rule;
+                var selectedFrequency = event.event.extendedProps.rule || 'Once';
                 var selectedRepeatUntil = event.event.extendedProps.end_recurring_period;
 
                 if (event.event.end) {
