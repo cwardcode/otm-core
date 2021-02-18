@@ -259,7 +259,8 @@
                                 if (selectedFrequency !== 'Once' && selectedRepeatUntil) {
                                     adjustedStartDate = new Date(eventStartDate.getTime());
                                     adjustedStartDate.setDate(adjustedStartDate.getDate() + 1);
-                                    if (adjustedStartDate.getTime() >= repeatDate.getTime()) {
+                                    if (adjustedStartDate.getTime() > repeatDate.getTime()
+                                        && repeatDate.getDate() + 1 !== adjustedStartDate.getDate()) {
                                         showError('edit-dialog-error', 'Repeat Until Date must be after Start Date');
                                         return;
                                     }
@@ -412,9 +413,9 @@
                 var selectedDesc;
                 var selectedTitle;
                 var selectedPlotId;
-                var selectedEventColor;
+                var selectedEventColor = '#000000';
                 var selectedRepeatUntil;
-                var selectedFrequency;
+                var selectedFrequency = 'Once';
 
                 $('#create-color-picker').spectrum({
                     color: '#000',
