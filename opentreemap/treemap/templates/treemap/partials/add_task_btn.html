@@ -25,7 +25,6 @@
       var selectedEndTime;
       var selectedDesc;
       var selectedTitle;
-      var selectedPlotId;
       var selectedEventColor = '#000000';
       var selectedRepeatUntil;
       var selectedFrequency = 'Once';
@@ -112,7 +111,7 @@
                      'start': eventStartDate.toISOString(),
                      'end': eventEndDate.toISOString(),
                      'calendar': 'tree-maintenance',
-                     'plotId': selectedPlotId,
+                     'plotId': {{tree.plot.id}},
                      'eventColor': selectedEventColor,
                      'frequency': selectedFrequency,
                   }
