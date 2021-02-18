@@ -48,7 +48,7 @@ def api_create_event(request, **kwargs):
     plot_id = request.POST.get("plotId")
     color_event = request.POST.get("eventColor")
     frequency = request.POST.get("frequency")
-    repeat_until = request.POST.get("repeatUntil")
+    repeat_until = request.POST.get("repeat")
 
     if (color_event == "white"):
         color_event = '#ffffff'
@@ -104,7 +104,7 @@ def api_edit_event(request, **kwargs):
     plot_id = request.POST.get("plotId")
     color_event = request.POST.get("eventColor")
     frequency = request.POST.get("frequency")
-    repeat_until = request.POST.get("repeatUntil")
+    repeat_until = request.POST.get("repeat")
 
     if (color_event == "white"):
         color_event = '#ffffff'
