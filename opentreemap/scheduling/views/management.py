@@ -60,11 +60,12 @@ def api_create_event(request, **kwargs):
         color_event = '#000000'
 
     response_data = _api_create_event(start, end, calendar_slug, title,
-                    description, act_plot_id, color_event, frequency, repeat_until)
+                    description, act_plot_id, color_event, frequency, 
+                    repeat_until, tree_id)
     return JsonResponse(response_data)
 
 def _api_create_event(start, end, calendar_slug, title, description, plot_id,
-                      color_event, frequency, repeat_until):
+                      color_event, frequency, repeat_until, tree_id):
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
     rule = None
@@ -77,18 +78,21 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
     calendar = Calendar.objects.get(slug=calendar_slug)
     if (plot_id is None):
         plot_id = ''
+    if (tree_id is None):
+        tree_id = ''
     if (color_event is None and color_event is not ""):
         color_event = '#000000'
     if rule:
         Event.objects.create(
             start=start, end=end, title=title, calendar=calendar,
             description=description, plot_id=plot_id, color_event=color_event,
-            rule=rule, end_recurring_period=repeat_until
+            rule=rule, end_recurring_period=repeat_until, tree_id=tree_id
         )
     else:
         Event.objects.create(
             start=start, end=end, title=title, calendar=calendar,
             description=description, plot_id=plot_id, color_event=color_event,
+            tree_id=tree_id
         )
 
 
@@ -105,10 +109,12 @@ def api_edit_event(request, **kwargs):
     title = request.POST.get("title")
     description = request.POST.get("description")
     primary_key = request.POST.get("primaryKey")
-    plot_id = request.POST.get("plotId")
+    tree_id = request.POST.get("treeId")
     color_event = request.POST.get("eventColor")
     frequency = request.POST.get("frequency")
     repeat_until = request.POST.get("repeat")
+    
+    act_plot_id=Tree.objects.get(pk=tree_id).plot.id
 
     if (color_event == "white"):
         color_event = '#ffffff'
@@ -116,11 +122,12 @@ def api_edit_event(request, **kwargs):
         color_event = '#000000'
 
     response_data = _api_edit_event(start, end, title, description,
-        primary_key, plot_id, color_event, frequency, repeat_until)
+        primary_key, act_plot_id, color_event, frequency, repeat_until,
+        tree_id)
     return JsonResponse(response_data)
 
 def _api_edit_event(start, end, title, description, primary_key, plot_id,
-    color_event, frequency, repeat_until):
+    color_event, frequency, repeat_until, tree_id):
     event = Event.objects.get(pk=primary_key)
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
@@ -141,9 +148,12 @@ def _api_edit_event(start, end, title, description, primary_key, plot_id,
         repeat_until = None
     if (plot_id is None):
         plot_id = ''
+    if (tree_id is None):
+        tree_id = ''
     if (color_event is None and color_event is not ""):
         color_event = '#000000'
-    
+
+    event.tree_id =  tree_id
     event.plot_id = plot_id
     event.start = start
     event.end = end

@@ -176,7 +176,7 @@
                 var selectedDesc = event.event.extendedProps.description;
                 var selectedTitle = event.event.title;
                 var selectedEventColor = event.event.borderColor;
-                var selectedPlotId = event.event.extendedProps.plot_id;
+                var selectedTreeId = event.event.extendedProps.tree_id;
                 var selectedFrequency = event.event.extendedProps.rule || 'Once';
                 var selectedRepeatUntil;
 
@@ -273,7 +273,7 @@
                                     'description': selectedDesc,
                                     'start': eventStartDate.toISOString(),
                                     'end': eventEndDate.toISOString(),
-                                    'treeId': selectedPlotId,
+                                    'treeId': selectedTreeId,
                                     'primaryKey': event.event.extendedProps.event_id,
                                     'calendar': 'tree-maintenance',
                                     'eventColor': selectedEventColor,
@@ -329,7 +329,7 @@
                         $('#edit-description').val(event.event.extendedProps.description)
                         $('#edit-date-start').val(formatDate(event.event.start))
                         $('#edit-time-start').val(event.event.start.toLocaleTimeString({ hour: '2-digit', minute: '2-digit' }).replace(' ', ''));
-                        $('#edit-plot-id').val(event.event.extendedProps.plot_id)
+                        $('#edit-tree-id').val(event.event.extendedProps.tree_id)
                         $('#edit-frequency').selectmenu();
                         if (event.event.extendedProps.rule) {
                             $('#edit-frequency').val(event.event.extendedProps.rule)
@@ -380,8 +380,8 @@
                         $("#edit-description").on("change", function () {
                             selectedDesc = $(this).val();
                         });
-                        $("#edit-plot-id").on("change", function () {
-                            selectedPlotId = $(this).val();
+                        $("#edit-tree-id").on("change", function () {
+                            selectedTreeId = $(this).val();
                         });
                         $("#edit-color-picker").on("change", function () {
                             selectedEventColor = $(this).val();
@@ -412,7 +412,7 @@
                 var selectedEndTime;
                 var selectedDesc;
                 var selectedTitle;
-                var selectedPlotId;
+                var selectedTreeId;
                 var selectedEventColor = '#000000';
                 var selectedRepeatUntil;
                 var selectedFrequency = 'Once';
@@ -499,7 +499,7 @@
                                     'start': eventStartDate.toISOString(),
                                     'end': eventEndDate.toISOString(),
                                     'calendar': 'tree-maintenance',
-                                    'treeId': selectedPlotId,
+                                    'treeId': selectedTreeId,
                                     'eventColor': selectedEventColor,
                                     'frequency': selectedFrequency,
                                 }
@@ -520,7 +520,7 @@
                                             $('#create-dialog').addClass('hidden');
                                             $('#create-dialog-error').addClass('hidden');
                                             $("#create-color-picker").empty();
-                                            $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
+                                            $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-tree-id').val('');
                                             $('#create-frequency').val("Once");
                                             $('#create-frequency').selectmenu("refresh");
                                         },
@@ -540,7 +540,7 @@
                                 $('#create-dialog').addClass('hidden');
                                 $('#create-dialog-error').addClass('hidden');
                                 $("#create-color-picker").empty();
-                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
+                                $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-tree-id').val('');
                                 $('#create-frequency').val("Once");
                                 $('#create-frequency').selectmenu("refresh");
                             }
@@ -578,8 +578,8 @@
                         $("#create-description").on("change", function () {
                             selectedDesc = $(this).val();
                         });
-                        $("#create-plot-id").on("change", function () {
-                            selectedPlotId = $(this).val();
+                        $("#create-tree-id").on("change", function () {
+                            selectedTreeId = $(this).val();
                         });
                         $("#create-color-picker").on("change", function () {
                             selectedEventColor = $(this).val();
@@ -674,7 +674,7 @@
         <div class="column" style="flex: 50%; margin: 1em;">
             <p>Title: <input type="text" id="edit-title" autocomplete="off"></p>
             <p>Description: <textarea type="text" id="edit-description" autocomplete="off"></textarea></p>
-            <p>Location (Tree ID): <input type="text" id="edit-plot-id" autocomplete="off"></p>
+            <p>Location (Tree ID): <input type="text" id="edit-tree-id" autocomplete="off"></p>
             <p>Task Color: <input id="edit-color-picker" autocomplete="off" /></p>
         </div>
     </div>
@@ -715,7 +715,7 @@
         <div class="column" style="flex: 50%; margin: 1em;">
             <p>Title: <input type="text" id="create-title" autocomplete="off"></p>
             <p>Description: <textarea type="text" id="create-description" autocomplete="off"></textarea></p>
-            <p>Location (Tree ID): <input type="text" id="create-plot-id" autocomplete="off"></p>
+            <p>Location (Tree ID): <input type="text" id="create-tree-id" autocomplete="off"></p>
             <p>Task Color: <input id="create-color-picker" style="margin-bottom:1rem;" autocomplete="off" /></p>
         </div>
     </div>
