@@ -25,6 +25,7 @@
       var selectedEndTime;
       var selectedDesc;
       var selectedTitle;
+      var selectedTreeId = `{{tree.id}}`.replaceAll(',','');
       var selectedEventColor = '#000000';
       var selectedRepeatUntil;
       var selectedFrequency = 'Once';
@@ -103,7 +104,6 @@
                      }
                   }
 
-                  const treeId = `{{tree.id}}`.replaceAll(',','');
                   const requestObj = {
                      'csrfmiddlewaretoken': csrftoken,
                      'title': selectedTitle,
@@ -111,7 +111,7 @@
                      'start': eventStartDate.toISOString(),
                      'end': eventEndDate.toISOString(),
                      'calendar': 'tree-maintenance',
-                     'treeId': treeId,
+                     'treeId': selectedTreeId,
                      'eventColor': selectedEventColor,
                      'frequency': selectedFrequency,
                   }
@@ -132,7 +132,7 @@
                            $('#create-dialog').addClass('hidden');
                            $('#create-dialog-error').addClass('hidden');
                            $("#create-color-picker").empty();
-                           $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
+                           $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-tree-id').val('');
                            $('#create-frequency').val("Once");
                            $('#create-frequency').selectmenu("refresh");
                         },
@@ -152,7 +152,7 @@
                   $('#create-dialog').addClass('hidden');
                   $('#create-dialog-error').addClass('hidden');
                   $("#create-color-picker").empty();
-                  $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-plot-id').val('');
+                  $('#create-date-start,#create-date-end,#create-time-start,#create-time-end,#create-title,#create-description,#create-repeat-until,#create-tree-id').val('');
                   $('#create-frequency').val("Once");
                   $('#create-frequency').selectmenu("refresh");
                }
@@ -189,6 +189,10 @@
             });
             $("#create-description").on("change", function () {
                selectedDesc = $(this).val();
+            });
+            $("#create-tree-id").val(`{{tree.id}}`.replaceAll(',',''));
+            $("#create-tree-id").on("change", function () {
+                  selectedTreeId = $(this).val();
             });
             $("#create-color-picker").on("change", function () {
                selectedEventColor = $(this).val();
@@ -279,6 +283,7 @@
          <p>Title: <input type="text" id="create-title" autocomplete="off"></p>
          <p>Description: <textarea type="text" id="create-description" autocomplete="off"></textarea></p>
          <p>Task Color: <input id="create-color-picker" style="margin-bottom:1rem;" autocomplete="off" /></p>
+         <p>Location (Tree ID): <input type="text" id="create-tree-id" autocomplete="off"></p>
       </div>
    </div>
 </div>
