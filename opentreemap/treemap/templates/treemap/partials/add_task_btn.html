@@ -101,9 +101,9 @@
                         showError('create-dialog-error', 'Repeat Until Date must be after Start Date');
                         return;
                      }
-
                   }
 
+                  const treeId = `{{tree.id}}`.replaceAll(',','');
                   const requestObj = {
                      'csrfmiddlewaretoken': csrftoken,
                      'title': selectedTitle,
@@ -111,7 +111,7 @@
                      'start': eventStartDate.toISOString(),
                      'end': eventEndDate.toISOString(),
                      'calendar': 'tree-maintenance',
-                     'treeId': {{tree.id}},
+                     'treeId': treeId,
                      'eventColor': selectedEventColor,
                      'frequency': selectedFrequency,
                   }
