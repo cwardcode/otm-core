@@ -89,6 +89,7 @@
                         },
                         {
                             text: 'Delete',
+                            style: 'background-color: red; color:white',
                             click: function () {
                                 $("#details-description-div").empty();
                                 $("#details-location-div").empty();
@@ -105,7 +106,7 @@
                                     buttons: [
                                         {
                                             text: 'Delete',
-                                            "class": 'btn-danger',
+                                            style: 'background-color: red; color:white',
                                             click: function () {
                                                 $.ajax({
                                                     type: 'POST',
@@ -143,6 +144,7 @@
                         },
                         {
                             text: 'Delete ALL',
+                            style: 'background-color: red; color:white',
                             click: function () {
                                 $("#details-description-div").empty();
                                 $("#details-location-div").empty();
@@ -159,7 +161,7 @@
                                     buttons: [
                                         {
                                             text: 'Delete',
-                                            "class": 'btn-danger',
+                                            style: 'background-color: red; color:white',
                                             click: function () {
                                                 $.ajax({
                                                     type: 'POST',
