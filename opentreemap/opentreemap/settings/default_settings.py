@@ -130,7 +130,7 @@ USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
+USE_TZ = False
 
 # Path to the Django Project root
 # Current file is in opentreemap/opentreemap/settings, so go up 3
