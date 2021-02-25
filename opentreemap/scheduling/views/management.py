@@ -73,10 +73,8 @@ def api_create_event(request, **kwargs):
 def _api_create_event(start, end, calendar_slug, title, description, plot_id,
                       color_event, frequency, repeat_until, tree_id,
                       occ_created):
-    start = dateutil.parser.parse(start.replace('Z',''))
-    end = dateutil.parser.parse(end.replace('Z',''))
-    #start = dateutil.parser.parse(start)
-    #end = dateutil.parser.parse(end)
+    start = dateutil.parser.parse(start)
+    end = dateutil.parser.parse(end)
     rule = None
     evt = None
     event_freq = frequency
