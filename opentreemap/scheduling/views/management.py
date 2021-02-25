@@ -75,6 +75,8 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
                       occ_created):
     start = dateutil.parser.parse(start.replace('Z',''))
     end = dateutil.parser.parse(end.replace('Z',''))
+    #start = dateutil.parser.parse(start)
+    #end = dateutil.parser.parse(end)
     rule = None
     evt = None
     event_freq = frequency
@@ -141,8 +143,10 @@ def api_edit_event(request, **kwargs):
     frequency = request.POST.get("frequency")
     repeat_until = request.POST.get("repeat")
     occ_created = request.POST.get("occCreated")
-    
-    act_plot_id=Tree.objects.get(pk=tree_id).plot.id
+    act_plot_id=None
+ 
+    if tree_id is not None and tree_id != '':
+        act_plot_id=Tree.objects.get(pk=tree_id).plot.id
 
     if (color_event == "white"):
         color_event = '#ffffff'
@@ -163,23 +167,30 @@ def _api_edit_event(start, end, title, description, primary_key, plot_id,
 
     if (plot_id is None):
         plot_id = ''
+
     if (tree_id is None):
         tree_id = ''
+
     if (color_event is None and color_event is not ""):
         color_event = '#000000'
-    
-    edited_occurrence.start = start
-    edited_occurrence.end = end
-    
+
     for occurrence in occurrences:
-        occurrence.tree_id =  tree_id
+        occurrence.tree_id = tree_id
         occurrence.plot_id = plot_id
         occurrence.title = title
         occurrence.description = description
         occurrence.color_event = color_event
         occurrence.save()
-        
+
+    edited_occurrence.start = start
+    edited_occurrence.end = end
+    edited_occurrence.tree_id = tree_id
+    edited_occurrence.plot_id = plot_id
+    edited_occurrence.title = title
+    edited_occurrence.description = description
+    edited_occurrence.color_event = color_event
     edited_occurrence.save()
+        
     response_data = {}
     response_data["status"] = "OK"
     return response_data
