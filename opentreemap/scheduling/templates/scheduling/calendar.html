@@ -482,7 +482,11 @@
 
                                 eventStartDate = new Date(`${selectedStartDate}T${convertTo24Hour(selectedStartTime)}`);
                                 eventEndDate = new Date(`${selectedEndDate}T${convertTo24Hour(selectedEndTime)}`);
-
+                                //timezone fix
+                                let startTzOffset = eventStartDate.getTimezoneOffset() / 60;
+                                let endTzOffset = eventEndDate.getTimezoneOffset() / 60;
+                                eventStartDate.setHours(eventStartDate.getHours() - startTzOffset);
+                                eventEndDate.setHours(eventEndDate.getHours() - startTzOffset);
 
                                 if (eventStartDate.getTime() >= eventEndDate.getTime()) {
                                     showError('create-dialog-error', 'Start Date/Time must be before End Date/Time');
