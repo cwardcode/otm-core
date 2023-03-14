@@ -236,6 +236,11 @@ MapManager.prototype = {
 	L.control.locate({
 	    icon: "icon icon-location"
 	}).addTo(map);
+      	
+	map.zoomControl.remove(); 
+	L.control.zoom({
+	    position: 'topleft'
+	}).addTo(map); 
 
         layersLib.initPanes(map);
 
@@ -267,7 +272,7 @@ MapManager.prototype = {
             }
             map.addLayer(basemapMapping[visible]);
             this.layersControl = L.control.layers(basemapMapping, null, {
-                autoZIndex: false
+                autoZIndex: true
             });
 
             monkeyPatchLeafletLayersControlForMobileSafari(this.layersControl);
@@ -278,33 +283,26 @@ MapManager.prototype = {
             });
         }
 
-        if (options.disableScrollWithMouseWheel) {
-            map.scrollWheelZoom = false;
-        }
 
         // Disables pinch-to-zoom and double-tap-to-zoom
         // This is supposed to be disabled already by user-scalable=no,
         // but iOS Safari 10+ ignores that property
-        $('body').off('touchstart');
-        $('body').on('touchstart', function(e) {
-            if (e.originalEvent.touches.length > 1) {
-                e.preventDefault(); // pinch - prevent zoom
-                e.stopPropagation();
-                return;
-            }
-
-            var t2 = e.timeStamp;
-            var t1 = this.lastTouch || t2;
-            var dt = t2 - t1;
-            this.lastTouch = t2;
-
-            if (dt && dt < 500) {
-                e.preventDefault(); // double tap - prevent zoom
-                e.stopPropagation();
-            }
-        });
-
-        this.map = map;
+	document.addEventListener('touchmove', function (event) {
+	  if (('scale' in event) && event.scale !== 1) { 
+	    event.preventDefault(); 
+	  }
+	}, { passive: false });
+	
+	var lastTouchEnd = 0;
+	document.addEventListener('touchend', function (event) {
+	  var now = (new Date()).getTime();
+	  if (now - lastTouchEnd <= 300) {
+	    event.preventDefault();
+	  }
+	  lastTouchEnd = now;
+	}, { passive: false });
+	
+	this.map = map;
         return map;
     },
 
