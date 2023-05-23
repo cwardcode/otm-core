@@ -30,6 +30,11 @@ from treemap.util import leaf_models_of_class
 
 from tagging.models import Tag, TaggedItem
 
+from opentreemap.util import add_rollbar_handler
+import logging
+
+logger = logging.getLogger(__name__)
+add_rollbar_handler(logger, level=logging.INFO)
 
 _SCSS_VAR_NAME_RE = re.compile('^[_a-zA-Z][-_a-zA-Z0-9]*$')
 
@@ -62,7 +67,8 @@ def edits(request, instance):
 
     if user_id is not None:
         user = User.objects.get(pk=user_id)
-
+    logger.warn('calling get_audits from misc.py',
+                extra={'extra_data': {'user_id': user_id, 'params': params, 'request': request, 'instance': instance}})
     return get_audits(request.user, instance, request.GET.copy(), user,
                       **params)
 

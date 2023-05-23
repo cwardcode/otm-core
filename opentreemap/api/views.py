@@ -51,6 +51,27 @@ from api.user import (user_info, create_user, update_user,
 from exporter.views import users_json, users_csv
 
 
+from opentreemap.util import add_rollbar_handler
+import logging
+
+logger = logging.getLogger(__name__)
+add_rollbar_handler(logger, level=logging.INFO)
+
+# Logging
+from opentreemap.util import add_rollbar_handler
+import logging
+
+# By default the level for the logger will be NOTSET, which falls back
+# to the level set on the root logger, which is WARNING.
+#
+# https://docs.python.org/dev/library/logging.html#logging.Logger.setLevel
+#
+# We want to log some non-critical ecobenefit failures as INFO so that
+# the WARNING level does not have too many.
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+add_rollbar_handler(logger, level=logging.INFO)
+
 def datetime_to_iso_string(d):
     if d:
         return d.strftime(DATETIME_FORMAT)
@@ -80,7 +101,7 @@ def edits(request, instance, user_id):
         return create_401unauthorized()
 
     user = request.user
-
+    logger.error('user is', user)
     result_offset = int(request.GET.get("offset", 0))
     num_results = min(int(request.GET.get("length", 15)), 15)
 
@@ -90,7 +111,9 @@ def edits(request, instance, user_id):
                           .order_by('-created', 'id')
 
     audits = audits[result_offset:(result_offset+num_results)]
-
+    
+    logger.error('Audits!')
+    logger.error(audits)
     keys = []
     for audit in audits:
         d = {}
@@ -106,7 +129,8 @@ def edits(request, instance, user_id):
         d["value"] = audit.current_value
 
         keys.append(d)
-
+    logger.warn('calling get_audits',
+            extra={'extra_data': {'user_id': user_id, 'audits': audits, 'request': request, 'instance': instance}})
     return keys
 
 

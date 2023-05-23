@@ -3,6 +3,7 @@
 {% load l10n %}
 {% load image %}
 {% load util %}
+{% load staticfiles%}
 
 {% block page_title %} | {% trans "Edits" %} {{plot.pk|unlocalize}}{% endblock %}
 
@@ -23,9 +24,43 @@ active
   {{ block.super }}
   {% endblock logo %}
 </div> <!-- end header -->
+<link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script type='text/javascript' src="{% static 'js/vendor/jquery/dist/jquery.js' %}"></script>
+<script type='text/javascript' src="{% static 'js/vendor/jquery-ui/jquery-ui.js' %}"></script>
+<script type='text/javascript' src="{% static 'js/vendor/moment/moment.js' %}"></script>
+<script type='text/javascript' src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+<script type='text/javascript' src="https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js"></script>
 {% endblock header %}
 
 {% block content %}
+<script type='text/javascript'>
+$(document).ready(function () {
+	let selectedStartDate;
+	let selectedEndDate;
+	let selectedAction;
+	$('#date-start').datepicker({
+	    dateFormat: 'yy-mm-dd',
+	    container: 'body'
+	});
+	$('#date-end').datepicker({
+	    dateFormat: 'yy-mm-dd'
+	});
+	$("#date-start").on("change", function () {
+	    selectedStartDate = $(this).val();
+            console.log(selectedStartDate)
+	});
+	$("#date-end").on("change", function () {
+	    selectedEndDate = $(this).val();
+            console.log(selectedEndDate)
+	});
+        $( "#action" ).selectmenu({
+       change: function( event, data ) {
+         console.log(data.item.value );
+       }
+     });
+});
+</script>
 <div class="image-background"></div>
 <div class="container contained profile">
   <div class="row">
@@ -37,7 +72,43 @@ active
       <div class="alert alert-info">
           <p style="margin:0;">All edits made in the tree map are listed below, beginning with the most recent. Click a link in the Type, Object ID, or Edited By columns to sort all the edits by that entry. To go to the detail page for a tree or planting site, click the Detail button located in the far left column. Click the Reset button to view all edits.</p>
       </div>
-
+            
+      <div style="width:30rem">
+      <fieldset style="display:flex">
+            <p>Start Date: <input type="text" style="position: relative; z-index: 100000;" id="date-start" autocomplete="off"></p>
+            <p id="date-end-label">End Date: <input style="position: relative; z-index: 100000;" type="text" id="date-end" autocomplete="off"></p>
+      </fieldset>
+      <fieldset>
+	    <p>Action
+	    <select name="action" id="action">
+	      <option selected>All</option>
+	      <option>Air-spaded</option>
+	      <option>Cabling</option>
+	      <option>Cleared of Trash or Debris</option>
+	      <option>Crown Damage</option>
+	      <option>Death</option>
+	      <option>Failure</option>
+	      <option>Fertilized</option>
+	      <option>Growth Regulator</option>
+	      <option>Hanger Overhead</option>
+	      <option>Lightning Protection</option>
+	      <option>Mulched, Had Composted Added, or Soil Amended</option>
+	      <option>Pest Damage</option>
+	      <option>Pest Scouting</option>
+	      <option>Pest Treatment</option>
+	      <option>Pruned</option>
+	      <option>Risk Assessment</option>
+	      <option>Root Pruned</option>
+	      <option>Roots Trenched</option>
+	      <option>Soil Compaction</option>
+	      <option>Storm Damaged</option>
+	      <option>Trunk Damaged</option>
+	      <option>Watered</option>
+	      <option>Construction Damage</option>
+	    </select>
+	    </p>
+      </fieldset>
+      </div>
       <table class="table table-striped">
         <tr>
           <th>{% trans "Details" %}</th>
