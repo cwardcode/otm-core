@@ -27,12 +27,6 @@ from treemap.util import package_field_errors
 from treemap.models import User, Favorite, MapFeaturePhoto, InstanceUser
 from treemap.lib.user import get_audits, get_user_instances, get_audits_params
 
-from opentreemap.util import add_rollbar_handler
-import logging
-
-logger = logging.getLogger(__name__)
-add_rollbar_handler(logger, level=logging.INFO)
-
 USER_PROFILE_FIELDS = collections.OrderedDict([
     ('first_name',
      {'label': _('First Name'),
@@ -71,8 +65,7 @@ def user_audits(request, username):
                 if instance_id else None)
 
     params = get_audits_params(request)
-    logger.warn('calling get_audits from  views/user ',
-            extra={'extra_data': {'user': user, 'params': params, 'request': request, 'instance': instance}})
+    
     return get_audits(request.user, instance, request.GET.copy(), user=user,
                       **params)
 

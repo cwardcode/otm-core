@@ -11,12 +11,6 @@ from treemap.util import get_filterable_audit_models
 from treemap.lib.object_caches import udf_defs
 from treemap.udf import UDFModel
 
-from opentreemap.util import add_rollbar_handler
-import logging
-
-logger = logging.getLogger(__name__)
-add_rollbar_handler(logger, level=logging.INFO)
-
 def _instance_ids_edited_by(user):
     return Audit.objects.filter(user=user)\
                         .values_list('instance_id', flat=True)\
@@ -105,8 +99,6 @@ def get_audits(logged_in_user, instance, query_vars, user=None,
     audits = (Audit.objects
               .filter(model_filter)
               .filter(instance__in=instances)
-              .filter(updated__range=["2023-05-01 11:28:08", "2023-05-04 02:28:08"])
-              .filter(current_value="Pruned")
               .select_related('instance')
               .exclude(udf_bookkeeping_fields)
               .exclude(user=User.system_user())
@@ -152,8 +144,7 @@ def get_audits(logged_in_user, instance, query_vars, user=None,
         prev_page = "?" + query_vars.urlencode()
     else:
         prev_page = None
-    logger.warn('return get_audits results from lib/user.py ',
-            extra={'extra_data': {'audits': audits, 'total_count': total_count, 'query_vars': query_vars, 'instance': instance}})
+    
     return {'audits': audits,
             'total_count': total_count,
             'next_page': next_page,

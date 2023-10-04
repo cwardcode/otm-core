@@ -67,8 +67,7 @@ def edits(request, instance):
 
     if user_id is not None:
         user = User.objects.get(pk=user_id)
-    logger.warn('calling get_audits from misc.py',
-                extra={'extra_data': {'user_id': user_id, 'params': params, 'request': request, 'instance': instance}})
+    
     return get_audits(request.user, instance, request.GET.copy(), user,
                       **params)
 
