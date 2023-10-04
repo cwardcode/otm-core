@@ -316,3 +316,22 @@ def error_page(status_code):
         return response
 
     return inner_fn
+
+def filter_actions(request, instance, feature_id, tree_id, tree_action):
+    from treemap.udf import UserDefinedCollectionValue
+    qs = UserDefinedCollectionValue.objects.filter(model_id=tree_id).values('data')
+    qs_list = list(qs)
+    if tree_action == 'All':
+       return {
+        "actions": qs_list
+    }
+
+    filtered_list = []
+    for i in range(len(qs_list)):
+        if qs_list[i]['data']['Action'] != tree_action:
+            continue
+        filtered_list.append(qs_list[i])
+
+    return {
+        "actions": filtered_list
+    }

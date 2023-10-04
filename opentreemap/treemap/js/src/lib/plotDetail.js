@@ -10,7 +10,8 @@ var $ = require('jquery'),
     plotAddTree = require('treemap/lib/plotAddTree.js'),
     moment = require('moment'),
     config = require('treemap/lib/config.js'),
-    reverse = require('reverse');
+    reverse = require('reverse'),
+    selectedActionFilter = '';
 
 var dom = {
     form: '#map-feature-form',
@@ -19,24 +20,54 @@ var dom = {
     addTreeControls: '#add-tree-controls',
     treeSection: '#tree-details',
 };
+exports.init = function (form) {
+    const actionsSelector = document.getElementById("treeActionFilter");
+    var all_option = new Option('All', 'All');
+    actionsSelector.insertBefore(all_option, actionsSelector.firstChild);
+    actionsSelector.value = 'All';
 
-exports.init = function(form) {
     function excludeNullMap(obs, fn) {
         return obs.map(fn)
             .filter(R.complement(_.isUndefined))
             .filter(R.complement(_.isNull));
     }
-
     var treeId = $(dom.treeSection).attr('data-tree-id'),
         newTreeIdStream = excludeNullMap(form.saveOkStream,
             '.responseData.treeId');
 
+    actionsSelector.onchange = function () {
+        selectedActionFilter = actionsSelector.value;
+
+        var treeActionFilterUrl = reverse.filter_actions({
+            instance_url_name: config.instance.url_name,
+            feature_id: window.otm.mapFeature.featureId,
+            tree_id: treeId,
+            tree_action: selectedActionFilter
+        });
+
+        $.ajax({
+            url: treeActionFilterUrl,
+            type: 'GET',
+            success: function (data) {
+                console.log('TAF Success')
+                data.actions.forEach(action => {
+                    console.log(`Action: ${action.data.Action}, Date: ${action.data.Date}`);
+                });
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        });
+    };
+
+
     if (treeId) {
         var deleteUrl = reverse.delete_tree({
-                instance_url_name: config.instance.url_name,
-                feature_id: window.otm.mapFeature.featureId,
-                tree_id: treeId
-            });
+            instance_url_name: config.instance.url_name,
+            feature_id: window.otm.mapFeature.featureId,
+            tree_id: treeId
+        });
+
         mapFeatureDelete.init({
             deleteUrl: deleteUrl,
             successUrl: document.URL
@@ -54,13 +85,13 @@ exports.init = function(form) {
         reverse: "id",
         forceMatch: true
     });
-    
+
     diameterCalculator({
         formSelector: dom.form,
         cancelStream: form.cancelStream,
         saveOkStream: form.saveOkStream
     });
-    
+
     mapFeatureUdf.init(form);
 
     var beginAddStream = plotAddTree.init({
@@ -72,7 +103,7 @@ exports.init = function(form) {
     beginAddStream.onValue(function () {
         $(dom.treeSection).show();
     });
-    
+
     form.cancelStream
         .skipUntil(beginAddStream)
         .takeUntil(newTreeIdStream)

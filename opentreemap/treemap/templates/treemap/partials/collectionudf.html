@@ -12,6 +12,14 @@
   {% else %}
   <h4>{{ udf.name }}</h4>
   {% endif %}
+  Filter:
+  <select id="treeActionFilter">
+     {% for field in udf.datatype_dict %}
+      {% for choice in field.choices %}
+       <option value="{{ choice }}">{{choice}}</option>
+      {% endfor %}
+    {% endfor %}
+  </select>
   <table class="table table-hover"
          {% if perm_level == "write" %}
          data-udf-id="{{ udf.pk|unlocalize }}"

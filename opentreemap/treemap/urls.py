@@ -39,6 +39,8 @@ urlpatterns = [
     url(r'^canopy-popup$', routes.canopy_popup, name='canopy_popup'),
     url(r'^features/(?P<feature_id>\d+)/trees/(?P<tree_id>\d+)/$',
         routes.delete_tree, name='delete_tree'),
+    url(r'^features\/(?P<feature_id>\d+)\/trees\/(?P<tree_id>\d+)\/udf\/(?P<tree_action>[\W\w\s]+)$',
+        routes.filter_actions, name='filter_actions'),
     url(r'^features/(?P<feature_id>\d+)/sidebar$',
         routes.get_map_feature_sidebar, name='map_feature_sidebar'),
     url(r'^features/(?P<feature_id>\d+)/photo$',

@@ -16,7 +16,7 @@
 {% endblock search %}
 
 {% block searchscripts %}
-<script src="https://maps.googleapis.com/maps/api/js?key={{ settings.GOOGLE_MAPS_API_KEY }}"></script>
+<script async src="https://maps.googleapis.com/maps/api/js?key={{ settings.GOOGLE_MAPS_API_KEY }}&callback=initMap"></script>
 {% include "treemap/partials/canopy_filter_control.html" %}
 {% render_bundle 'js/treemap/treeMap' %}
 {% endblock searchscripts %}
