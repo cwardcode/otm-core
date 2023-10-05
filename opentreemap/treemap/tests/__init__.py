@@ -450,14 +450,24 @@ class ViewTestCase(OTMTestCase):
         self.factory = RequestFactory()
         self.instance = make_instance()
 
-    def call_view(self, view, view_args=[], view_keyword_args={},
-                  url="hello/world", url_args={}):
+    def call_view(self, view, view_args=None, view_keyword_args=None,
+                  url="hello/world", url_args=None):
+        if view_args is None:
+            view_args = []
+        if view_keyword_args is None:
+            view_keyword_args = {}
+        if url_args is None:
+            url_args = {}
         request = self.factory.get(url, url_args)
         response = view(request, *view_args, **view_keyword_args)
         return json.loads(response.content)
 
-    def call_instance_view(self, view, view_args=None, view_keyword_args={},
-                           url="hello/world", url_args={}):
+    def call_instance_view(self, view, view_args=None, view_keyword_args=None,
+                           url="hello/world", url_args=None):
+        if view_keyword_args is None:
+            view_keyword_args = {}
+        if url_args is None:
+            url_args = {}
         if (view_args is None):
             view_args = [self.instance.pk]
         else:

@@ -14,7 +14,9 @@ num_list = {
 }
 
 
-def obj(properties, optional_properties={}):
+def obj(properties, optional_properties=None):
+    if optional_properties is None:
+        optional_properties = {}
     return {
         'type': 'object',
         'additionalProperties': False,
@@ -23,7 +25,9 @@ def obj(properties, optional_properties={}):
     }
 
 
-def obj_list(properties, optional_properties={}):
+def obj_list(properties, optional_properties=None):
+    if optional_properties is None:
+        optional_properties = {}
     return {
         'type': 'array',
         'items': obj(properties, optional_properties)
