@@ -318,7 +318,7 @@ def error_page(status_code):
 
 def filter_actions(request, instance, feature_id, tree_id, tree_action):
     from treemap.udf import UserDefinedCollectionValue
-    qs = UserDefinedCollectionValue.objects.filter(model_id=tree_id).values('data')
+    qs = UserDefinedCollectionValue.objects.filter(model_id=tree_id).values('id', 'data')
     qs_list = list(qs)
     if tree_action == 'All':
        return {

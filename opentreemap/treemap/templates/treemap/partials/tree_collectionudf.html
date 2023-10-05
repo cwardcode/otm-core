@@ -20,20 +20,19 @@
       {% endfor %}
     {% endfor %}
   </select>
-  <table class="table table-hover"
+  <table id="treeActionTable" class="table table-hover"
          {% if perm_level == "write" %}
          data-udf-id="{{ udf.pk|unlocalize }}"
          data-udf-name="{{ udf.model_type|to_object_name }}.{{ udf.canonical_name }}"
          {% endif %}
          >
-    <tr class="headerrow"
+    <thead class="headerrow"
         {% if not values %}style="display:none"{% endif %}
         >
       {% for field in udf.datatype_dict %}
       <th>{{ field.name }}</th>
       {% endfor %}
       <th></th>
-    </tr>
     {% if perm_level == "write" %}
     <tr class="editrow" style="display: none">
       {% for field in udf.datatype_dict %}
@@ -48,10 +47,9 @@
       {% endfor %}
     </tr>
     {% endif %}
-    {% for value in values %}
-      {% include 'treemap/partials/collection_udf_row.html' with field=field value=value %}
-    {% endfor %}
-    <tr class="placeholder" style="{{ values|yesno:"display: none;," }}"><td>{% trans "No entries yet!" %}</td>
+    </thead>
+    <tbody>
+    </tbody>
   </table>
   {% if udf.model_config.warning_message %}
   <p class="text-muted">
@@ -61,3 +59,75 @@
 </div>
 {% endif %}
 {% endwith %}
+<script>
+    var actionsSelector = document.getElementById("treeActionFilter");
+    var all_option = new Option('All', 'All');
+    actionsSelector.insertBefore(all_option, actionsSelector.firstChild);
+    actionsSelector.value = 'All';
+
+    // set up initial page results
+     setTimeout(()=>{
+      getResult('All', resultReceived);
+    },200);
+    actionsSelector.onchange = function () {
+        getResult(actionsSelector.value, resultReceived)
+      };
+
+      function resultReceived(data) {
+        $("#treeActionTable tbody tr").remove();
+        if(!data.actions.length) {
+          createEmptyTreeActionRow();
+        } else {
+          data.actions.forEach(action => {
+            createTreeActionRow(action.data.Action, action.data.Date, action.id)
+          });
+        }
+      }
+
+      function createEmptyTreeActionRow() {
+        const treeActionTable = document.getElementById('treeActionTable');
+        var tableBody = treeActionTable.getElementsByTagName('tbody')[0];
+        let row = document.createElement("tr");
+
+        let noEntriesCell = document.createElement("td");
+        noEntriesCell.innerText = 'No entries yet!'
+
+        row.appendChild(noEntriesCell);
+        tableBody.appendChild(row);
+      }
+
+      function createTreeActionRow(action, date, id) {
+        const treeActionTable = document.getElementById('treeActionTable');
+        var tableBody = treeActionTable.getElementsByTagName('tbody')[0];
+        let row = document.createElement("tr");
+
+        row.setAttribute('data-value-id', id)
+        let actionCell = document.createElement("td");
+        let dateCell = document.createElement("td");
+
+        actionCell.innerText = action
+        actionCell.setAttribute('data-value', action)
+
+        dateCell.innerText = date
+        dateCell.setAttribute('data-value', date)
+
+        row.appendChild(actionCell);
+        row.appendChild(dateCell);
+
+        tableBody.appendChild(row);
+      }
+      function getResult(selectedAction, callback){
+        var treeId = document.getElementById('tree-id-column').getAttribute('data-tree-id');
+        var treeActionFilterUrl = `/wcu/features/${window.otm.mapFeature.featureId}/trees/${treeId}/udf/${selectedAction}`;
+        $.ajax({
+            url: treeActionFilterUrl,
+            type: 'GET',
+            success: function (data) {
+                callback(data)
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        })
+      }
+</script>

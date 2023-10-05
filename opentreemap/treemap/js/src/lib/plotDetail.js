@@ -21,11 +21,6 @@ var dom = {
     treeSection: '#tree-details',
 };
 exports.init = function (form) {
-    const actionsSelector = document.getElementById("treeActionFilter");
-    var all_option = new Option('All', 'All');
-    actionsSelector.insertBefore(all_option, actionsSelector.firstChild);
-    actionsSelector.value = 'All';
-
     function excludeNullMap(obs, fn) {
         return obs.map(fn)
             .filter(R.complement(_.isUndefined))
@@ -34,32 +29,6 @@ exports.init = function (form) {
     var treeId = $(dom.treeSection).attr('data-tree-id'),
         newTreeIdStream = excludeNullMap(form.saveOkStream,
             '.responseData.treeId');
-
-    actionsSelector.onchange = function () {
-        selectedActionFilter = actionsSelector.value;
-
-        var treeActionFilterUrl = reverse.filter_actions({
-            instance_url_name: config.instance.url_name,
-            feature_id: window.otm.mapFeature.featureId,
-            tree_id: treeId,
-            tree_action: selectedActionFilter
-        });
-
-        $.ajax({
-            url: treeActionFilterUrl,
-            type: 'GET',
-            success: function (data) {
-                console.log('TAF Success')
-                data.actions.forEach(action => {
-                    console.log(`Action: ${action.data.Action}, Date: ${action.data.Date}`);
-                });
-            },
-            error: function (error) {
-                console.error(error);
-            }
-        });
-    };
-
 
     if (treeId) {
         var deleteUrl = reverse.delete_tree({
