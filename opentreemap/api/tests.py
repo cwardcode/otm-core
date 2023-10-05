@@ -200,10 +200,6 @@ class PlotListing(OTMTestCase):
     def test_edits(self):
         # TODO: Test recent edits
         return None
-        user = self.u
-
-        get_signed(self.cliend, "%s/user/%s/edits" %
-                   (API_PFX, user.pk))
 
     def setup_edit_flags_test(self):
         ghost = AnonymousUser()
