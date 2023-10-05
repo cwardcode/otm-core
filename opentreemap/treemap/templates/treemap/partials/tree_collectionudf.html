@@ -3,6 +3,8 @@
 {% load util %}
 {% load form_extras %}
 {% load instance_config %}
+{% load static %}
+<script type='text/javascript' src="{% static 'js/vendor/jquery/dist/jquery.js' %}"></script>
 
 {% with perm_level=last_effective_instance_user|udf_write_level:udf %}
 {% if perm_level|is_read_or_write %}
