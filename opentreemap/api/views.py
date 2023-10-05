@@ -80,6 +80,7 @@ def edits(request, instance, user_id):
         return create_401unauthorized()
 
     user = request.user
+
     result_offset = int(request.GET.get("offset", 0))
     num_results = min(int(request.GET.get("length", 15)), 15)
 
@@ -89,7 +90,7 @@ def edits(request, instance, user_id):
                           .order_by('-created', 'id')
 
     audits = audits[result_offset:(result_offset+num_results)]
-    
+
     keys = []
     for audit in audits:
         d = {}
@@ -105,7 +106,7 @@ def edits(request, instance, user_id):
         d["value"] = audit.current_value
 
         keys.append(d)
-    
+
     return keys
 
 

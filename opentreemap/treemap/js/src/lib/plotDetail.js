@@ -10,8 +10,7 @@ var $ = require('jquery'),
     plotAddTree = require('treemap/lib/plotAddTree.js'),
     moment = require('moment'),
     config = require('treemap/lib/config.js'),
-    reverse = require('reverse'),
-    selectedActionFilter = '';
+    reverse = require('reverse');
 
 var dom = {
     form: '#map-feature-form',
@@ -20,12 +19,14 @@ var dom = {
     addTreeControls: '#add-tree-controls',
     treeSection: '#tree-details',
 };
-exports.init = function (form) {
+
+exports.init = function(form) {
     function excludeNullMap(obs, fn) {
         return obs.map(fn)
             .filter(R.complement(_.isUndefined))
             .filter(R.complement(_.isNull));
     }
+    
     var treeId = $(dom.treeSection).attr('data-tree-id'),
         newTreeIdStream = excludeNullMap(form.saveOkStream,
             '.responseData.treeId');
@@ -54,13 +55,13 @@ exports.init = function (form) {
         reverse: "id",
         forceMatch: true
     });
-
+    
     diameterCalculator({
         formSelector: dom.form,
         cancelStream: form.cancelStream,
         saveOkStream: form.saveOkStream
     });
-
+    
     mapFeatureUdf.init(form);
 
     var beginAddStream = plotAddTree.init({
@@ -72,7 +73,7 @@ exports.init = function (form) {
     beginAddStream.onValue(function () {
         $(dom.treeSection).show();
     });
-
+    
     form.cancelStream
         .skipUntil(beginAddStream)
         .takeUntil(newTreeIdStream)

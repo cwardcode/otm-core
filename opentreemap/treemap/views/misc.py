@@ -67,7 +67,7 @@ def edits(request, instance):
 
     if user_id is not None:
         user = User.objects.get(pk=user_id)
-    
+
     return get_audits(request.user, instance, request.GET.copy(), user,
                       **params)
 

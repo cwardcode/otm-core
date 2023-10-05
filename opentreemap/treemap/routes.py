@@ -19,6 +19,7 @@ from treemap.decorators import (login_or_401, return_400_if_validation_errors,
                                 require_http_method, requires_feature,
                                 creates_instance_user, instance_request,
                                 json_api_edit)
+
 import treemap.views.user as user_views
 import treemap.views.tree as tree_views
 import treemap.views.misc as misc_views

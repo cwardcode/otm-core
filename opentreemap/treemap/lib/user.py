@@ -11,6 +11,7 @@ from treemap.util import get_filterable_audit_models
 from treemap.lib.object_caches import udf_defs
 from treemap.udf import UDFModel
 
+
 def _instance_ids_edited_by(user):
     return Audit.objects.filter(user=user)\
                         .values_list('instance_id', flat=True)\
@@ -144,7 +145,7 @@ def get_audits(logged_in_user, instance, query_vars, user=None,
         prev_page = "?" + query_vars.urlencode()
     else:
         prev_page = None
-    
+
     return {'audits': audits,
             'total_count': total_count,
             'next_page': next_page,

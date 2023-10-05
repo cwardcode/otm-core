@@ -65,7 +65,7 @@ def user_audits(request, username):
                 if instance_id else None)
 
     params = get_audits_params(request)
-    
+
     return get_audits(request.user, instance, request.GET.copy(), user=user,
                       **params)
 
