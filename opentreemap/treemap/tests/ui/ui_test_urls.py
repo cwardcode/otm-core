@@ -21,7 +21,6 @@ def full_utf8_grid(request):
     that ui tests can click the map and simulate clicking a
     rendered tree tile.
     """
-    global testing_id
 
     quoted_space_line = '"' + (' ' * 64) + '"'
     quoted_space_line_with_comma = quoted_space_line + ','
