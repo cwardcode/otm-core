@@ -33,7 +33,7 @@
     {# Render collection UDF fields for the Plot  #}
     {% for udf in group.collection_udfs %}
         {% with values=plot.udfs|get:udf.name title_prefix=udf.model_type|display_name %}
-            {% include "treemap/partials/collectionudf.html" with udf=udf title_prefix=title_prefix model=plot values=values %}
+            {% include "treemap/partials/plot_collectionudf.html" with udf=udf title_prefix=title_prefix model=plot values=values %}
         {% endwith %}
     {% endfor %}
 

@@ -37,7 +37,7 @@
         {% if has_tree %}
             {% for udf in group.collection_udfs %}
                 {% with values=tree.udfs|get:udf.name title_prefix=udf.model_type|display_name %}
-                    {% include "treemap/partials/collectionudf.html" with udf=udf title_prefix=title_prefix model=tree values=values %}
+                    {% include "treemap/partials/tree_collectionudf.html" with udf=udf title_prefix=title_prefix model=tree values=values %}
                 {% endwith %}
             {% endfor %}
         {% endif %}

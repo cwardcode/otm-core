@@ -1,0 +1,141 @@
+{% load i18n %}
+{% load l10n %}
+{% load util %}
+{% load form_extras %}
+{% load instance_config %}
+
+{% with perm_level=last_effective_instance_user|udf_write_level:udf %}
+{% if perm_level|is_read_or_write %}
+<div>
+  {% if title_prefix %}
+  <h4>{{ title_prefix }} {{ udf.name }}</h4>
+  {% else %}
+  <h4>{{ udf.name }}</h4>
+  {% endif %}
+  <div id="filterSection">
+    Filter:
+    <select id="treeActionFilter">
+      {% for field in udf.datatype_dict %}
+        {% for choice in field.choices %}
+        <option value="{{ choice }}">{{choice}}</option>
+        {% endfor %}
+      {% endfor %}
+    </select>
+  </div>
+  <table id="treeActionTable" class="table table-hover"
+         {% if perm_level == "write" %}
+         data-udf-id="{{ udf.pk|unlocalize }}"
+         data-udf-name="{{ udf.model_type|to_object_name }}.{{ udf.canonical_name }}"
+         {% endif %}
+         >
+    <thead class="headerrow"
+        {% if not values %}style="display:none"{% endif %}
+        >
+      {% for field in udf.datatype_dict %}
+      <th>{{ field.name }}</th>
+      {% endfor %}
+      <th></th>
+    {% if perm_level == "write" %}
+    <tr class="editrow" style="display: none">
+      {% for field in udf.datatype_dict %}
+      <td>
+        {% include 'treemap/partials/udf_edit_field.html' with field=field %}
+      </td>
+      {% if forloop.last %}
+      <td>
+        <a data-udf-id="{{ udf.pk|unlocalize }}" class="btn">+</a>
+      </td>
+      {% endif %}
+      {% endfor %}
+    </tr>
+    {% endif %}
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  {% if udf.model_config.warning_message %}
+  <p class="text-muted">
+    <em>{{ udf.model_config.warning_message }}</em>
+  </p>
+  {% endif %}
+</div>
+{% endif %}
+{% endwith %}
+<script>
+    var actionsSelector = document.getElementById("treeActionFilter");
+    var all_option = new Option('All', 'All');
+    actionsSelector.insertBefore(all_option, actionsSelector.firstChild);
+    actionsSelector.value = 'All';
+
+    // set up initial page results
+     setTimeout(()=>{
+      getResult('All', resultReceived);
+      $("#filterSection").css('display', '')
+    },200);
+    actionsSelector.onchange = function () {
+        getResult(actionsSelector.value, resultReceived)
+      };
+
+      function resultReceived(data) {
+        $("#treeActionTable tbody tr").remove();
+        if(!data.actions.length) {
+          createEmptyTreeActionRow();
+        } else {
+          data.actions.forEach(action => {
+            createTreeActionRow(action.data.Action, action.data.Date, action.id)
+          });
+        }
+      }
+
+      function createEmptyTreeActionRow() {
+        const treeActionTable = document.getElementById('treeActionTable');
+        var tableBody = treeActionTable.getElementsByTagName('tbody')[0];
+        let row = document.createElement("tr");
+
+        let noEntriesCell = document.createElement("td");
+        noEntriesCell.innerText = 'No entries yet!'
+
+        row.appendChild(noEntriesCell);
+        tableBody.appendChild(row);
+      }
+
+      function createTreeActionRow(action, date, id) {
+        const treeActionTable = document.getElementById('treeActionTable');
+        var tableBody = treeActionTable.getElementsByTagName('tbody')[0];
+        let row = document.createElement("tr");
+
+        row.setAttribute('data-value-id', id);
+        let actionCell = document.createElement("td");
+        let dateCell = document.createElement("td");
+
+        actionCell.innerText = action
+        actionCell.setAttribute('data-value', action)
+
+        // Convert date to US standard
+        let actionDate = new Date(date);
+        const offset = actionDate.getTimezoneOffset();
+        actionDate = new Date(actionDate.getTime() + (offset*60*1000));
+
+        dateCell.innerText = actionDate.toLocaleDateString();
+        dateCell.setAttribute('data-value', date);
+
+        row.appendChild(actionCell);
+        row.appendChild(dateCell);
+
+        tableBody.appendChild(row);
+      }
+      function getResult(selectedAction, callback){
+        var treeId = document.getElementById('tree-id-column').getAttribute('data-tree-id');
+        var treeActionFilterUrl = `/wcu/features/${window.otm.mapFeature.featureId}/trees/${treeId}/udf/${selectedAction}`;
+        $.ajax({
+            url: treeActionFilterUrl,
+            type: 'GET',
+            success: function (data) {
+                callback(data)
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        })
+      }
+</script>

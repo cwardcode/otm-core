@@ -88,6 +88,10 @@ exports.init = function(options) {
             $("table[data-udf-id] .headerrow").css('display', '');
 
             $("table[data-udf-id] .placeholder").css('display', 'none');
+
+            // Hide the UDF filter and reset back to 'All' so no values are lost
+            $("#filterSection").css('display', 'none')
+            $("#treeActionFilter").val('All').trigger('change')
         },
 
         getDataToSave = options.getDataToSave || function() {
@@ -99,7 +103,7 @@ exports.init = function(options) {
                 var $table = $(this);
                 var name = $table.data('udf-name');
 
-                var headers = $table.find('tr.headerrow th')
+                var headers = $table.find('thead.headerrow th')
                         .map(function() {
                             return $(this).html();
                         });

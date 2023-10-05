@@ -174,7 +174,7 @@ def get_audits_params(request):
     model_id = r.get('model_id', None)
 
     if model_id is not None and len(models) != 1:
-        raise Exception("You must specific one and only model "
+        raise Exception("You must specify one and only model "
                         "when looking up by id")
 
     exclude_pending = r.get('exclude_pending', "false") == "true"

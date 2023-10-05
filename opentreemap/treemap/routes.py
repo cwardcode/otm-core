@@ -225,6 +225,12 @@ delete_tree = do(
 
 tree_detail = instance_request(tree_views.tree_detail)
 
+filter_actions = do(
+    instance_request,
+    json_api_call,
+    route(GET=misc_views.filter_actions)
+)
+
 search_tree_benefits = do(
     instance_request,
     etag(tree_views.ecobenefits_hash),

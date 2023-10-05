@@ -23,7 +23,7 @@ django-tinsel==1.0.1
 django-webpack-loader==0.5.0             # https://github.com/owais/django-webpack-loader/releases
 flake8==2.0 # rq.filter: ==2.0
 functools32==3.2.3.post2
-gunicorn==19.7.1                         # http://docs.gunicorn.org/en/stable/news.html
+gunicorn==19.10.0                        # http://docs.gunicorn.org/en/stable/news.html
 hiredis==0.2.0
 idna==2.5
 jsonschema==2.6.0
@@ -47,8 +47,7 @@ six==1.10.0
 unicodecsv==0.14.1
 urllib3==1.23
 wsgiref==0.1.2
-django-icons==1.1.2
 django-scheduler-otm==0.0.8
 django-bower==5.2.0
 django-tagging==0.5.0
-ddtrace==0.43.0
+django-icons==0.2.1

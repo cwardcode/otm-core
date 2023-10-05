@@ -33,10 +33,11 @@ exports.init = function(form) {
 
     if (treeId) {
         var deleteUrl = reverse.delete_tree({
-                instance_url_name: config.instance.url_name,
-                feature_id: window.otm.mapFeature.featureId,
-                tree_id: treeId
-            });
+            instance_url_name: config.instance.url_name,
+            feature_id: window.otm.mapFeature.featureId,
+            tree_id: treeId
+        });
+
         mapFeatureDelete.init({
             deleteUrl: deleteUrl,
             successUrl: document.URL

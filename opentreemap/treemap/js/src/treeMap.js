@@ -61,6 +61,7 @@ $('[data-action="addresource"]').on('click', function(e) {
     performAdd(e, modes.activateAddResourceMode);
 });
 
+function initMap(data) {}
 var performAdd = function (e, activateTheMode) {
     var btn = e.target;
 

@@ -18,14 +18,14 @@
          data-udf-name="{{ udf.model_type|to_object_name }}.{{ udf.canonical_name }}"
          {% endif %}
          >
-    <tr class="headerrow"
+    <thead class="headerrow"
         {% if not values %}style="display:none"{% endif %}
         >
       {% for field in udf.datatype_dict %}
       <th>{{ field.name }}</th>
       {% endfor %}
       <th></th>
-    </tr>
+    </thead>
     {% if perm_level == "write" %}
     <tr class="editrow" style="display: none">
       {% for field in udf.datatype_dict %}
