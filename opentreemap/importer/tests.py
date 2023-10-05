@@ -583,7 +583,9 @@ class SpeciesValidationTest(ValidationTest):
         import_event.save()
         return import_event
 
-    def _make_row(self, data={}):
+    def _make_row(self, data=None):
+        if data is None:
+            data = {}
         import_event = self._make_import_event()
         d = {'genus': 'g1',
              'species': '',
@@ -595,12 +597,16 @@ class SpeciesValidationTest(ValidationTest):
             data=json.dumps(d), import_event=import_event, idx=1)
         return row
 
-    def _make_and_validate_row(self, data={}):
+    def _make_and_validate_row(self, data=None):
+        if data is None:
+            data = {}
         row = self._make_row(data)
         row.validate_row()
         return row
 
-    def _make_and_commit_row(self, data={}):
+    def _make_and_commit_row(self, data=None):
+        if data is None:
+            data = {}
         row = self._make_row(data)
         row.commit_row()
         return row

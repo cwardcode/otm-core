@@ -598,7 +598,9 @@ class SearchTests(OTMTestCase):
             self.instance, self.commander, self.p1,
             self.plotstew, self.treestew)
 
-    def _execute_and_process_filter(self, filter={}, display=''):
+    def _execute_and_process_filter(self, filter=None, display=''):
+        if filter is None:
+            filter = {}
         f = search.Filter(json.dumps(filter), display, self.instance)
         return {p.pk
                 for p
