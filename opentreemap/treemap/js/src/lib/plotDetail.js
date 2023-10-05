@@ -26,7 +26,7 @@ exports.init = function(form) {
             .filter(R.complement(_.isUndefined))
             .filter(R.complement(_.isNull));
     }
-    
+
     var treeId = $(dom.treeSection).attr('data-tree-id'),
         newTreeIdStream = excludeNullMap(form.saveOkStream,
             '.responseData.treeId');
