@@ -104,15 +104,20 @@
         var tableBody = treeActionTable.getElementsByTagName('tbody')[0];
         let row = document.createElement("tr");
 
-        row.setAttribute('data-value-id', id)
+        row.setAttribute('data-value-id', id);
         let actionCell = document.createElement("td");
         let dateCell = document.createElement("td");
 
         actionCell.innerText = action
         actionCell.setAttribute('data-value', action)
 
-        dateCell.innerText = date
-        dateCell.setAttribute('data-value', date)
+        // Convert date to US standard
+        let actionDate = new Date(date);
+        const offset = actionDate.getTimezoneOffset();
+        actionDate = new Date(actionDate.getTime() + (offset*60*1000));
+
+        dateCell.innerText = actionDate.toLocaleDateString();
+        dateCell.setAttribute('data-value', date);
 
         row.appendChild(actionCell);
         row.appendChild(dateCell);
