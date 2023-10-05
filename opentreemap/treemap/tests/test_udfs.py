@@ -1139,7 +1139,8 @@ class CollectionUDFTest(OTMTestCase):
         self.assertEqual(self._get_udf_actions(plot), {'h2o', 'prune'})
         self.assertEqual(audits, ['h2o', 'prune'])
 
-    def _get_udf_actions(self, plot):
+    @staticmethod
+    def _get_udf_actions(plot):
         # UDF collection values are not ordered! So compare using sets.
         return {value['action'] for value in plot.udfs['Stewardship']}
 

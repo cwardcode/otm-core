@@ -63,7 +63,8 @@ class PolygonalBasinBenefitCalculator(BenefitCalculator):
             basis = self._get_basis(0, feature_count)
         return stats, basis
 
-    def _format_stats(self, instance, runoff_reduced):
+    @staticmethod
+    def _format_stats(instance, runoff_reduced):
         factor_conversions = instance.eco_benefits_conversion
         if factor_conversions:
             currency = runoff_reduced * factor_conversions.h20_gal_to_currency
@@ -82,7 +83,8 @@ class PolygonalBasinBenefitCalculator(BenefitCalculator):
             }
         }
 
-    def _get_basis(self, n_calc, n_discard):
+    @staticmethod
+    def _get_basis(n_calc, n_discard):
         return {
             'resource': {
                 'n_objects_used': n_calc,

@@ -364,10 +364,12 @@ class EcoCacheTest(UrlTestCase):
         self.benefits = 'some benefits'
         self.filter = Filter('', '', self.instance)
 
-    def tearDown(self):
+    @staticmethod
+    def tearDown():
         cache.clear()
 
-    def get_cached_tree_benefits(self, filter, fn):
+    @staticmethod
+    def get_cached_tree_benefits(filter, fn):
         return get_cached_benefits('Plot', filter, fn)
 
     def test_benefits_are_cached(self):

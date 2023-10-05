@@ -24,7 +24,8 @@ class DotDict(dict):
         else:
             raise TypeError('Expected dict')
 
-    def _ensure_dot_dict(self, target, restOfKey, myKey):
+    @staticmethod
+    def _ensure_dot_dict(target, restOfKey, myKey):
         if not isinstance(target, DotDict):
             raise KeyError('Cannot set "%s" in "%s" (%s)' %
                            (restOfKey, myKey, repr(target)))

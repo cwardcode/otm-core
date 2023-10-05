@@ -84,10 +84,12 @@ class BenefitCalculator(object):
     (dict from above, basis dict, error [or None])
     """
 
-    def benefits_for_filter(self, instance, item_filter):
+    @staticmethod
+    def benefits_for_filter(instance, item_filter):
         return {}
 
-    def benefits_for_object(self, instance, obj):
+    @staticmethod
+    def benefits_for_object(instance, obj):
         return {}
 
 
@@ -107,7 +109,8 @@ class CountOnlyBenefitCalculator(BenefitCalculator):
 
 
 class TreeBenefitsCalculator(BenefitCalculator):
-    def _make_sql_from_query(self, query):
+    @staticmethod
+    def _make_sql_from_query(query):
         sql, params = query.sql_with_params()
         cursor = connection.cursor()
         # Returning a unicode SQL string ensures that any string

@@ -215,7 +215,8 @@ class ResourceEcoBenefitsTest(EcoTestCase):
             p.transform(3857)
         return p
 
-    def _box_around_point(self, pt, edge=1.0):
+    @staticmethod
+    def _box_around_point(pt, edge=1.0):
         half_edge = 0.5 * edge
         x_min = pt.x - half_edge
         y_min = pt.y - half_edge

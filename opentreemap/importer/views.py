@@ -399,7 +399,8 @@ def _get_status_panel(instance, ie, panel_spec, page_number=1):
                 row, field_names, merge_required, show_warnings)
 
     class RowPaginator(Paginator):
-        def _get_page(self, *args, **kwargs):
+        @staticmethod
+        def _get_page(*args, **kwargs):
             return RowPage(*args, **kwargs)
 
     row_pages = RowPaginator(query, PAGE_SIZE)

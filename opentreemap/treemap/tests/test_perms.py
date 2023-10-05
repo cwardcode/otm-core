@@ -31,13 +31,15 @@ class PermissionsTestCase(LocalMediaTestCase):
             name=name, instance=self.instance, rep_thresh=0,
             default_permission_level=0)
 
-    def _add_new_permission(self, role, Model, name):
+    @staticmethod
+    def _add_new_permission(role, Model, name):
         content_type = ContentType.objects.get_for_model(Model)
         perm = Permission.objects.create(codename=name, name=name,
                                          content_type=content_type)
         role.instance_permissions.add(perm)
 
-    def _add_builtin_permission(self, role, Model, codename):
+    @staticmethod
+    def _add_builtin_permission(role, Model, codename):
         content_type = ContentType.objects.get_for_model(Model)
         perm = Permission.objects.get(content_type=content_type,
                                       codename=codename)

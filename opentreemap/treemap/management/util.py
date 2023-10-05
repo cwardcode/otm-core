@@ -17,7 +17,8 @@ from treemap.audit import add_default_permissions, Audit
 
 class InstanceDataCommand(BaseCommand):
 
-    def add_arguments(self, parser):
+    @staticmethod
+    def add_arguments(parser):
         parser.add_argument(
             '--instance-url-name',
             action='store',

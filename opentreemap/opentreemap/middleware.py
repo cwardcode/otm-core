@@ -29,7 +29,8 @@ class InternetExplorerRedirectMiddleware(MiddlewareMixin):
     `settings.IE_VERSION_UNSUPPORTED_REDIRECT_PATH`
     """
 
-    def _parse_major_ie_version_from_user_agent(self, user_agent):
+    @staticmethod
+    def _parse_major_ie_version_from_user_agent(user_agent):
         search_result = _ie_version_regex.search(user_agent)
         if search_result:
             return int(search_result.groups()[1])

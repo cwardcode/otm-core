@@ -9,14 +9,16 @@ from treemap.models import Instance, MapFeaturePhoto
 
 
 class Command(BaseCommand):
-    def add_arguments(self, parser):
+    @staticmethod
+    def add_arguments(parser):
         parser.add_argument(
             '--instance-url-name',
             action='store',
             dest='instance_url_name',
             help='Specify the instance to add trees to'),
 
-    def handle(self, *args, **options):
+    @staticmethod
+    def handle(*args, **options):
         """
         Write a csv to stdout with a row for each MapFeaturePhoto
         map_feature_id,tree_id,photo_url

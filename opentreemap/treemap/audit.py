@@ -692,7 +692,8 @@ class UserTrackable(Dictable):
             self._previous_state = {k: v for k, v in self.as_dict().iteritems()
                                     if k not in self._do_not_track}
 
-    def get_pending_fields(self, user=None):
+    @staticmethod
+    def get_pending_fields(user=None):
         """
         Get a list of fields that are currently being updated which would
         require a pending edit.
@@ -787,7 +788,8 @@ post_delete.connect(invalidate_adjuncts, sender=FieldPermission)
 
 
 class RoleManager(models.Manager):
-    def get_role(self, instance, user=None):
+    @staticmethod
+    def get_role(instance, user=None):
         if user is None or user.is_anonymous():
             return instance.default_role
         return user.get_role(instance)

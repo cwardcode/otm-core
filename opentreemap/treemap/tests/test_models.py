@@ -414,10 +414,12 @@ class InstanceTest(OTMTestCase):
         with self.assertRaises(ValidationError):
             make_instance(url_name='jsi18n')
 
-    def test_url_name_allows_lcase(self):
+    @staticmethod
+    def test_url_name_allows_lcase():
         make_instance(url_name='mymap')
 
-    def test_url_name_allows_lcase_numbers_and_hyphens(self):
+    @staticmethod
+    def test_url_name_allows_lcase_numbers_and_hyphens():
         make_instance(url_name='my-map-42')
 
     def test_url_name_must_be_unique(self):
@@ -463,10 +465,12 @@ class ValidationMixinTest(SimpleTestCase):
         with self.assertRaises(ValidationError):
             Car(0).validate_positive_nullable_float_field('weight')
 
-    def test_zero_ok(self):
+    @staticmethod
+    def test_zero_ok():
         Car(0).validate_positive_nullable_float_field('weight', zero_ok=True)
 
-    def test_positive_ok(self):
+    @staticmethod
+    def test_positive_ok():
         Car(5).validate_positive_nullable_float_field('weight')
         Car(5).validate_positive_nullable_float_field('weight', zero_ok=True)
 
@@ -475,7 +479,8 @@ class ValidationMixinTest(SimpleTestCase):
             Car(5).validate_positive_nullable_float_field('weight',
                                                           max_value=2)
 
-    def test_max_value_ok(self):
+    @staticmethod
+    def test_max_value_ok():
         Car(2).validate_positive_nullable_float_field('weight', max_value=2)
 
 

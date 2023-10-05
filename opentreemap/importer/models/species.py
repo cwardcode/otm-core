@@ -153,7 +153,8 @@ class SpeciesImportRow(GenericImportRow):
 
         return diffs
 
-    def _itree_pairs_to_string(self, pairs):
+    @staticmethod
+    def _itree_pairs_to_string(pairs):
         # [('SoCalCSMA', 'CEL OTHER'), ('InlEmpCLM', 'CEL OTHER')]
         #     -> "SoCalCSMA:CEL OTHER,InlEmpCLM:CEL OTHER"
         # [('SoCalCSMA', None)] -> ''

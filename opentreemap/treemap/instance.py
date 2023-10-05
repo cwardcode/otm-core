@@ -683,7 +683,8 @@ class Instance(models.Model):
         qs = model.objects.filter(instance=self)
         return qs
 
-    def scope_tags_model(self, model):
+    @staticmethod
+    def scope_tags_model(model):
         qs = model.objects.filter()
         return qs
 

@@ -193,12 +193,14 @@ class PolygonalMapFeatureTest(OTMTestCase):
         Bioswale.set_config_property(self.instance, 'diversion_rate', .5)
         Bioswale.set_config_property(self.instance, 'should_show_eco', True)
 
-    def _make_point(self, x, y):
+    @staticmethod
+    def _make_point(x, y):
         point = Point(x, y, srid=4326)
         point.transform(3857)
         return point
 
-    def _make_square_polygon(self, x, y):
+    @staticmethod
+    def _make_square_polygon(x, y):
         d = 0.1
         polygon = MultiPolygon(
             Polygon(

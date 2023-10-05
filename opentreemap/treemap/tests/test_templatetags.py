@@ -70,7 +70,8 @@ class UserCanReadTagTest(OTMTestCase):
         {% endusercanread %}
         """)
 
-    def _render_basic_template_with_vars(self, user, plot):
+    @staticmethod
+    def _render_basic_template_with_vars(user, plot):
         return UserCanReadTagTest.basic_template.render(
             Context({
                 'request': {'user': user},
@@ -167,7 +168,8 @@ class UserCanCreateTagTest(OTMTestCase):
         {% endusercancreate %}
         """)
 
-    def _render_basic_template_with_vars(self, user, plot):
+    @staticmethod
+    def _render_basic_template_with_vars(user, plot):
         return UserCanCreateTagTest.basic_template.render(
             Context({
                 'request': {'user': user},
@@ -202,7 +204,8 @@ class UserContentTagTests(OTMTestCase):
 
         self.public_user = make_user(username='public', password='public')
 
-    def _render_template_with_user(self, template, req_user, content_user):
+    @staticmethod
+    def _render_template_with_user(template, req_user, content_user):
         return template.render(Context({
             'request': {'user': req_user},
             'user': content_user
@@ -308,7 +311,8 @@ class LoginForwardingTests(OTMTestCase):
         self.literal_template = Template(
             '{% load auth_extras %}{% login_forward %}')
 
-    def render_template(self, template, path, instance=None):
+    @staticmethod
+    def render_template(template, path, instance=None):
         return template.render(Context({'request':
                                make_request(path=path, instance=instance)}))
 
@@ -386,35 +390,40 @@ class InlineFieldTagTests(OTMTestCase):
     def tearDown(self):
         rmtree(self.template_dir)
 
-    def _form_template_with_request_user_for(self, identifier):
+    @staticmethod
+    def _form_template_with_request_user_for(identifier):
         field_name = '"' + identifier + '"'
         template_text = """{% load form_extras %}""" +\
             """{% field "Test Field" from """ + field_name +\
             """ for request.user withtemplate "field_template.html" %}"""
         return Template(template_text)
 
-    def _form_template_for(self, identifier):
+    @staticmethod
+    def _form_template_for(identifier):
         field_name = '"' + identifier + '"'
         template_text = """{% load form_extras %}""" +\
             """{% field "Test Field" from """ + field_name +\
             """ withtemplate "field_template.html" %}"""
         return Template(template_text)
 
-    def _form_template_labelless_with_request_user_for(self, identifier):
+    @staticmethod
+    def _form_template_labelless_with_request_user_for(identifier):
         field_name = '"' + identifier + '"'
         template_text = """{% load form_extras %}""" +\
             """{% field from """ + field_name +\
             """ for request.user withtemplate "field_template.html" %}"""
         return Template(template_text)
 
-    def _form_template_labelless_for(self, identifier):
+    @staticmethod
+    def _form_template_labelless_for(identifier):
         field_name = '"' + identifier + '"'
         template_text = """{% load form_extras %}""" +\
             """{% field from """ + field_name +\
             """ withtemplate "field_template.html" %}"""
         return Template(template_text)
 
-    def _form_template_create(self, identifier):
+    @staticmethod
+    def _form_template_create(identifier):
         field_name = '"' + identifier + '"'
         template_text = """{% load form_extras %}""" +\
             """{% create from """ + field_name +\
@@ -422,7 +431,8 @@ class InlineFieldTagTests(OTMTestCase):
             """ withtemplate "field_template.html" %}"""
         return Template(template_text)
 
-    def _form_template_search(self):
+    @staticmethod
+    def _form_template_search():
         template_text = """{% load form_extras %}""" +\
             """{% search from search_json""" +\
             """ for request.user in request.instance """ +\

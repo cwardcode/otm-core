@@ -29,7 +29,8 @@ class UpdateTestCase(LocalMediaTestCase):
         self.plot = Plot(geom=self.point, instance=self.instance)
         self.plot.save_with_user(self.user)
 
-    def max_audit_for_model_type(self, models):
+    @staticmethod
+    def max_audit_for_model_type(models):
         if isinstance(models, basestring):
             models = [models]
         audits = Audit.objects.filter(model__in=models)\
@@ -38,7 +39,8 @@ class UpdateTestCase(LocalMediaTestCase):
         if audits:
             return audits[0]
 
-    def clear_updated_at(self):
+    @staticmethod
+    def clear_updated_at():
         # to_timestamp(0) is the unix epoch 1970-1-1 00:00
         execute_sql(
             "UPDATE treemap_mapfeature SET updated_at = to_timestamp(0);")

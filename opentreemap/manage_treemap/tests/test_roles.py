@@ -339,7 +339,8 @@ class FieldPermMgmtTest(OTMTestCase):
 
         self.factory = RequestFactory()
 
-    def make_updates(self, role_id, field_json):
+    @staticmethod
+    def make_updates(role_id, field_json):
         return {
             role_id: {
                 'fields': field_json,
