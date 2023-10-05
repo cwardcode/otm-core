@@ -317,7 +317,8 @@ class AbstractNode(template.Node):
         return label, identifier
 
     # Overriden in SearchNode
-    def get_additional_context(self, field, *args):
+    @staticmethod
+    def get_additional_context(field, *args):
         return field
 
     # Overriden in SearchNode
@@ -455,12 +456,14 @@ class AbstractNode(template.Node):
 
 
 class FieldNode(AbstractNode):
-    def get_model(self, context, object_name, instance=None):
+    @staticmethod
+    def get_model(context, object_name, instance=None):
         return context[object_name]
 
 
 class CreateNode(AbstractNode):
-    def get_model(self, __, object_name, instance=None):
+    @staticmethod
+    def get_model(__, object_name, instance=None):
         return get_model_for_instance(object_name, instance)
 
 
@@ -477,7 +480,8 @@ class SearchNode(CreateNode):
 
         return label, identifier
 
-    def _fill_in_typeahead(self, field, field_name, model, search_query):
+    @staticmethod
+    def _fill_in_typeahead(field, field_name, model, search_query):
         def get_search_query_value(column, display, identifier,
                                    related_class, search_query):
             if not search_query:

@@ -402,7 +402,8 @@ class TestMortalityModelUrbanTreeDatabase(TestGrowthModel):
         self.add_group(count=5, species=self.honeylocust)
         self.run_model(expected_n_trees=3)
 
-    def _count_dead_trees(self, trees, species):
+    @staticmethod
+    def _count_dead_trees(trees, species):
         dead = [t for t in trees if not t.is_alive and t.species == species]
         return len(dead)
 

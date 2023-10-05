@@ -80,7 +80,8 @@ class GrowthModelUrbanTreeDatabase(object):
         tree.max_age = max_age
         tree.growth_rate_at_min_age = growth_rate_at_min_age
 
-    def grow_tree(self, tree, year):
+    @staticmethod
+    def grow_tree(tree, year):
         age = tree.initial_age + year
         if age < tree.min_age:
             growth = tree.growth_rate_at_min_age

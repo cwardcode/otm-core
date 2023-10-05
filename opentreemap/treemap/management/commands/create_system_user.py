@@ -14,7 +14,8 @@ class Command(BaseCommand):
     Create a new system user
     """
 
-    def handle(self, *args, **options):
+    @staticmethod
+    def handle(*args, **options):
         try:
             model_id = settings.SYSTEM_USER_ID
         except AttributeError:

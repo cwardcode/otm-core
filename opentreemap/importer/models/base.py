@@ -174,19 +174,23 @@ class GenericImportEvent(models.Model):
         error_codes = {e['code'] for e in self._errors_as_array()}
         return code in error_codes
 
-    def row_set(self):
+    @staticmethod
+    def row_set():
         raise Exception('Abstract Method')
 
     def rows(self):
         return self.row_set().order_by('idx').all()
 
-    def legal_and_required_fields(self):
+    @staticmethod
+    def legal_and_required_fields():
         raise Exception('Abstract Method')
 
-    def legal_and_required_fields_title_case(self):
+    @staticmethod
+    def legal_and_required_fields_title_case():
         raise Exception('Abstract Method')
 
-    def ignored_fields(self):
+    @staticmethod
+    def ignored_fields():
         raise Exception('Abstract Method')
 
     def validate_field_names(self, input_fields):
@@ -383,7 +387,8 @@ class GenericImportRow(models.Model):
         else:
             return i
 
-    def convert_units(self, data, converts):
+    @staticmethod
+    def convert_units(data, converts):
         for fld, factor in converts.iteritems():
             if fld in data and factor != 1.0:
                 data[fld] = float(data[fld]) * factor
@@ -459,7 +464,8 @@ class GenericImportRow(models.Model):
         self.validate_string_fields()
         self.validate_date_fields()
 
-    def validate_row(self):
+    @staticmethod
+    def validate_row():
         """
         Validate a row. Returns True if there were no fatal errors,
         False otherwise

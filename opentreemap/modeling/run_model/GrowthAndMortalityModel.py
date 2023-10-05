@@ -33,7 +33,8 @@ class GrowthAndMortalityModel(object):
         self.mortality_model = self._init_mortality_model(params['mortality'],
                                                           instance)
 
-    def _init_growth_model(self, params, instance):
+    @staticmethod
+    def _init_growth_model(params, instance):
         growth_params = params['params']
         model_name = params['model_name']
         if model_name == 'UrbanTreeDatabase':
@@ -47,7 +48,8 @@ class GrowthAndMortalityModel(object):
 
         return growth_model
 
-    def _init_mortality_model(self, params, instance):
+    @staticmethod
+    def _init_mortality_model(params, instance):
         mortality_params = params['params']
         model_name = params['model_name']
         if model_name == 'UrbanTreeDatabase':

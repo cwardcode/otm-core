@@ -425,7 +425,8 @@ class LocalMediaTestCase(OTMTestCase):
                              MEDIA_ROOT=self.photoDir,
                              MEDIA_URL=self.mediaUrl)
 
-    def resource_path(self, name):
+    @staticmethod
+    def resource_path(name):
         module_dir = os.path.dirname(__file__)
         path = os.path.join(module_dir, 'resources', name)
 

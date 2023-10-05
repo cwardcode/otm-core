@@ -33,7 +33,8 @@ class MockRequest():
 
 class InternetExplorerRedirectMiddlewareTests(OTMTestCase):
 
-    def _request_with_agent(self, *args, **kwargs):
+    @staticmethod
+    def _request_with_agent(*args, **kwargs):
         req = MockRequest(*args, **kwargs)
         res = InternetExplorerRedirectMiddleware().process_request(req)
         return req, res

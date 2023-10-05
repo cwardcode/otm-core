@@ -115,7 +115,8 @@ class MortalityModelUrbanTreeDatabase(object):
             categories[key].trees.append(tree)
         return categories
 
-    def _get_diameter_index(self, tree):
+    @staticmethod
+    def _get_diameter_index(tree):
         i = 0
         while i < len(DIAMETER_BREAKS):
             if tree.diameter <= DIAMETER_BREAKS[i]:

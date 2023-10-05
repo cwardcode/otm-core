@@ -48,7 +48,8 @@ class TreeImportEvent(GenericImportEvent):
         name = self._get_udf_name(udf_def)
         return name.lower()
 
-    def _get_udf_name(self, udf_def):
+    @staticmethod
+    def _get_udf_name(udf_def):
         # Prefix with model name, e.g. "Density" -> "Tree: Density"
         model_name = udf_def.model_type
         if model_name == 'Plot':
@@ -72,7 +73,8 @@ class TreeImportEvent(GenericImportEvent):
         udf_names = self._get_udf_names()
         return fields.title_case(fields.trees.ALL) + udf_names
 
-    def _required_fields(self):
+    @staticmethod
+    def _required_fields():
         return {fields.trees.POINT_X, fields.trees.POINT_Y}
 
     def legal_and_required_fields(self):
@@ -193,7 +195,8 @@ class TreeImportRow(GenericImportRow):
         self.status = TreeImportRow.SUCCESS
         self.save()
 
-    def _import_value_to_udf_value(self, udf_def, value):
+    @staticmethod
+    def _import_value_to_udf_value(udf_def, value):
         if udf_def.datatype_dict['type'] == 'multichoice':
             # multichoice fields are represented in the import file as
             # a string, but the `udfs` attribute on the model expects
@@ -316,7 +319,8 @@ class TreeImportRow(GenericImportRow):
 
         return result
 
-    def validate_proximity(self, point):
+    @staticmethod
+    def validate_proximity(point):
         # This block must stay at the top of the function and
         # effectively disables proximity validation when the import
         # row includes an OTM plot id or tree id. Proximity validation can

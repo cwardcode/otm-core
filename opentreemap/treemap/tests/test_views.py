@@ -1126,10 +1126,12 @@ class PlotViewPhotoProgressTest(TreePhotoTestCase):
 
 class PlotExternalLinkTest(OTMTestCase):
 
-    def move(self, pt, x, y):
+    @staticmethod
+    def move(pt, x, y):
         return Point(pt.x + x, pt.y + y)
 
-    def _add_instance_permission(self, role):
+    @staticmethod
+    def _add_instance_permission(role):
         content_type = ContentType.objects.get_for_model(Instance)
         perm = Permission.objects.get(content_type=content_type,
                                       codename=PERMISSION_VIEW_EXTERNAL_LINK)

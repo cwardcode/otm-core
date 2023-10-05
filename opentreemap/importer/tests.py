@@ -117,7 +117,8 @@ class ValidationTest(OTMTestCase):
         raise AssertionError('Error code %s not found in %s'
                              % (code, local_errors))
 
-    def assertNotHasError(self, thing, error):
+    @staticmethod
+    def assertNotHasError(thing, error):
         code, message, fatal = error
         if thing.errors:
             local_errors = json.loads(thing.errors)
@@ -126,7 +127,8 @@ class ValidationTest(OTMTestCase):
                     raise AssertionError('Error code %s found in %s'
                                          % (code, local_errors))
 
-    def get_field_names_for_error(self, thing, error):
+    @staticmethod
+    def get_field_names_for_error(thing, error):
         code, message, fatal = error
         if thing.errors:
             local_errors = json.loads(thing.errors)
@@ -442,7 +444,8 @@ class TreeValidationTest(TreeValidationTestBase):
 
 
 class TreeUdfValidationTest(TreeValidationTestBase):
-    def setupClass(self):
+    @staticmethod
+    def setupClass():
         psycopg2.extras.register_hstore(connection.cursor(), globally=True)
 
     def test_date_udf(self):
@@ -886,7 +889,8 @@ class SpeciesStatusValidationTest(SpeciesValidationTest):
 
 
 class FileLevelTreeValidationTest(ValidationTest):
-    def write_csv(self, stuff):
+    @staticmethod
+    def write_csv(stuff):
         t = tempfile.NamedTemporaryFile()
 
         with open(t.name, 'w') as csvfile:
@@ -971,7 +975,8 @@ class IntegrationTests(OTMTestCase):
     def import_type(self):
         pass  # Subclass responsibility
 
-    def create_csv_stream(self, stuff):
+    @staticmethod
+    def create_csv_stream(stuff):
         csvfile = StringIO()
 
         w = csv.writer(csvfile)
@@ -1017,7 +1022,8 @@ class IntegrationTests(OTMTestCase):
         commit(None, self.instance, self.import_type(), pk)
         return pk
 
-    def extract_errors(self, json):
+    @staticmethod
+    def extract_errors(json):
         errors = {}
         if 'errors' not in json:
             return errors

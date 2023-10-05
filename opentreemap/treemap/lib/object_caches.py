@@ -154,7 +154,8 @@ class _InstanceAdjuncts:
             self._append_value(dict, (fp.role_id, fp.model_name), fp)
             self._append_value(dict, (fp.role_id, None), fp)
 
-    def _append_value(self, dict, key, value):
+    @staticmethod
+    def _append_value(dict, key, value):
         if key not in dict:
             dict[key] = []
         dict[key].append(value)

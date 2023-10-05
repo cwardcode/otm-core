@@ -324,7 +324,8 @@ class TreemapPrivateUrlTests(UrlTestCase):
 
 
 class InstanceUrlTests(RequestTestCase):
-    def setUp(self):
+    @staticmethod
+    def setUp():
         make_instance(name='The inztance', is_public=True,
                       url_name='ThEiNsTaNCe')
 

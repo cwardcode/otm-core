@@ -7,14 +7,16 @@ from treemap.DotDict import DotDict
 
 
 class JSONField(models.TextField):
-    def to_python(self, value):
+    @staticmethod
+    def to_python(value):
         if isinstance(value, basestring):
             obj = json.loads(value or "{}")
             return DotDict(obj) if isinstance(obj, dict) else obj
         else:
             return value
 
-    def get_prep_value(self, value):
+    @staticmethod
+    def get_prep_value(value):
         return json.dumps(value or {})
 
     def get_lookup(self, lookup_name):

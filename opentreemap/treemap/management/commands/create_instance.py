@@ -26,7 +26,8 @@ class Command(BaseCommand):
     Create a new instance with a single editing role.
     """
 
-    def add_arguments(self, parser):
+    @staticmethod
+    def add_arguments(parser):
         parser.add_argument(
             'instance_name',
             help='Specify instance name'),

@@ -9,5 +9,6 @@ from otm_comments.models import EnhancedThreadedComment
 
 
 class EnhancedThreadedCommentForm(ThreadedCommentForm):
-    def get_comment_model(self, *args, **kwargs):
+    @staticmethod
+    def get_comment_model(*args, **kwargs):
         return EnhancedThreadedComment

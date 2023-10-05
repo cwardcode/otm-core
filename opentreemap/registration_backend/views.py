@@ -97,7 +97,8 @@ class RegistrationForm(DefaultRegistrationForm):
 
 
 class RegistrationView(DefaultRegistrationView):
-    def get_form_class(self, *args, **kwargs):
+    @staticmethod
+    def get_form_class(*args, **kwargs):
         return RegistrationForm
 
     def dispatch(self, request, instance_url_name=None, *args, **kwargs):

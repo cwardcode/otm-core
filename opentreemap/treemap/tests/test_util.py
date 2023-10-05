@@ -36,7 +36,8 @@ class VisitedInstancesTests(ViewTestCase):
         middleware.process_request(self.request)
         self.request.session.save()
 
-    def _format(self, number):
+    @staticmethod
+    def _format(number):
         # Allow tests to work with --keepdb
         return '{:,d}'.format(number)
 

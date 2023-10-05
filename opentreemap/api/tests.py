@@ -235,7 +235,8 @@ class PlotListing(OTMTestCase):
         self.trees = [t_duke_0, t_peon_1, t_duke_2, t_roi_3]
         self.users = [ghost, peon, duke, leroi]
 
-    def mkd(self, e, d):
+    @staticmethod
+    def mkd(e, d):
         return {"can_delete": d, "can_edit": e}
 
     def mkdp(self, pe, pd, te=None, td=None):
@@ -1432,7 +1433,8 @@ class Instance(LocalMediaTestCase):
         self.assertFalse(any('plot.udf:multi' in group.get('field_keys', [])
                              for group in info_dict['field_key_groups']))
 
-    def _get_search_ids(self, info_dict):
+    @staticmethod
+    def _get_search_ids(info_dict):
         return [field['identifier']
                 for field in info_dict['search']['standard']]
 
@@ -1607,7 +1609,8 @@ class UserTest(LocalMediaTestCase):
         self.defaultUserDict = {'allow_email_contact': True}
         self.defaultUserDict.update(self.defaultBaseUserDict)
 
-    def make_post_request(self, datadict):
+    @staticmethod
+    def make_post_request(datadict):
         r = sign_request(make_request(method='POST',
                                       body=dumps(datadict)))
 
@@ -1824,7 +1827,8 @@ class SigningTest(OTMTestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    def process_request_through_url(self, req):
+    @staticmethod
+    def process_request_through_url(req):
         return check_signature(
             lambda req, *args, **kwargs: req)(req)
 

@@ -12,10 +12,12 @@ MIN_FEATURE_COUNT = 100
 class Command(BaseCommand):
     help = 'Recomputes hide_at_zoom for all instances or specified instance'
 
-    def add_arguments(self, parser):
+    @staticmethod
+    def add_arguments(parser):
         parser.add_argument('instance_url_name', nargs='?', default=None)
 
-    def handle(self, *args, **options):
+    @staticmethod
+    def handle(*args, **options):
         if options['instance_url_name'] is None:
             _update_all_instances()
 

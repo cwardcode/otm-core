@@ -419,8 +419,9 @@ class UserDefinedFieldDefinition(models.Model):
 
         self.update_choice(choice_value, update_to, name=name)
 
+    @staticmethod
     def _validate_and_update_choice(
-            self, datatype, old_choice_value, new_choice_value):
+            datatype, old_choice_value, new_choice_value):
 
         # Prevent validation errors when the choice value is numeric.
         old_choice_value = unicode(old_choice_value)
@@ -529,7 +530,8 @@ class UserDefinedFieldDefinition(models.Model):
                         new_choice_value))
                 audit.save()
 
-    def _list_replace_or_remove(self, l, old, new):
+    @staticmethod
+    def _list_replace_or_remove(l, old, new):
         if l is None:
             return None
         new_l = filter(
@@ -1048,7 +1050,8 @@ class UDFPostgresField(HStoreField):
         if not isinstance(self.default, UDFDictionary):
             self.default = UDFDictionary
 
-    def from_db_value(self, value, expression, connection, context):
+    @staticmethod
+    def from_db_value(value, expression, connection, context):
         return UDFDictionary(value)
 
     def to_python(self, value):
@@ -1073,7 +1076,8 @@ class UDFPostgresField(HStoreField):
               'UDFPostgresField') %
             {'value_type': type(value)})
 
-    def get_prep_value(self, value):
+    @staticmethod
+    def get_prep_value(value):
         '''
         If value is a UDFDictionary, return a vanilla dict with all the
         values either strings or None.
@@ -1207,7 +1211,8 @@ class UDFDictionary(dict):
         raise KeyError("Couldn't find UDF for field '{}' in [{}]".format(
             key, ', '.join([field.name for field in udfs])))
 
-    def _prefixed_name(self, key):
+    @staticmethod
+    def _prefixed_name(key):
         return 'udf:' + key
 
     def __contains__(self, key):
