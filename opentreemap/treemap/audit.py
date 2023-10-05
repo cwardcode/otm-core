@@ -651,9 +651,6 @@ class UserTrackable(Dictable):
     def save(self, *args, **kwargs):
         models.Model.save(self, *args, **kwargs)
         self.populate_previous_state()
-        #raise UserTrackingException(
-        #    'All changes to %s objects must be saved via "save_with_user"' %
-        #    (self._model_name))
 
     def delete(self, *args, **kwargs):
         raise UserTrackingException(
@@ -779,7 +776,6 @@ class FieldPermission(models.Model):
                                    self.model_name))
 
     def save(self, *args, **kwargs):
-        #self.full_clean()
         super(FieldPermission, self).save(*args, **kwargs)
 
 
@@ -1201,8 +1197,6 @@ class _PendingAuditable(Auditable):
         kwargs.pop("validate_unique")
         models.Model.save(self, *args, **kwargs)
         self.populate_previous_state()
-        #raise TypeError("all calls to full clean must be done via "
-        #                "'full_clean_with_user'")
 
     def full_clean_with_user(self, user):
         if self.user_can_create(user):

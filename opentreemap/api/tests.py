@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import division
@@ -836,24 +835,10 @@ class UpdatePlotAndTree(OTMTestCase):
     #     test_plot = mkPlot(self.instance, self.user)
     #     test_plot_id = test_plot.id
 
-    #     self.assertIsNone(test_plot.current_tree())
-    #     self.assertEqual(0, len(Audit.pending_audits()),
-    #                   "Expected the test to start with no pending records")
 
-    #     updated_values = {'tree': {'diameter': 1.2}}
 
-    #     response = put_json("%s/instance/%s/plots/%d" %
-    #                      (API_PFX, self.instance.url_name, test_plot.pk),
-    #                      updated_values, self.client, self.public_user)
 
-    #     self.assertEqual(200, response.status_code)
-    #     self.assertEqual(0, len(Pending.objects.all()),
-    #                      "Expected a new tree to be created, "
-    #                      "rather than creating pends")
 
-    #     tree = Plot.objects.get(pk=test_plot_id).current_tree()
-    #     self.assertIsNotNone(tree)
-    #     self.assertEqual(1.2, tree.dbh)
 
     def test_update_tree(self):
         test_plot = mkPlot(self.instance, self.user)
