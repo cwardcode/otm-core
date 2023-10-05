@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import print_function
 from __future__ import unicode_literals
 from __future__ import division
@@ -75,8 +74,6 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
                       occ_created):
     start = dateutil.parser.parse(start.replace('Z',''))
     end = dateutil.parser.parse(end.replace('Z',''))
-    #start = dateutil.parser.parse(start)
-    #end = dateutil.parser.parse(end)
     rule = None
     evt = None
     event_freq = frequency
@@ -219,7 +216,6 @@ def api_delete_all_events(request, **kwargs):
     return JsonResponse(response_data)
 
 def _api_delete_all_events(occ_created):
-    # Occurrence.objects.get(pk=event_id).delete()
     occurrences = Occurrence.objects.all().filter(Q(occ_created__iexact=occ_created))
 
     for occurrence in occurrences:
