@@ -12,14 +12,16 @@
   {% else %}
   <h4>{{ udf.name }}</h4>
   {% endif %}
-  Filter:
-  <select id="treeActionFilter">
-     {% for field in udf.datatype_dict %}
-      {% for choice in field.choices %}
-       <option value="{{ choice }}">{{choice}}</option>
+  <div id="filterSection">
+    Filter:
+    <select id="treeActionFilter">
+      {% for field in udf.datatype_dict %}
+        {% for choice in field.choices %}
+        <option value="{{ choice }}">{{choice}}</option>
+        {% endfor %}
       {% endfor %}
-    {% endfor %}
-  </select>
+    </select>
+  </div>
   <table id="treeActionTable" class="table table-hover"
          {% if perm_level == "write" %}
          data-udf-id="{{ udf.pk|unlocalize }}"
@@ -68,6 +70,7 @@
     // set up initial page results
      setTimeout(()=>{
       getResult('All', resultReceived);
+      $("#filterSection").css('display', '')
     },200);
     actionsSelector.onchange = function () {
         getResult(actionsSelector.value, resultReceived)
