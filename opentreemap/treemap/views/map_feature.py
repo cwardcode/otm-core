@@ -90,7 +90,8 @@ def map_feature_detail(request, instance, feature_id,
         template = 'treemap/map_feature_detail.html'
         context['map_feature_partial'] = partial
         latlon = context['feature'].latlon
-        context['map_query'] = '?z=%s/%s/%s' % (18, latlon.y, latlon.x)
+        #context['map_query'] = '?z=%s/%s/%s' % (18, latlon.y, latlon.x)
+        context['map_query'] = '?z=%s' % (18)
         return render(request, template, context)
     else:
         return context
