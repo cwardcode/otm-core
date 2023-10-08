@@ -98,17 +98,10 @@ class GenericImportEvent(models.Model):
         return self.status == self.LOADING
 
     def is_running(self):
-        return (
-            self.status == self.VERIFIYING or
-            self.status == self.CREATING)
+        return self.status in (self.VERIFIYING, self.CREATING)
 
     def is_finished(self):
-        return (
-            self.status == self.FINISHED_VERIFICATION or
-            self.status == self.FINISHED_CREATING or
-            self.status == self.FAILED_FILE_VERIFICATION or
-            self.status == self.CANCELED or
-            self.status == self.VERIFICATION_ERROR)
+        return self.status in (self.FINISHED_VERIFICATION, self.FINISHED_CREATING, self.FAILED_FILE_VERIFICATION, self.CANCELED, self.VERIFICATION_ERROR)
 
     def can_export(self):
         return (not self.is_running()
@@ -117,12 +110,10 @@ class GenericImportEvent(models.Model):
                 and self.status != self.VERIFICATION_ERROR)
 
     def can_cancel(self):
-        return self.status == self.LOADING or self.status == self.VERIFIYING
+        return self.status in (self.LOADING, self.VERIFIYING)
 
     def can_add_to_map(self):
-        return self.has_current_schema_version() and (
-            self.status == self.FINISHED_VERIFICATION or
-            self.status == self.FINISHED_CREATING)
+        return self.has_current_schema_version() and self.status in (self.FINISHED_VERIFICATION, self.FINISHED_CREATING)
 
     def has_current_schema_version(self):
         return self.schema_version == self.import_schema_version
@@ -350,9 +341,9 @@ class GenericImportRow(models.Model):
 
         if v == '':
             return (True, None)
-        if v == 'true' or v == 't' or v == 'yes':
+        if v in ('true', 't', 'yes'):
             return (True, True)
-        elif v == 'false' or v == 'f' or v == 'no':
+        elif v in ('false', 'f', 'no'):
             return (True, False)
         else:
             self.append_error(errors.BOOL_ERROR, fld)
