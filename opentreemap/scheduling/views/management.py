@@ -76,7 +76,7 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
     evt = None
     event_freq = frequency
 
-    if event_freq == "" or event_freq == "Once":
+    if event_freq in ("", "Once"):
         event_freq = None
     if event_freq is not None:
         rule = Rule.objects.get(name=event_freq)
