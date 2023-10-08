@@ -17,10 +17,12 @@ def species_codes_for_regions(region_codes):
     return list(set(species_codes))
 
 def get_itree_code(region_code, otm_code):
-    if otm_code:
-        if region_code in _CODES:
-            if otm_code in _CODES[region_code]:
-                return _CODES[region_code][otm_code]
+    if (
+        otm_code
+        and region_code in _CODES
+        and otm_code in _CODES[region_code]
+    ):
+        return _CODES[region_code][otm_code]
     return None
 
 

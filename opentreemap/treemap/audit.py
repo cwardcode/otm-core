@@ -906,9 +906,11 @@ class Authorizable(UserTrackable):
     def user_can_delete(self, user):
         can_delete = user.get_role(self.get_instance()).can_delete(
             self.__class__)
-        if not can_delete:
-            if getattr(self, 'users_can_delete_own_creations', False):
-                can_delete = self.was_created_by(user)
+        if (
+            not can_delete
+            and getattr(self, 'users_can_delete_own_creations', False)
+        ):
+            can_delete = self.was_created_by(user)
         return can_delete
 
     def was_created_by(self, user):
