@@ -120,8 +120,7 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
         )
 
     
-    response_data = {}
-    response_data["status"] = "OK"
+    response_data = {"status": "OK"}
     return response_data
 
 @require_POST
@@ -186,8 +185,7 @@ def _api_edit_event(start, end, title, description, primary_key, plot_id,
     edited_occurrence.color_event = color_event
     edited_occurrence.save()
         
-    response_data = {}
-    response_data["status"] = "OK"
+    response_data = {"status": "OK"}
     return response_data
 
 @require_POST
@@ -201,8 +199,7 @@ def api_delete_event(request, **kwargs):
 def _api_delete_event(event_id):
     Occurrence.objects.get(pk=event_id).delete()
 
-    response_data = {}
-    response_data["status"] = "OK"
+    response_data = {"status": "OK"}
     return response_data
 
 @require_POST
@@ -219,6 +216,5 @@ def _api_delete_all_events(occ_created):
     for occurrence in occurrences:
         occurrence.delete()
 
-    response_data = {}
-    response_data["status"] = "OK"
+    response_data = {"status": "OK"}
     return response_data
