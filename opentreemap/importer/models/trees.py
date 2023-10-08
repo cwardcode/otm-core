@@ -158,7 +158,7 @@ class TreeImportRow(GenericImportRow):
             self.import_event.canopy_height_conversion_factor
         })
 
-        plot_id = data.get(self.model_fields.OPENTREEMAP_PLOT_ID, None)
+        plot_id = data.get(self.model_fields.OPENTREEMAP_PLOT_ID)
         #tree_id = data.get(self.model_fields.OPENTREEMAP_TREE_ID, None)
 
         # Check for an existing plot, use it if we're not already:
@@ -258,8 +258,8 @@ class TreeImportRow(GenericImportRow):
             tree.plot.update_updated_fields(ie.owner)
 
     def validate_geom(self):
-        x = self.cleaned.get(fields.trees.POINT_X, None)
-        y = self.cleaned.get(fields.trees.POINT_Y, None)
+        x = self.cleaned.get(fields.trees.POINT_X)
+        y = self.cleaned.get(fields.trees.POINT_Y)
 
         # Note, this shouldn't really happen since main
         # file validation will fail, but butter safe than sorry
@@ -290,7 +290,7 @@ class TreeImportRow(GenericImportRow):
 
     def validate_plot_id_and_tree_id(self):
         result = True
-        plot_id = self.cleaned.get(fields.trees.OPENTREEMAP_PLOT_ID, None)
+        plot_id = self.cleaned.get(fields.trees.OPENTREEMAP_PLOT_ID)
         #tree_id = self.cleaned.get(fields.trees.OPENTREEMAP_TREE_ID, None)
 #TODO CHANGED
         #if tree_id:
@@ -368,7 +368,7 @@ class TreeImportRow(GenericImportRow):
         return True
 
     def validate_species_max(self, field, value_name, max_val, err):
-        inputval = self.cleaned.get(field, None)
+        inputval = self.cleaned.get(field)
         if inputval and max_val:
             # inputval is in instance units but max_val is in storage units.
             # Convert max_val to instance units before comparing.
@@ -469,12 +469,12 @@ class TreeImportRow(GenericImportRow):
         self.validate_geom()
 
         # This could be None or not set if there was an earlier error
-        pt = self.cleaned.get(fields.trees.POINT, None)
+        pt = self.cleaned.get(fields.trees.POINT)
 
         self.validate_species()
 
         # This could be None or unset if species data were not given
-        species = self.cleaned.get(fields.trees.SPECIES_OBJECT, None)
+        species = self.cleaned.get(fields.trees.SPECIES_OBJECT)
 
         # These validations are non-fatal
         if species:

@@ -21,7 +21,7 @@ BOUNDARY_TYPES = {
 def set_boundary_fields(boundary_obj, boundary_dict):
     # The 'city' column in the Treezilla boundary table is a boundary type code
     boundary_type = BOUNDARY_TYPES.get(
-        boundary_dict['fields'].get('city', None), None)
+        boundary_dict['fields'].get('city', None))
     if boundary_type is None:
         raise MigrationException("boundary_dict missing valid city value: " +
                                  str(boundary_dict))

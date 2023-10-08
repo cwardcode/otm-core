@@ -123,7 +123,7 @@ class SpeciesImportRow(GenericImportRow):
         data = self.cleaned
         diffs = {}
         for (model_key, row_key) in SpeciesImportRow.SPECIES_MAP.iteritems():
-            row_data = data.get(row_key, None)
+            row_data = data.get(row_key)
             model_data = getattr(species, model_key)
 
             # Note if row_data == False we want row_has_value == True
@@ -203,7 +203,7 @@ class SpeciesImportRow(GenericImportRow):
         req = {fields.species.GENUS, fields.species.COMMON_NAME}
 
         for field in req:
-            value = self.cleaned.get(field, None)
+            value = self.cleaned.get(field)
             if not value:
                 self.append_error(errors.MISSING_FIELD, field)
 
@@ -394,7 +394,7 @@ class SpeciesImportRow(GenericImportRow):
         })
 
         for modelkey, datakey in SpeciesImportRow.SPECIES_MAP.iteritems():
-            importdata = data.get(datakey, None)
+            importdata = data.get(datakey)
 
             if importdata is not None:
                 species_edited = True

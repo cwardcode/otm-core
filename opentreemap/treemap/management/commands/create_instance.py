@@ -56,11 +56,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         name = options['instance_name']
 
-        if options.get('center', None) and options.get('geojson', None):
+        if options.get('center') and options.get('geojson'):
             raise Exception('You must specifiy only one of '
                             '"center" and "geojson"')
-        elif (not options.get('center', None) and
-              not options.get('geojson', None)):
+        elif (not options.get('center') and
+              not options.get('geojson')):
             raise Exception('You must specifiy at least one of '
                             '"center" and "geojson"')
 
