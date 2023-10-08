@@ -152,8 +152,7 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
                     # fully detailed message so that Rollbar can group
                     # and count similar failures.
                     LOG_FUNCTION_FOR_FAILURE_CODE[code](
-                        "ECOBENEFIT FAILURE: %s %s " % (code, pattern),
-                        extra=extra)
+                        "ECOBENEFIT FAILURE: %s %s ", code, pattern, extra=extra)
                     return (None, code)
         else:
             # If we did not break out of the loop by returning early
