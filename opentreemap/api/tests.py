@@ -125,7 +125,7 @@ class SignedClientHandler(ClientHandler):
 
 def get_signed(client, *args, **kwargs):
     handler = client.handler
-    client.handler = SignedClientHandler(True, kwargs.get('user', None))
+    client.handler = SignedClientHandler(True, kwargs.get('user'))
 
     resp = client.get(*args, **kwargs)
 

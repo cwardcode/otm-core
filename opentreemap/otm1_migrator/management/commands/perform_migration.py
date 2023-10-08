@@ -146,7 +146,7 @@ class Command(InstanceDataCommand):
         if options['config_file']:
             config_data = json.load(open(options['config_file'], 'r'))
             for k, v in config_data.items():
-                if not options.get(k, None):
+                if not options.get(k):
                     options[k] = v
 
         rule_module = (options['rule_module'] or
@@ -163,7 +163,7 @@ class Command(InstanceDataCommand):
             udfs = {}
 
         # user photos live on userprofile in otm1
-        userphoto_path = options.get('userphoto_path', None)
+        userphoto_path = options.get('userphoto_path')
         user_photo_fixture_specified_but_not_base_path = (
             userphoto_path is None and
             options.get('userphoto_fixture') is not None)
@@ -174,7 +174,7 @@ class Command(InstanceDataCommand):
                                      '%s flag when importing.'
                                      % USERPHOTO_ARGS)
 
-        treephoto_path = options.get('treephoto_path', None)
+        treephoto_path = options.get('treephoto_path')
         treephoto_fixture_with_no_path = (
             treephoto_path is None and
             options.get('treephoto_fixture') is not None)

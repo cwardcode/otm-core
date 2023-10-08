@@ -165,7 +165,7 @@ STATIC_ROOT = ''
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-WEBPACK_DEV_SERVER = os.environ.get('WEBPACK_DEV_SERVER', None)
+WEBPACK_DEV_SERVER = os.environ.get('WEBPACK_DEV_SERVER')
 
 if WEBPACK_DEV_SERVER is not None and DEBUG:
     STATIC_URL = WEBPACK_DEV_SERVER + 'static/'
@@ -246,7 +246,7 @@ MIDDLEWARE = (
 # Settings for Rollbar exception reporting service
 ROLLBAR_SERVER_ACCESS_TOKEN = '022203b887374c9aae5e722fd6e3651c'
 ROLLBAR_CLIENT_ACCESS_TOKEN = os.environ.get(
-    'ROLLBAR_POST_CLIENT_ITEM_ACCESS_TOKEN', None)
+    'ROLLBAR_POST_CLIENT_ITEM_ACCESS_TOKEN')
 STACK_TYPE = os.environ.get('OTM_STACK_TYPE', 'Unknown')
 if ROLLBAR_SERVER_ACCESS_TOKEN is not None:
     ROLLBAR = {
@@ -405,7 +405,7 @@ USE_OBJECT_CACHES = True
 USE_ECO_CACHE = True
 
 BING_API_KEY = None
-GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_KEY', None)
+GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_KEY')
 
 JS_REVERSE_JS_MINIFY = False
 JS_REVERSE_OUTPUT_PATH = os.path.join(PROJECT_ROOT, 'assets/js/shim')
@@ -425,8 +425,8 @@ NOCAPTCHA = True
 if os.environ.get('RECAPTCHA_PUBLIC_KEY', '') != '':
     # We use an if block here because django-recaptcha will only use a default
     # test key if these settings are undefined.
-    RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', None)
-    RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY', None)
+    RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY')
+    RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY')
     USE_RECAPTCHA = True
 else:
     USE_RECAPTCHA = False
