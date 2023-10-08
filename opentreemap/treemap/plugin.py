@@ -81,7 +81,7 @@ setup_for_ui_test = get_plugin_function('UITEST_SETUP_FUNCTION', lambda: None)
 
 
 get_viewable_instances_filter = get_plugin_function(
-    'VIEWABLE_INSTANCES_FUNCTION', lambda: Q())
+    'VIEWABLE_INSTANCES_FUNCTION', Q)
 
 
 get_tree_limit = get_plugin_function('TREE_LIMIT_FUNCTION',
