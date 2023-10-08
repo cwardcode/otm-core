@@ -409,8 +409,7 @@ def delete_photo(request, instance, feature_id, photo_id):
 
 def map_feature_popup(request, instance, feature_id):
     feature = get_map_feature_or_404(feature_id, instance)
-    context = {}
-    context['features'] = [feature] + list(feature.nearby_map_features())
+    context = {'features': [feature] + list(feature.nearby_map_features())}
     if instance.canopy_enabled:
         context['boundaries_with_canopy'] = \
             _get_boundaries_with_canopy(instance, feature.geom)
