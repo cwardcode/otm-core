@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from copy import deepcopy
 
-from django.db import migrations, models
+from django.db import migrations
 
 from treemap.util import to_object_name
 from treemap.search_fields import DEFAULT_WEB_DETAIL_FIELDS
