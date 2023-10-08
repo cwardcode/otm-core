@@ -352,9 +352,8 @@ def units(request, instance):
 
     def get_label_getter(attrs):
         inclusion_test = attrs.get('inclusion_test')
-        if inclusion_test:
-            if not inclusion_test():
-                return None
+        if inclusion_test and not inclusion_test():
+            return None
         Model = attrs.get('model')
         if Model:
             name = Model.__name__
