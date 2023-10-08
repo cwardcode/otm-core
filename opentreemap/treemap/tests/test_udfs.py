@@ -760,8 +760,8 @@ class ScalarUDFInstanceIsolationTest(OTMTestCase):
         self.commander_users = [
             make_commander_user(i, username='commander%d' % i.pk)
             for i in self.instances]
-        for i in range(len(self.instances)):
-            set_write_permissions(self.instances[i], self.commander_users[i],
+        for i, item in enumerate(self.instances):
+            set_write_permissions(item, self.commander_users[i],
                                   'Plot', ['udf:Test choice'])
         self.choice_udfds = [
             UserDefinedFieldDefinition.objects.create(
@@ -775,8 +775,8 @@ class ScalarUDFInstanceIsolationTest(OTMTestCase):
         self.plots = [
             Plot(geom=self.p, instance=i) for i in self.instances]
 
-        for i in range(len(self.plots)):
-            self.plots[i].save_with_user(self.commander_users[i])
+        for i, item in enumerate(self.plots):
+            item.save_with_user(self.commander_users[i])
 
         psycopg2.extras.register_hstore(connection.cursor(), globally=True)
 
