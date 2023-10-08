@@ -113,7 +113,6 @@ def process_reputation(migration_rules, migration_event,
                                   otm1_model_id=model_dict['pk'],
                                   otm2_model_name='reputation',
                                   otm2_model_id=models.UNBOUND_MODEL_ID)
-    return None
 
 
 @atomic
@@ -378,7 +377,6 @@ def process_contenttype(migration_rules, migration_event, model_dict,
                                   otm1_model_id=model_dict['pk'],
                                   otm2_model_name='contenttype',
                                   otm2_model_id=content_type_id)
-    return None
 
 
 @atomic
