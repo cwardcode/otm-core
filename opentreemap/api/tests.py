@@ -321,17 +321,17 @@ class PlotListing(OTMTestCase):
         r = self.client.get("%s/plots?offset=0&size=2" % API_PFX)
 
         rids = set([p["id"] for p in loads(r.content)])
-        self.assertEqual(rids, set([p1.pk, p2.pk]))
+        self.assertEqual(rids, {p1.pk, p2.pk})
 
         r = self.client.get("%s/plots?offset=1&size=2" % API_PFX)
 
         rids = set([p["id"] for p in loads(r.content)])
-        self.assertEqual(rids, set([p2.pk, p3.pk]))
+        self.assertEqual(rids, {p2.pk, p3.pk})
 
         r = self.client.get("%s/plots?offset=2&size=2" % API_PFX)
 
         rids = set([p["id"] for p in loads(r.content)])
-        self.assertEqual(rids, set([p3.pk]))
+        self.assertEqual(rids, {p3.pk})
 
         r = self.client.get("%s/plots?offset=3&size=2" % API_PFX)
 
@@ -341,7 +341,7 @@ class PlotListing(OTMTestCase):
         r = self.client.get("%s/plots?offset=0&size=5" % API_PFX)
 
         rids = set([p["id"] for p in loads(r.content)])
-        self.assertEqual(rids, set([p1.pk, p2.pk, p3.pk]))
+        self.assertEqual(rids, {p1.pk, p2.pk, p3.pk})
 
 
 class Locations(OTMTestCase):

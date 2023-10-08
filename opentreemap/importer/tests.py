@@ -966,7 +966,7 @@ class FileLevelTreeValidationTest(ValidationTest):
         ierrors = json.loads(ie.errors)
         self.assertTrue(len(ierrors), 1)
         self.assertHasError(ie, errors.UNMATCHED_FIELDS)
-        self.assertEqual(set(ierrors[0]['data']), set(['name', 'age']))
+        self.assertEqual(set(ierrors[0]['data']), {'name', 'age'})
 
 
 @override_settings(TREE_LIMIT_FUNCTION=None)
