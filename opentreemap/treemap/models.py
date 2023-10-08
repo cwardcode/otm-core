@@ -802,7 +802,7 @@ class MapFeature(Convertible, UDFModel, PendingAuditable):
 
     @classmethod
     def action_format_string_for_audit(clz, audit):
-        if audit.field in set(['geom', 'readonly']):
+        if audit.field in {'geom', 'readonly'}:
             if audit.field == 'geom':
                 return _action_format_string_for_location(audit.action)
             else:  # field == 'readonly'
@@ -1231,7 +1231,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
 
     @classmethod
     def action_format_string_for_audit(clz, audit):
-        if audit.field in set(['plot', 'readonly']):
+        if audit.field in {'plot', 'readonly'}:
             if audit.field == 'plot':
                 return _action_format_string_for_location(audit.action)
             else:  # audit.field == 'readonly'
