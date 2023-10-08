@@ -956,9 +956,8 @@ class ValidationMixin(object):
                     raise error(_(
                         'The %(field_name)s must be greater than zero'))
 
-            if max_value is not None:
-                if new_value > max_value:
-                    raise error(_('The %(field_name)s is too large'))
+            if max_value is not None and new_value > max_value:
+                raise error(_('The %(field_name)s is too large'))
 
 
 # TODO:
