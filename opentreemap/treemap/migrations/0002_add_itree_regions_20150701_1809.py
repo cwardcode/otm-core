@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.core.management import call_command
-from django.db import models, migrations
+from django.db import migrations
 
 
 def load_regions(apps, schema_editor):

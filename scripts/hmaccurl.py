@@ -9,7 +9,6 @@ import os
 import subprocess
 
 from urllib.parse import urlparse, quote, parse_qs
-from pytz import timezone
 
 SIG_TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S"
 

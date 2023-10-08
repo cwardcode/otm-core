@@ -7,14 +7,12 @@ from django.views.decorators.http import require_POST
 from django.db.models import Q
 
 import dateutil.parser
-import dateutil.tz
 from schedule.models import Event, Calendar, Rule, Occurrence
 from schedule.utils import (
     check_calendar_permissions,
 )
 from django.http import JsonResponse
 from treemap.models import Tree
-import rollbar
 
 def management_root(request, instance_url_name):
     return redirect('calendars', instance_url_name=instance_url_name)
