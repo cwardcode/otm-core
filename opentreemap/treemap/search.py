@@ -472,7 +472,7 @@ def _parse_min_max_value_fn(operator, is_hstore=True):
         # a min/max predicate can either take
         # a value or a dictionary that provides
         # a VALUE and EXCLUSIVE flag.
-        if type(predicate_value) == dict:
+        if type(predicate_value) is dict:
             raw_value = predicate_value.get('VALUE')
             exclusive = predicate_value.get('EXCLUSIVE')
         else:
