@@ -2,7 +2,7 @@ amqp==5.0.6
 anyjson==0.3.3
 billiard==3.6.4.0
 boto==2.48.0                             # http://docs.pythonboto.org/en/latest/releasenotes/v2.39.0.html
-celery==5.2.0
+celery==5.2.2
 certifi==2017.7.27.1
 chardet==3.0.4
 Django==2.2  # rq.filter: >=1.11,<1.12
