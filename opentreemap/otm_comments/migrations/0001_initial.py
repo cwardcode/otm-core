@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models, migrations
 import treemap.audit
@@ -8,20 +8,20 @@ import treemap.audit
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('threadedcomments', '0001_initial'),
+        ('django_comments_xtd', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='EnhancedThreadedComment',
             fields=[
-                ('threadedcomment_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='threadedcomments.ThreadedComment')),
+                ('threadedcomment_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='django_comments_xtd.ThreadedComment')),
                 ('is_archived', models.BooleanField(default=False)),
             ],
             options={
                 'abstract': False,
             },
-            bases=('threadedcomments.threadedcomment',),
+            bases=('django_comments_xtd.threadedcomment',),
         ),
         migrations.CreateModel(
             name='EnhancedThreadedCommentFlag',

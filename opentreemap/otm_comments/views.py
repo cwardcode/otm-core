@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
+
+
 
 from functools import partial
 
@@ -20,8 +20,8 @@ from treemap.lib.page_of_items import UrlParams, make_filter_context
 
 from exporter.decorators import queryset_as_exported_csv
 
-from otm_comments.models import (EnhancedThreadedComment,
-                                 EnhancedThreadedCommentFlag)
+from otm_comments.models import (XtdComment,
+                                 XtdCommentFlag)
 
 
 def _comments_params(params):
@@ -43,7 +43,7 @@ def get_comments(params, instance):
     # but it gives comment.content_object = None  (Django 1.6)
 
     types = {t.lower() for t in instance.map_feature_types}
-    comments = EnhancedThreadedComment.objects \
+    comments = XtdComment.objects \
         .filter(content_type__model__in=types) \
         .filter(instance=instance) \
         .extra(select={
@@ -126,7 +126,7 @@ def comments_csv(request, instance):
 
 @transaction.atomic
 def flag(request, instance, comment_id):
-    comment = EnhancedThreadedComment.objects.get(pk=comment_id,
+    comment = XtdComment.objects.get(pk=comment_id,
                                                   instance=instance)
     user_already_has_visible_flag = len(
         comment.enhancedthreadedcommentflag_set.filter(
@@ -142,7 +142,7 @@ def flag(request, instance, comment_id):
 
 @transaction.atomic
 def unflag(request, instance, comment_id):
-    comment = EnhancedThreadedComment.objects.get(pk=comment_id,
+    comment = XtdComment.objects.get(pk=comment_id,
                                                   instance=instance)
     flags = comment.enhancedthreadedcommentflag_set.filter(user=request.user)
     flags.update(hidden=True)
@@ -152,7 +152,7 @@ def unflag(request, instance, comment_id):
 @transaction.atomic
 def hide_flags(request, instance):
     comment_ids = get_ids_from_request(request)
-    EnhancedThreadedCommentFlag.objects.filter(comment__id__in=comment_ids,
+    XtdCommentFlag.objects.filter(comment__id__in=comment_ids,
                                                comment__instance=instance)\
         .update(hidden=True)
     return comment_moderation(request, instance)
@@ -160,7 +160,7 @@ def hide_flags(request, instance):
 
 def _set_prop_on_comments(request, instance, prop_name, prop_value):
     comment_ids = get_ids_from_request(request)
-    comments = EnhancedThreadedComment.objects.filter(
+    comments = XtdComment.objects.filter(
         pk__in=comment_ids, instance=instance)
 
     for comment in comments:
