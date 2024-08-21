@@ -6,8 +6,8 @@ celery==5.2.0
 certifi==2017.7.27.1
 chardet==3.0.4
 Django==2.2  # rq.filter: >=1.11,<1.12
-django-apptemplates==2.0
-django-contrib-comments==2.0
+django-apptemplates==1.5
+django-contrib-comments==2.2.0
 django-js-reverse==0.9.0
 django-queryset-csv==1.0.2             # https://github.com/azavea/django-queryset-csv/commits/master
 django-recaptcha==2.0.0
