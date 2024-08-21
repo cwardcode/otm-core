@@ -288,7 +288,7 @@ INSTALLED_APPS = (
     'api',
     'exporter',
     'otm1_migrator',
-    'threadedcomments',
+    'django_comments_xtd',
     'django_comments',
     'otm_comments',
     'importer',
@@ -430,3 +430,14 @@ if os.environ.get('RECAPTCHA_PUBLIC_KEY', '') != '':
     USE_RECAPTCHA = True
 else:
     USE_RECAPTCHA = False
+
+# Middleware settings for Django 2.x
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]

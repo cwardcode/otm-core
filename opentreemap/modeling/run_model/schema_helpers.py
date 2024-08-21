@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
+
+
 
 # Helpers for building a JSON schema
 
@@ -20,8 +20,8 @@ def obj(properties, optional_properties=None):
     return {
         'type': 'object',
         'additionalProperties': False,
-        'required': properties.keys(),
-        'properties': dict(properties.items() + optional_properties.items())
+        'required': list(properties.keys()),
+        'properties': dict(list(properties.items()) + list(optional_properties.items()))
     }
 
 
