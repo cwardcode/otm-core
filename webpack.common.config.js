@@ -1,44 +1,52 @@
 "use strict";
 
-var Webpack = require('webpack'),
-    glob = require('glob'),
-    path = require('path'),
-    _ = require('lodash'),
-    BundleTracker = require('webpack-bundle-tracker'),
-    ExtractTextPlugin = require("extract-text-webpack-plugin"),
-    autoprefixer = require('autoprefixer');
+const webpack = require('webpack');
+const { globSync } = require('glob');
+const path = require('path');
+const _ = require('lodash');
+const BundleTracker = require('webpack-bundle-tracker');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const autoprefixer = require('autoprefixer');
 
-function d(path) {
-    // Turns a relative path from 'opentreemap/' into an absolute path
-    return __dirname +'/' + path;
+const isProd = process.env.NODE_ENV === 'production';
+
+function d(p) {
+    // Turns a relative path into an absolute path from the project root
+    return path.resolve(__dirname, p);
 }
 
 function getEntries() {
-    var files = glob.sync('./opentreemap/*/js/src/*.js'),
-        entries = {};
+    // glob v10 no longer includes './' prefix — use explicit prefix-free pattern
+    const files = globSync('opentreemap/*/js/src/*.js');
+    const entries = {};
     files.forEach(function(file) {
-        var app = file.split(path.sep)[2],
-            basename = path.basename(file, '.js');
-        entries['js/' + app + '/' + basename] = file;
+        // file = 'opentreemap/treemap/js/src/treeMap.js'
+        // parts: ['opentreemap', 'treemap', 'js', 'src', 'treeMap.js']
+        const parts = file.split(path.sep);
+        const app = parts[1];
+        const basename = path.basename(file, '.js');
+        entries['js/' + app + '/' + basename] = './' + file;
     });
     return entries;
 }
 
 function getAliases() {
-    var dirs = glob.sync('opentreemap/*/js/src/*/'),
-        aliases = {};
+    // glob v10: returns 'opentreemap/treemap/js/src/lib/'
+    // parts: ['opentreemap', 'treemap', 'js', 'src', 'lib', '']
+    const dirs = globSync('opentreemap/*/js/src/*/');
+    const aliases = {};
     dirs.forEach(function(thePath) {
-        var parts = thePath.split(path.sep),
-            app = parts[1],
-            dir = parts[4],
-            alias = app + path.sep + dir,
-            target = thePath.slice(0, -1);
+        const parts = thePath.split(path.sep);
+        const app = parts[1];   // e.g. 'treemap'
+        const dir = parts[4];   // e.g. 'lib', 'mapPage'
+        const alias = app + path.sep + dir;
+        const target = thePath.replace(/\/$/, ''); // strip trailing slash
         aliases[alias] = d(target);
     });
     return _.merge(aliases, shimmed);
 }
 
-var shimmed = {
+const shimmed = {
     leafletbing: d('assets/js/shim/leaflet.bing.js'),
     utfgrid: d('assets/js/shim/leaflet.utfgrid.js'),
     typeahead: d('assets/js/shim/typeahead.jquery.js'),
@@ -60,49 +68,95 @@ module.exports = {
         sourceMapFilename: '[file].map'
     },
     module: {
-        loaders: [{
+        rules: [{
+            // Import bootstrap shims before bootstrap-datepicker and bootstrap-multiselect
             include: [shimmed["bootstrap-datepicker"], shimmed["bootstrap-multiselect"]],
-            loader: "imports?bootstrap"
+            use: [{
+                loader: 'imports-loader',
+                options: { imports: 'default bootstrap bootstrap' }
+            }]
         }, {
             test: /\.scss$/,
-            loader: ExtractTextPlugin.extract(['css', 'postcss-loader', 'sass'], {extract: true})
+            use: [
+                // Use style-loader in dev (injects CSS into DOM), MiniCssExtractPlugin in prod
+                isProd ? MiniCssExtractPlugin.loader : 'style-loader',
+                'css-loader',
+                {
+                    loader: 'postcss-loader',
+                    options: {
+                        postcssOptions: {
+                            plugins: [autoprefixer]
+                        }
+                    }
+                },
+                {
+                    loader: 'sass-loader',
+                    options: {
+                        api: 'modern',
+                        sassOptions: {
+                            silenceDeprecations: ['import', 'legacy-js-api']
+                        }
+                    }
+                }
+            ]
         }, {
-            test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/,
-            loader: 'url',
+            test: /\.woff($|\?)|\\.woff2($|\?)|\\.ttf($|\?)|\\.eot($|\?)|\\.svg($|\?)/,
+            type: 'asset/resource'
         }, {
             test: /\.(jpg|png|gif)$/,
-            loader: 'url?limit=25000',
+            type: 'asset',
+            parser: {
+                dataUrlCondition: { maxSize: 25000 }
+            }
         }]
     },
     resolve: {
         alias: getAliases(),
-        // Look in node_modules, our shared asset 'js/vendor/' and each Django
-        // app's 'js/vendor/' for modules that support a module system
-        root: [d("assets/js/vendor"), d("node_modules")].concat(glob.sync(d('opentreemap/*/js/vendor/')))
-    },
-    resolveLoader: {
-        root: d("node_modules")
+        preferRelative: true,
+        modules: [
+            d("assets/js/vendor"),
+            d("node_modules")
+        ].concat(globSync(d('opentreemap/*/js/vendor/'))),
+        // webpack 5 no longer auto-polyfills Node.js core modules.
+        // These built-ins are only used by server-side dependencies; disable them for the browser bundle.
+        fallback: {
+            "crypto": false,
+            "util": false,
+            "url": false,
+            "path": false,
+            "fs": false,
+            "stream": false,
+            "buffer": false,
+            "http": false,
+            "https": false,
+            "os": false,
+            "assert": false,
+            "zlib": false,
+            "querystring": false
+        }
     },
     plugins: [
         // Provide jquery and Leaflet as global variables, which gets rid of
         // most of our shimming needs
-        // NOTE: the test configuration relies on this being the first plugin
-        new Webpack.ProvidePlugin({
+        new webpack.ProvidePlugin({
             jQuery: "jquery",
             "window.jQuery": "jquery",
             L: "leaflet"
         }),
-        new Webpack.optimize.CommonsChunkPlugin({
-            // Inlude the treemap/base entry module as part of the common module
-            name: "js/treemap/base",
-
-            // Chunks are moved to the common bundle if they are used in 2 or more entry bundles
-            minChunks: 2,
-        }),
-        new ExtractTextPlugin('css/main-[chunkhash].css', {allChunks: true}),
-        new BundleTracker({path: d('static'), filename: 'webpack-stats.json'})
-    ],
-    postcss: function () {
-        return [autoprefixer];
+        new BundleTracker({ path: d('static'), filename: 'webpack-stats.json' })
+    ].concat(isProd ? [
+        new MiniCssExtractPlugin({ filename: 'css/main-[contenthash].css' })
+    ] : []),
+    optimization: {
+        splitChunks: {
+            cacheGroups: {
+                base: {
+                    name: "js/treemap/base",
+                    minChunks: 2,
+                    priority: -10,
+                    reuseExistingChunk: true
+                }
+            }
+        }
     }
 };
