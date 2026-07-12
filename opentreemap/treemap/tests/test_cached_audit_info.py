@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
+
+
 
 import pytz
 
@@ -31,7 +31,7 @@ class UpdateTestCase(LocalMediaTestCase):
 
     @staticmethod
     def max_audit_for_model_type(models):
-        if isinstance(models, basestring):
+        if isinstance(models, str):
             models = [models]
         audits = Audit.objects.filter(model__in=models)\
                               .order_by('-created')

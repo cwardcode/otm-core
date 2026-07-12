@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
+
+
 
 from django.core.paginator import Paginator, EmptyPage
 from django.db import transaction
@@ -74,8 +74,8 @@ def photo_review(request, instance):
         'sort_order': sort_order,
         'is_archived': is_archived,
         'archived_filter': filter_context,
-        'url_for_pagination': urlizer.url('sort', 'archived'),
-        'url_for_sort': urlizer.url('archived'),
+        'url_for_pagination': urlizer.re_path('sort', 'archived'),
+        'url_for_sort': urlizer.re_path('archived'),
         'full_params': urlizer.params('page', 'sort', 'archived')
     }
 

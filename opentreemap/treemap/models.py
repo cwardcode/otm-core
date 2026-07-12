@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
+
+
 
 
 import hashlib
@@ -71,7 +71,7 @@ def _action_format_string_for_readonly(action, readonly):
 
 
 class StaticPage(models.Model):
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     content = models.TextField()
 
@@ -236,7 +236,7 @@ class BenefitCurrencyConversion(Dictable, models.Model):
         if config:
             benefits_conversion = cls()
             benefits_conversion.currency_symbol = '$'
-            for field, conversion in config.iteritems():
+            for field, conversion in config.items():
                 setattr(benefits_conversion, field, conversion)
             return benefits_conversion
         else:
@@ -440,7 +440,7 @@ class Species(PendingAuditable, models.Model):
     DEFAULT_MAX_HEIGHT = 800
 
     # Base required info
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
     # ``otm_code`` is the key used to link this instance
     # species row to a cannonical species. An otm_code
     # is usually the USDA code, but this is not guaranteed.
@@ -565,9 +565,9 @@ class Species(PendingAuditable, models.Model):
 
 
 class InstanceUser(Auditable, models.Model):
-    instance = models.ForeignKey(Instance)
-    user = models.ForeignKey(User)
-    role = models.ForeignKey(Role)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
     reputation = models.IntegerField(default=0)
     admin = models.BooleanField(default=False)
     last_seen = models.DateField(null=True, blank=True)
@@ -611,7 +611,7 @@ post_delete.connect(invalidate_adjuncts, sender=InstanceUser)
 # before PendingAuditable.
 class MapFeature(Convertible, UDFModel, PendingAuditable):
     "Superclass for map feature subclasses like Plot, RainBarrel, etc."
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
     geom = models.PointField(srid=3857, db_column='the_geom_webmercator')
 
     address_street = models.CharField(max_length=255, blank=True, null=True,
@@ -629,7 +629,7 @@ class MapFeature(Convertible, UDFModel, PendingAuditable):
     updated_at = models.DateTimeField(default=timezone.now,
                                       verbose_name=_("Last Updated"))
     updated_by = models.ForeignKey(User, null=True, blank=True,
-                                   verbose_name=_("Last Updated By"))
+                                   verbose_name=_("Last Updated By", on_delete=models.CASCADE))
 
     objects = models.GeoManager()
 
@@ -1070,12 +1070,12 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
     """
     Represents a single tree, belonging to an instance
     """
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
 
-    plot = models.ForeignKey(Plot)
+    plot = models.ForeignKey(Plot, on_delete=models.CASCADE)
 
     species = models.ForeignKey(Species, null=True, blank=True,
-                                verbose_name=_("Species"))
+                                verbose_name=_("Species", on_delete=models.CASCADE))
 
     readonly = models.BooleanField(default=False)
     diameter = models.FloatField(null=True, blank=True,
@@ -1252,8 +1252,8 @@ register(Tree)
 
 
 class Favorite(models.Model):
-    user = models.ForeignKey(User)
-    map_feature = models.ForeignKey(MapFeature)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    map_feature = models.ForeignKey(MapFeature, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1261,7 +1261,7 @@ class Favorite(models.Model):
 
 
 class MapFeaturePhoto(models.Model, PendingAuditable, Convertible):
-    map_feature = models.ForeignKey(MapFeature)
+    map_feature = models.ForeignKey(MapFeature, on_delete=models.CASCADE)
 
     image = models.ImageField(
         upload_to='trees/%Y/%m/%d', editable=False)
@@ -1269,7 +1269,7 @@ class MapFeaturePhoto(models.Model, PendingAuditable, Convertible):
         upload_to='trees_thumbs/%Y/%m/%d', editable=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
 
     users_can_delete_own_creations = True
     _terminology = {'singular': _('Photo'), 'plural': _('Photos')}
@@ -1368,7 +1368,7 @@ class MapFeaturePhoto(models.Model, PendingAuditable, Convertible):
 
 
 class TreePhoto(MapFeaturePhoto):
-    tree = models.ForeignKey(Tree)
+    tree = models.ForeignKey(Tree, on_delete=models.CASCADE)
 
     @classproperty
     def always_writable(cls):
@@ -1513,8 +1513,8 @@ class ITreeRegion(ITreeRegionAbstract, models.Model):
 
 
 class ITreeCodeOverride(models.Model, Auditable):
-    instance_species = models.ForeignKey(Species)
-    region = models.ForeignKey(ITreeRegion)
+    instance_species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    region = models.ForeignKey(ITreeRegion, on_delete=models.CASCADE)
     itree_code = models.CharField(max_length=100)
 
     class Meta:

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
+
+
 
 import uuid
 import base64
@@ -22,7 +22,7 @@ class APIAccessCredential(models.Model):
     # If user is None this credential can access
     # any user's data if that user's username
     # and password are also provided
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
 
     enabled = models.BooleanField(default=True)
 

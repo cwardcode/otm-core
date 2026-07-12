@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
+
+
 
 import json
 
@@ -116,10 +116,10 @@ class TreeImportRow(GenericImportRow):
     }
 
     # plot that was created from this row
-    plot = models.ForeignKey(Plot, null=True, blank=True)
+    plot = models.ForeignKey(Plot, null=True, blank=True, on_delete=models.CASCADE)
 
     # The main import event
-    import_event = models.ForeignKey(TreeImportEvent)
+    import_event = models.ForeignKey(TreeImportEvent, on_delete=models.CASCADE)
 
     class Meta:
         app_label = 'importer'
@@ -210,7 +210,7 @@ class TreeImportRow(GenericImportRow):
 
     def _commit_plot_data(self, data, plot):
         plot_edited = False
-        for plot_attr, field_name in TreeImportRow.PLOT_MAP.iteritems():
+        for plot_attr, field_name in TreeImportRow.PLOT_MAP.items():
             value = data.get(field_name, None)
             if value:
                 plot_edited = True
@@ -231,7 +231,7 @@ class TreeImportRow(GenericImportRow):
             plot.update_updated_fields(ie.owner)
 
     def _commit_tree_data(self, data, plot, tree, tree_edited):
-        for tree_attr, field_name in TreeImportRow.TREE_MAP.iteritems():
+        for tree_attr, field_name in TreeImportRow.TREE_MAP.items():
             value = data.get(field_name, None)
             if value:
                 tree_edited = True
@@ -439,7 +439,7 @@ class TreeImportRow(GenericImportRow):
                     message = str(ve)
                     if isinstance(ve.message_dict, dict):
                         message = '\n'.join(
-                            [unicode(m) for m in ve.message_dict.values()])
+                            [str(m) for m in list(ve.message_dict.values())])
                     self.append_error(
                         errors.INVALID_UDF_VALUE, column_name, message)
 

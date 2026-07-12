@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
+
+
 
 import string
 import re
@@ -249,11 +249,11 @@ def compile_scss(request):
     override variables with '!default' in our normal .scss files should have
     any effect
     """
-    # Webpack and libsass have different opinions on how url(...) works
+    # Webpack and libsass have different opinions on how re_path(...) works
     scss = "$staticUrl: '/static/';\n"
     # We can probably be a bit looser with what we allow here in the future if
     # we need to, but we must do some checking so that libsass doesn't explode
-    for key, value in request.GET.items():
+    for key, value in list(request.GET.items()):
         if _SCSS_VAR_NAME_RE.match(key) and COLOR_RE.match(value):
             scss += '$%s: #%s;\n' % (key, value)
         elif key == 'url':

@@ -38,7 +38,7 @@
     "jshint": "^2.9.2",
     "mocha": "~1.14.0",
     "n": "^9.1.0",
-    "node-sass": "^4.14.1",
+    "sass": "^1.69.0",
     "postcss-loader": "^1.1.1",
     "sass-loader": "^4.1.1",
     "style-loader": "^0.13.1",

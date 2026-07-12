@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
+
+
 
 from django.conf import settings
-from django.conf.urls import include, url
+from django.urls import include, re_path
 from django.contrib import admin
 from django.contrib.auth.views import logout
 from django.views.generic import RedirectView
@@ -29,57 +29,57 @@ instance_pattern = r'^(?P<instance_url_name>' + URL_NAME_PATTERN + r')'
 # For "top level" URLs defined here, see treemap/tests/urls.py (RootUrlTests)
 
 urlpatterns = [
-    url(r'^robots.txt$', RedirectView.as_view(
+    re_path(r'^robots.txt$', RedirectView.as_view(
         url='/static/robots.txt', permanent=True)),
     # Setting permanent=False in case we want to allow customizing favicons
     # per instance in the future
-    url(r'^favicon\.png$', RedirectView.as_view(
+    re_path(r'^favicon\.png$', RedirectView.as_view(
         url='/static/img/favicon.png', permanent=False)),
-    url('^comments/', include('django_comments.urls')),
-    url(r'^', include('geocode.urls')),
-    url(r'^stormwater/', include('stormwater.urls')),
-    url(r'^$', routes.landing_page),
-    url(r'^config/settings.js$', routes.root_settings_js),
-    url(r'^users/%s/$' % USERNAME_PATTERN,
+    re_path('^comments/', include('django_comments.urls')),
+    re_path(r'^', include('geocode.urls')),
+    re_path(r'^stormwater/', include('stormwater.urls')),
+    re_path(r'^$', routes.landing_page),
+    re_path(r'^config/settings.js$', routes.root_settings_js),
+    re_path(r'^users/%s/$' % USERNAME_PATTERN,
         routes.user, name='user'),
-    url(r'^users/%s/edits/$' % USERNAME_PATTERN,
+    re_path(r'^users/%s/edits/$' % USERNAME_PATTERN,
         routes.user_audits, name='user_audits'),
-    url(r'^users/%s/photo/$' % USERNAME_PATTERN,
+    re_path(r'^users/%s/photo/$' % USERNAME_PATTERN,
         routes.upload_user_photo, name='user_photo'),
-    url(r'^api/v(?P<version>\d+)/', include('api.urls')),
+    re_path(r'^api/v(?P<version>\d+)/', include('api.urls')),
     # The profile view is handled specially by redirecting to
     # the page of the currently logged in user
-    url(r'^accounts/profile/$', routes.profile_to_user_page, name='profile'),
-    url(r'^accounts/logout/$', logout, {'next_page': '/'}),
-    url(r'^accounts/forgot-username/$', routes.forgot_username,
+    re_path(r'^accounts/profile/$', routes.profile_to_user_page, name='profile'),
+    re_path(r'^accounts/logout/$', logout, {'next_page': '/'}),
+    re_path(r'^accounts/forgot-username/$', routes.forgot_username,
         name='forgot_username'),
-    url(r'^accounts/resend-activation-email/$', routes.resend_activation_email,
+    re_path(r'^accounts/resend-activation-email/$', routes.resend_activation_email,
         name='resend_activation_email'),
-    url(r'^accounts/', include('registration_backend.urls')),
+    re_path(r'^accounts/', include('registration_backend.urls')),
     # Create a redirect view for setting the session language preference
     # https://docs.djangoproject.com/en/1.0/topics/i18n/#the-set-language-redirect-view  # NOQA
-    url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^not-available$', routes.instance_not_available,
+    re_path(r'^i18n/', include('django.conf.urls.i18n')),
+    re_path(r'^not-available$', routes.instance_not_available,
         name='instance_not_available'),
-    url(r'^unsupported$', routes.unsupported_page, name='unsupported'),
-    url(r'^main\.css$', routes.compile_scss, name='scss'),
-    url(r'^eco/benefit/within_itree_regions/$', within_itree_regions_view,
+    re_path(r'^unsupported$', routes.unsupported_page, name='unsupported'),
+    re_path(r'^main\.css$', routes.compile_scss, name='scss'),
+    re_path(r'^eco/benefit/within_itree_regions/$', within_itree_regions_view,
         name='within_itree_regions'),
-    url(r'^instances/$', routes.instances_geojson),
-    url(r'^anonymous-boundary/$',
+    re_path(r'^instances/$', routes.instances_geojson),
+    re_path(r'^anonymous-boundary/$',
         routes.anonymous_boundary, name='anonymous_boundary'),
-    url(instance_pattern + r'/accounts/register/$',
+    re_path(instance_pattern + r'/accounts/register/$',
         RegistrationView.as_view(),
         name='instance_registration_register'),
-    url(instance_pattern + r'/', include('treemap.urls')),
-    url(instance_pattern + r'/importer/', include('importer.urls',
+    re_path(instance_pattern + r'/', include('treemap.urls')),
+    re_path(instance_pattern + r'/importer/', include('importer.urls',
                                                   namespace='importer')),
-    url(instance_pattern + r'/export/', include('exporter.urls')),
-    url(instance_pattern + r'/comments/', include('otm_comments.urls')),
-    url(instance_pattern + r'/management/', include('manage_treemap.urls')),
-    url(instance_pattern + r'/schedule/', include('schedule.urls')),
-    url(instance_pattern + r'/scheduling/', include('scheduling.urls')),
-    url(r'', include('modeling.urls')),
+    re_path(instance_pattern + r'/export/', include('exporter.urls')),
+    re_path(instance_pattern + r'/comments/', include('otm_comments.urls')),
+    re_path(instance_pattern + r'/management/', include('manage_treemap.urls')),
+    re_path(instance_pattern + r'/schedule/', include('schedule.urls')),
+    re_path(instance_pattern + r'/scheduling/', include('scheduling.urls')),
+    re_path(r'', include('modeling.urls')),
 ]
 
 if settings.USE_JS_I18N:
@@ -89,17 +89,17 @@ if settings.USE_JS_I18N:
     }
 
     urlpatterns = [
-        url(r'^jsi18n/$', javascript_catalog, js_i18n_info_dict)
+        re_path(r'^jsi18n/$', javascript_catalog, js_i18n_info_dict)
     ] + urlpatterns
 
 if settings.EXTRA_URLS:
     urlpatterns = [
-        url(url_pattern, include(url_module))
+        re_path(url_pattern, include(url_module))
         for (url_pattern, url_module) in settings.EXTRA_URLS
     ] + urlpatterns
 
 if settings.DEBUG:
-    urlpatterns = [url(r'^admin/', include(admin.site.urls))] + urlpatterns
+    urlpatterns = [re_path(r'^admin/', include(admin.site.urls))] + urlpatterns
 
 handler404 = 'treemap.routes.error_404_page'
 handler500 = 'treemap.routes.error_500_page'

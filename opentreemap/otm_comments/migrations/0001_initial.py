@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models, migrations
 import treemap.audit
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('flagged_at', models.DateTimeField(auto_now_add=True)),
                 ('hidden', models.BooleanField(default=False)),
-                ('comment', models.ForeignKey(to='otm_comments.EnhancedThreadedComment')),
+                ('comment', models.ForeignKey(to='otm_comments.EnhancedThreadedComment', on_delete=models.CASCADE)),
             ],
             bases=(models.Model, treemap.audit.Auditable),
         ),

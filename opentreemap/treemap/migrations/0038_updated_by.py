@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
 from django.conf import settings
@@ -22,6 +22,6 @@ class Migration(migrations.Migration):
             model_name='mapfeature',
             name='updated_by',
             field=models.ForeignKey(blank=True, null=True,
-                                    to=settings.AUTH_USER_MODEL),
+                                    to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
         ),
     ]
