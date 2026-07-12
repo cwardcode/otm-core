@@ -2,18 +2,18 @@ name: Django CI
 
 on:
   push:
-    branches: [ "develop", "feature/python3-django2" ]
+    branches: [ "develop", "feature/modernize-otm ]
   pull_request:
-    branches: [ "develop", "feature/python3-django2" ]
+    branches: [ "develop", "feature/modernize-otm" ]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     strategy:
       max-parallel: 4
       fail-fast: false
       matrix:
-        python-version: [3.7]
+        python-version: [3.11]
 
     steps:
     - uses: actions/checkout@v4

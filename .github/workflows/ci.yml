@@ -36,10 +36,10 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Set up Node.js 20
+    - name: Set up Node.js 24
       uses: actions/setup-node@v3
       with:
-        node-version: '20'
+        node-version: '24'
 
     - name: Install Python dependencies
       run: |
