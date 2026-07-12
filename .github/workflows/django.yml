@@ -2,7 +2,7 @@ name: Django CI
 
 on:
   push:
-    branches: [ "develop", "feature/modernize-otm ]
+    branches: [ "develop", "feature/modernize-otm" ]
   pull_request:
     branches: [ "develop", "feature/modernize-otm" ]
 
