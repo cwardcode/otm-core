@@ -2,9 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [ "develop", "feature/modernize-otm" ]
+    branches: ["develop", "feature/modernize-otm"]
   pull_request:
-    branches: [ "develop", "feature/modernize-otm" ]
+    branches: ["develop", "feature/modernize-otm"]
 
 jobs:
   build:
@@ -16,25 +16,25 @@ jobs:
         python-version: [3.11]
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install libpython3.11-dev
-        python -m pip install --upgrade pip
-        pip install wheel
-        pip install -r requirements.txt
-    
-    - name: Verify Celery Installation
-      run: |
-        python -c "import celery; print(celery.__version__)"  # Verify Celery import and version
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Run Tests
-      run: |
-        cd opentreemap
-        python manage.py test
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libpython3.11-dev
+          python -m pip install --upgrade pip
+          pip install wheel
+          pip install -r requirements.txt
+
+      - name: Verify Celery Installation
+        run: |
+          python -c "import celery; print(celery.__version__)"  # Verify Celery import and version
+
+      - name: Run Tests
+        run: |
+          cd opentreemap
+          python manage.py test
