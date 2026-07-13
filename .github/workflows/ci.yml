@@ -55,21 +55,22 @@ jobs:
           sleep 2
         done
 
-        sudo -u postgres psql -h 127.0.0.1 -p 5432 -c "SELECT version();"
+        sudo -u postgres psql -c "SELECT version();"
         dpkg -l | grep -E 'postgresql-18|postgis|postgresql-18-postgis' || true
         if ! ls /usr/share/postgresql/18/extension/postgis* 2>/dev/null | grep -q .; then
           echo "PostGIS extension files for PostgreSQL 18 were not installed" >&2
           exit 1
         fi
-        if ! sudo -u postgres psql -h 127.0.0.1 -p 5432 -tAc "SELECT version();" | grep -q 'PostgreSQL 18'; then
+        if ! sudo -u postgres psql -c "SELECT version();" | grep -q 'PostgreSQL 18'; then
           echo "PostgreSQL 18 is not the active server" >&2
           sudo journalctl -u postgresql@18-main -n 100 --no-pager || true
           exit 1
         fi
-        sudo -u postgres psql -h 127.0.0.1 -p 5432 -c "ALTER USER postgres PASSWORD '${POSTGRES_PASSWORD}';"
-        sudo -u postgres createdb -h 127.0.0.1 -p 5432 -O postgres "${POSTGRES_DB}" || true
-        sudo -u postgres psql -h 127.0.0.1 -p 5432 -d "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS hstore;" || true
-        sudo -u postgres psql -h 127.0.0.1 -p 5432 -d "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS postgis;" || true
+        sudo -u postgres psql -c "ALTER USER postgres PASSWORD '${POSTGRES_PASSWORD}';"
+        sudo -u postgres env PGPASSWORD="${POSTGRES_PASSWORD}" psql -h 127.0.0.1 -p 5432 -c "SELECT version();"
+        sudo -u postgres env PGPASSWORD="${POSTGRES_PASSWORD}" createdb -h 127.0.0.1 -p 5432 -O postgres "${POSTGRES_DB}" || true
+        sudo -u postgres env PGPASSWORD="${POSTGRES_PASSWORD}" psql -h 127.0.0.1 -p 5432 -d "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS hstore;" || true
+        sudo -u postgres env PGPASSWORD="${POSTGRES_PASSWORD}" psql -h 127.0.0.1 -p 5432 -d "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS postgis;" || true
 
     - name: Set up Python 3.12
       uses: actions/setup-python@v5
