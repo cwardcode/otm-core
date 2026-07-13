@@ -43,6 +43,16 @@ jobs:
           postgresql-18 postgresql-client-18 postgresql-18-postgis-3 postgresql-18-postgis-3-scripts postgis
         sudo service postgresql start || true
         sudo service postgresql status || true
+        sudo -u postgres psql -c "SELECT version();"
+        dpkg -l | grep -E 'postgresql-18|postgis|postgresql-18-postgis' || true
+        if ! ls /usr/share/postgresql/18/extension/postgis* 2>/dev/null | grep -q .; then
+          echo "PostGIS extension files for PostgreSQL 18 were not installed" >&2
+          exit 1
+        fi
+        if ! sudo -u postgres psql -tAc "SELECT version();" | grep -q 'PostgreSQL 18'; then
+          echo "PostgreSQL 18 is not the active server" >&2
+          exit 1
+        fi
         sudo -u postgres psql -c "ALTER USER postgres PASSWORD '${POSTGRES_PASSWORD}';"
         sudo -u postgres createdb -O postgres "${POSTGRES_DB}" || true
         sudo -u postgres psql -d "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS hstore;" || true
