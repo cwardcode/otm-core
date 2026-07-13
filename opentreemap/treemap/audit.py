@@ -12,7 +12,7 @@ from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 
 from django.forms.models import model_to_dict
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.dateformat import format as dformat
 from django.dispatch import receiver
 from django.db import models as django_models

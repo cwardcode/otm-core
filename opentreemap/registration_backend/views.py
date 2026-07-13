@@ -7,7 +7,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.auth.forms import AuthenticationForm
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.contrib.sites.requests import RequestSite
 from django.contrib.auth.views import\

@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import resolve_url
 from django.utils.encoding import force_str
 from django.utils.http import urlencode
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from treemap.util import get_login_redirect_path
 

@@ -20,7 +20,7 @@ from django.contrib.gis.measure import D
 from django.db import IntegrityError, transaction
 from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import (UserManager, AbstractBaseUser,
                                         PermissionsMixin)
 from django.template.loader import get_template
