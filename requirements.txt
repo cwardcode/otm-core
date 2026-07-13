@@ -20,6 +20,7 @@ jsonschema
 libsass
 modgrammar>=0.9.1
 Pillow
+psycopg[binary]>=3.2.0
 psycopg2-binary>=2.9.0
 python-dateutil
 python-omgeo
