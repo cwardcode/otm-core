@@ -41,8 +41,10 @@ jobs:
         sudo apt-get update
         sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
           postgresql-18 postgresql-client-18 postgresql-18-postgis-3 postgresql-18-postgis-3-scripts postgis
-        sudo service postgresql start || true
-        sudo service postgresql status || true
+        sudo service postgresql stop || true
+        sudo pg_dropcluster 18 main --stop || true
+        sudo pg_createcluster 18 main --start --locale=C.UTF-8
+        sudo pg_lsclusters
         sudo -u postgres psql -c "SELECT version();"
         dpkg -l | grep -E 'postgresql-18|postgis|postgresql-18-postgis' || true
         if ! ls /usr/share/postgresql/18/extension/postgis* 2>/dev/null | grep -q .; then
