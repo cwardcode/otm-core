@@ -41,20 +41,8 @@ jobs:
         sudo apt-get update
         sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
           postgresql-18 postgresql-client-18 postgresql-18-postgis-3 postgresql-18-postgis-3-scripts postgis
-        sudo pg_lsclusters || true
-        if ! sudo pg_lsclusters | grep -qE '^18\s+main\s'; then
-          sudo pg_createcluster 18 main --start --locale=C.UTF-8
-        else
-          sudo pg_ctlcluster 18 main start || true
-        fi
-        sudo pg_lsclusters || true
-        for i in $(seq 1 20); do
-          if sudo -u postgres psql -c 'select 1' >/dev/null 2>&1; then
-            break
-          fi
-          echo "Waiting for PostgreSQL to accept connections..."
-          sleep 2
-        done
+        sudo service postgresql start || true
+        sudo service postgresql status || true
         sudo -u postgres psql -c "ALTER USER postgres PASSWORD '${POSTGRES_PASSWORD}';"
         sudo -u postgres createdb -O postgres "${POSTGRES_DB}" || true
         sudo -u postgres psql -d "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS hstore;" || true
