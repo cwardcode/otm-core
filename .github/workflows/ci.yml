@@ -49,7 +49,9 @@ jobs:
         pip install coveralls
 
     - name: Install JS dependencies
-      run: npm install
+      run: |
+        npm install yarn
+        yarn install
 
     - name: Setup Database
       run: |
