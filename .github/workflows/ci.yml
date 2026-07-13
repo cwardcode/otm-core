@@ -41,10 +41,10 @@ jobs:
     - name: Install libpython3.11-dev
       run: sudo apt-get install -y libpython3.11-dev
 
-    - name: Set up Python 3.11
+    - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.12'
 
     - name: Set up Node.js 24
       uses: actions/setup-node@v4
