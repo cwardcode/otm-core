@@ -48,6 +48,13 @@ jobs:
           sudo pg_ctlcluster 18 main start || true
         fi
         sudo pg_lsclusters || true
+        for i in $(seq 1 20); do
+          if sudo -u postgres psql -c 'select 1' >/dev/null 2>&1; then
+            break
+          fi
+          echo "Waiting for PostgreSQL to accept connections..."
+          sleep 2
+        done
         sudo -u postgres psql -c "ALTER USER postgres PASSWORD '${POSTGRES_PASSWORD}';"
         sudo -u postgres createdb -O postgres "${POSTGRES_DB}" || true
         sudo -u postgres psql -d "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS hstore;" || true
