@@ -169,7 +169,13 @@ class trees(object):
 
     # TODO: READONLY restore when implemented
     # Note: this is a tuple and not a set so it will be ordered in exports
-    ALL = tuple([p[1] for p in EXPORTER_PAIRS if p[1] not in IGNORED])
+    _all = []
+    for pair in EXPORTER_PAIRS:
+        field = pair[1]
+        if field not in IGNORED:
+            _all.append(field)
+    ALL = tuple(_all)
+    del _all
 
 
 def title_case(field_names):
