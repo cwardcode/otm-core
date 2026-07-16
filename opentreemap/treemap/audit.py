@@ -17,8 +17,7 @@ from django.utils.dateformat import format as dformat
 from django.dispatch import receiver
 from django.db import models as django_models
 from django.db.models.signals import post_save, post_delete
-from django.db.models.fields import FieldDoesNotExist
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError, connection, transaction
 from django.conf import settings
 from django.contrib.auth.models import Permission

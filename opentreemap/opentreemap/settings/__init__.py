@@ -9,6 +9,8 @@
 # WARNING: !!! DO NOT ADD SETTINGS TO THIS FILE !!!
 # WARNING: !!! USE THIS FILE EXCLUSIVELY TO MANAGE SETTING IMPORTS !!!
 
+import os
+
 STORAGE_UNITS = {}
 DISPLAY_DEFAULTS = {}
 MIDDLEWARE = ()
@@ -33,7 +35,10 @@ EXTRA_UI_TESTS = ()
 EXTRA_DISPLAY_DEFAULTS = {}
 EXTRA_STORAGE_UNITS = {}
 
-from opentreemap.settings.local_settings import *  # NOQA
+try:
+    from opentreemap.settings.local_settings import *  # NOQA
+except ImportError:
+    from ci.local_settings import *  # NOQA
 
 INSTALLED_APPS = EXTRA_APPS + INSTALLED_APPS
 MIDDLEWARE = EXTRA_MIDDLEWARE + MIDDLEWARE
