@@ -477,7 +477,7 @@ class Species(PendingAuditable, models.Model):
     updated_at = models.DateTimeField(  # TODO: remove null=True
         null=True, auto_now=True, editable=False, db_index=True)
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
     def __init__(self, *args, **kwargs):
         super(Species, self).__init__(*args, **kwargs)
@@ -627,7 +627,7 @@ class MapFeature(Convertible, UDFModel, PendingAuditable):
     updated_by = models.ForeignKey(User, null=True, blank=True,
                                    verbose_name=_("Last Updated By", on_delete=models.CASCADE))
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
     # subclass responsibilities
     area_field_name = None
@@ -969,7 +969,7 @@ class Plot(MapFeature, ValidationMixin):
     owner_orig_id = models.CharField(max_length=255, null=True, blank=True,
                                      verbose_name=_("Custom ID"))
 
-    objects = models.GeoManager()
+    objects = models.Manager()
     is_editable = True
 
     _terminology = {'singular': _('Planting Site'),
@@ -1087,7 +1087,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
 
     users_can_delete_own_creations = True
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
     _stewardship_choices = [
         'Watered',
@@ -1421,7 +1421,7 @@ class TreePhoto(MapFeaturePhoto):
         return data
 
 
-class BoundaryManager(models.GeoManager):
+class BoundaryManager(models.Manager):
     """
     By default, exclude anonymous boundaries from queries.
     """
@@ -1459,7 +1459,7 @@ class Boundary(models.Model):
 
     objects = BoundaryManager()
     # Allows access to anonymous boundaries
-    all_objects = models.GeoManager()
+    all_objects = models.Manager()
 
     def __unicode__(self):
         return self.name
@@ -1505,7 +1505,7 @@ class ITreeRegion(ITreeRegionAbstract, models.Model):
     code = models.CharField(max_length=40, unique=True)
     geometry = models.MultiPolygonField(srid=3857)
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
 
 class ITreeCodeOverride(models.Model, Auditable):

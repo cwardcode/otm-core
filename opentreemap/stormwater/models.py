@@ -19,7 +19,7 @@ class PolygonalMapFeature(MapFeature):
 
     polygon = models.MultiPolygonField(srid=3857)
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
     @classproperty
     def always_writable(cls):
@@ -81,7 +81,7 @@ class PolygonalMapFeature(MapFeature):
 
 
 class Bioswale(PolygonalMapFeature, ValidationMixin):
-    objects = models.GeoManager()
+    objects = models.Manager()
     drainage_area = models.FloatField(
         null=True,
         blank=True,
@@ -143,7 +143,7 @@ class Bioswale(PolygonalMapFeature, ValidationMixin):
 
 
 class RainGarden(PolygonalMapFeature, ValidationMixin):
-    objects = models.GeoManager()
+    objects = models.Manager()
     drainage_area = models.FloatField(
         null=True,
         blank=True,
@@ -205,7 +205,7 @@ class RainGarden(PolygonalMapFeature, ValidationMixin):
 
 
 class RainBarrel(MapFeature):
-    objects = models.GeoManager()
+    objects = models.Manager()
     capacity = models.FloatField(
         verbose_name=_("Capacity"),
         error_messages={'invalid': _("Please enter a number.")})

@@ -129,7 +129,7 @@ def get_instance_permission_spec(instance=None):
 class InstanceBounds(models.Model):
     """ Center of the map when loading the instance """
     geom = models.MultiPolygonField(srid=3857)
-    objects = models.GeoManager()
+    objects = models.Manager()
 
     @classmethod
     def create_from_point(cls, x, y, half_edge=50000):
@@ -308,7 +308,7 @@ class Instance(models.Model):
     canopy_boundary_category = models.CharField(max_length=255, default='',
                                                 blank=True)
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
     def __unicode__(self):
         return self.name
