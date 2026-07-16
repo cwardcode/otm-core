@@ -625,7 +625,7 @@ class MapFeature(Convertible, UDFModel, PendingAuditable):
     updated_at = models.DateTimeField(default=timezone.now,
                                       verbose_name=_("Last Updated"))
     updated_by = models.ForeignKey(User, null=True, blank=True,
-                                   verbose_name=_("Last Updated By", on_delete=models.CASCADE))
+                                   verbose_name=_("Last Updated By"), on_delete=models.CASCADE)
 
     objects = models.Manager()
 
@@ -1071,7 +1071,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
     plot = models.ForeignKey(Plot, on_delete=models.CASCADE)
 
     species = models.ForeignKey(Species, null=True, blank=True,
-                                verbose_name=_("Species", on_delete=models.CASCADE))
+                                verbose_name=_("Species"), on_delete=models.CASCADE)
 
     readonly = models.BooleanField(default=False)
     diameter = models.FloatField(null=True, blank=True,

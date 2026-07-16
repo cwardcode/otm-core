@@ -7,6 +7,7 @@ caught statically before runtime. Run this before commits to catch issues early.
 
 Issues checked:
 - collections.Iterable/Mapping/etc moved to collections.abc (Python 3.10+)
+- ForeignKey missing on_delete parameter (required in Django 2.0+)
 - GeoManager removed in Django 3.2+ (use Manager)
 - Deprecated Django utility imports (ugettext, force_text, etc)
 - django.conf.urls.url removed in Django 4.0+ (use django.urls.re_path)
@@ -98,6 +99,21 @@ class CompatibilityChecker(ast.NodeVisitor):
                 node.lineno,
                 f"'{node.attr}' was removed in Django 3.2+. {suggestion}"
             ))
+        self.generic_visit(node)
+    
+    def visit_Call(self, node: ast.Call):
+        """Check for ForeignKey without on_delete parameter."""
+        # Check if this is a ForeignKey call
+        if isinstance(node.func, ast.Attribute):
+            if node.func.attr == 'ForeignKey':
+                # Check if on_delete is in kwargs
+                has_on_delete = any(kw.arg == 'on_delete' for kw in node.keywords)
+                if not has_on_delete:
+                    self.issues.append((
+                        node.lineno,
+                        "ForeignKey missing 'on_delete' parameter (required in Django 2.0+). "
+                        "Add: on_delete=models.CASCADE (or another deletion behavior)"
+                    ))
         self.generic_visit(node)
     
     @staticmethod
