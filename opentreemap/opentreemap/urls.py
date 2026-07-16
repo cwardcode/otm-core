@@ -6,9 +6,9 @@
 from django.conf import settings
 from django.urls import include, re_path
 from django.contrib import admin
-from django.contrib.auth.views import logout
+from django.contrib.auth.views import LogoutView
 from django.views.generic import RedirectView
-from django.views.i18n import javascript_catalog
+from django.views.i18n import JavaScriptCatalog
 
 from treemap import routes
 from treemap.ecobenefits import within_itree_regions_view
@@ -50,7 +50,7 @@ urlpatterns = [
     # The profile view is handled specially by redirecting to
     # the page of the currently logged in user
     re_path(r'^accounts/profile/$', routes.profile_to_user_page, name='profile'),
-    re_path(r'^accounts/logout/$', logout, {'next_page': '/'}),
+    re_path(r'^accounts/logout/$', LogoutView.as_view(next_page='/')),
     re_path(r'^accounts/forgot-username/$', routes.forgot_username,
         name='forgot_username'),
     re_path(r'^accounts/resend-activation-email/$', routes.resend_activation_email,
@@ -89,7 +89,7 @@ if settings.USE_JS_I18N:
     }
 
     urlpatterns = [
-        re_path(r'^jsi18n/$', javascript_catalog, js_i18n_info_dict)
+        re_path(r'^jsi18n/$', JavaScriptCatalog.as_view(**js_i18n_info_dict))
     ] + urlpatterns
 
 if settings.EXTRA_URLS:
@@ -99,7 +99,7 @@ if settings.EXTRA_URLS:
     ] + urlpatterns
 
 if settings.DEBUG:
-    urlpatterns = [re_path(r'^admin/', include(admin.site.urls))] + urlpatterns
+    urlpatterns = [re_path(r'^admin/', admin.site.urls)] + urlpatterns
 
 handler404 = 'treemap.routes.error_404_page'
 handler500 = 'treemap.routes.error_500_page'

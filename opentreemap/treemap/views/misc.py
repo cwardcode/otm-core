@@ -295,7 +295,7 @@ def public_instances_geojson(request):
 def error_page(status_code):
     template = '%s.html' % status_code
 
-    def inner_fn(request):
+    def inner_fn(request, exception=None):
         reasons = {
             404: _('URL or resource not found'),
             500: _('An unhandled error occured'),

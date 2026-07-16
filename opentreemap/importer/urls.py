@@ -11,6 +11,8 @@ _type_pattern = '(?P<import_type>(species|tree))'
 _ie_pattern = '(?P<import_event_id>\d+)'
 _import_api_pattern = _type_pattern + '/' + _ie_pattern
 
+app_name = 'importer'
+
 
 urlpatterns = [
     re_path(r'^$', routes.list_imports, name='list_imports'),
