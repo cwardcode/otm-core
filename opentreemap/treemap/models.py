@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
-
-
-
 import hashlib
 import re
 from copy import copy
@@ -274,7 +268,7 @@ class AbstractUniqueEmailUser(AbstractBaseUser, PermissionsMixin):
             '@/./+/-/_ characters'),
         validators=[
             validators.RegexValidator(
-                re.compile('^[\w.@+-]+$'),
+                re.compile(r'^[\w.@+-]+$'),
                 _('Enter a valid username.'), 'invalid')
         ])
     email = models.EmailField(_('email address'), blank=True, unique=True)
