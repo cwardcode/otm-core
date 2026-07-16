@@ -20,12 +20,14 @@ try:
     from django.db import models as django_db_models
     from django.urls import reverse as django_reverse
     import django.core as django_core
+    from django.contrib.gis.db import models as gis_models
 except Exception:  # pragma: no cover - import may fail before Django is installed
     django_encoding = None
     django_translation = None
     django_db_models = None
     django_reverse = None
     django_core = None
+    gis_models = None
 
 if django_encoding is not None:
     if not hasattr(django_encoding, 'smart_text'):
@@ -51,13 +53,11 @@ if django_db_models is not None and not hasattr(django_db_models, 'NullBooleanFi
 
     django_db_models.NullBooleanField = NullBooleanField
 
-    try:
-        from django.contrib.gis.db import models as gis_models
-    except Exception:  # pragma: no cover - GIS deps may be unavailable locally
-        gis_models = None
-
     if gis_models is not None and not hasattr(gis_models, 'NullBooleanField'):
         gis_models.NullBooleanField = NullBooleanField
+
+if gis_models is not None and not hasattr(gis_models, 'GeoManager'):
+    gis_models.GeoManager = gis_models.Manager
 
 if django_core is not None:
     if not hasattr(django_core, 'urlresolvers'):

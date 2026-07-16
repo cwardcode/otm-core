@@ -13,11 +13,13 @@ if __name__ == "__main__":
         from django.utils import translation as django_translation
         from django.db import models as django_db_models
         import django.core as django_core
+        from django.contrib.gis.db import models as gis_models
     except Exception:
         django_encoding = None
         django_translation = None
         django_db_models = None
         django_core = None
+        gis_models = None
 
     if django_encoding is not None:
         if not hasattr(django_encoding, 'smart_text'):
@@ -42,6 +44,9 @@ if __name__ == "__main__":
                 super(NullBooleanField, self).__init__(*args, **kwargs)
 
         django_db_models.NullBooleanField = NullBooleanField
+
+    if gis_models is not None and not hasattr(gis_models, 'GeoManager'):
+        gis_models.GeoManager = gis_models.Manager
 
     if django_core is not None and not hasattr(django_core, 'urlresolvers'):
         import django.urls as django_urls
