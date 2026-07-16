@@ -56,7 +56,7 @@ import json
 import copy
 import re
 from pprint import pformat
-from collections import Iterable
+from collections.abc import Iterable
 from datetime import date, datetime
 from decimal import Decimal
 
