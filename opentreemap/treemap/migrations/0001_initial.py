@@ -291,7 +291,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Plot',
             fields=[
-                ('mapfeature_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='treemap.MapFeature')),
+                ('mapfeature_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='treemap.MapFeature', on_delete=models.CASCADE)),
                 ('width', models.FloatField(help_text='Plot Width', null=True, blank=True)),
                 ('length', models.FloatField(help_text='Plot Length', null=True, blank=True)),
                 ('owner_orig_id', models.CharField(max_length=255, null=True, blank=True)),
@@ -304,7 +304,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TreePhoto',
             fields=[
-                ('mapfeaturephoto_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='treemap.MapFeaturePhoto')),
+                ('mapfeaturephoto_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='treemap.MapFeaturePhoto', on_delete=models.CASCADE)),
                 ('tree', models.ForeignKey(to='treemap.Tree', on_delete=models.CASCADE)),
             ],
             bases=('treemap.mapfeaturephoto',),
