@@ -18,6 +18,15 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import (UserManager, AbstractBaseUser,
                                         PermissionsMixin)
 from django.template.loader import get_template
+
+# django-tagging imports deprecated Django helpers that were removed in
+# newer Django releases. Provide compatibility aliases before importing it.
+from django.utils import encoding as django_encoding
+if not hasattr(django_encoding, 'smart_text'):
+    django_encoding.smart_text = django_encoding.force_str
+if not hasattr(django_encoding, 'smart_str'):
+    django_encoding.smart_str = django_encoding.force_str
+
 from tagging.registry import register
 
 from treemap.species.codes import ITREE_REGIONS, get_itree_code
