@@ -16,7 +16,7 @@ from django.db import connection
 from django.test.utils import override_settings
 from django.http import HttpRequest, HttpResponseBadRequest
 from django.contrib.gis.geos import Point
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from api.test_utils import setupTreemapEnv, mkPlot, mkTree
 

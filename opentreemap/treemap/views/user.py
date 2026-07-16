@@ -17,7 +17,7 @@ from django.http import HttpResponseRedirect
 from django.http.request import QueryDict
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from opentreemap.util import json_from_request, dotted_split
 

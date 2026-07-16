@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError
 from django.contrib.gis.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils.timezone import now
 
 from treemap.models import User, Instance

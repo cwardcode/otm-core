@@ -16,7 +16,7 @@ class AppEvent(models.Model):
     handler_assigned_at = models.DateTimeField(null=True)
     handled_by = models.CharField(max_length=255, blank=True)
     handled_at = models.DateTimeField(null=True)
-    handler_succeeded = models.NullBooleanField(null=True)
+    handler_succeeded = models.BooleanField(null=True)
     handler_log = models.TextField(blank=True)
 
     @classmethod

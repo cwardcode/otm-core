@@ -14,7 +14,7 @@ from django.db.models import Q
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from django_tinsel.exceptions import HttpBadRequestException
 from treemap.lib.object_caches import role_field_permissions

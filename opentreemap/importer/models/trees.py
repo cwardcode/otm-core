@@ -8,7 +8,7 @@ import json
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.db import transaction
 
 from treemap.models import Species, Plot, Tree

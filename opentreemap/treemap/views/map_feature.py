@@ -14,7 +14,7 @@ from django.conf import settings
 from django.db import transaction
 from django.contrib.gis.geos import Point, MultiPolygon, Polygon
 from django.contrib.gis.db.models import GeometryField
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from opentreemap.util import dotted_split
 from treemap.lib.hide_at_zoom import (update_hide_at_zoom_after_move,

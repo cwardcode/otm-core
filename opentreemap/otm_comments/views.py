@@ -7,7 +7,7 @@ from functools import partial
 
 from django.core.paginator import Paginator, EmptyPage
 from django.db import transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from django_tinsel.utils import decorate as do
 from django_tinsel.decorators import json_api_call, render_template

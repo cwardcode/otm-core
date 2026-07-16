@@ -5,7 +5,7 @@
 
 from copy import deepcopy
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from opentreemap.util import json_from_request
 

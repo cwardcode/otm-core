@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 from django.contrib.gis.db import models
 from django.db import transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from treemap.ecobenefits import has_itree_code, all_itree_codes
 from treemap.models import (Species, ITreeCodeOverride, ITreeRegion, User)

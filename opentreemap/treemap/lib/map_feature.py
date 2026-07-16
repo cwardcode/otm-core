@@ -12,7 +12,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.formats import number_format
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.db.models import Q
 
 from treemap.audit import Audit, Role

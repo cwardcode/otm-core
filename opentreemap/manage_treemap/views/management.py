@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import URLValidator, validate_email
 from django.shortcuts import redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from manage_treemap.views import update_instance_fields
 from manage_treemap.views.photo import get_photos

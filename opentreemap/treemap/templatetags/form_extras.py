@@ -12,7 +12,7 @@ from django.template.loader import get_template
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.utils import dateformat
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.conf import settings
 
 from opentreemap.util import dotted_split

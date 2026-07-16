@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from opentreemap.context_processors import REPLACEABLE_TERMS
 from opentreemap.util import json_from_request, dotted_split

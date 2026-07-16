@@ -19,14 +19,7 @@ from django.contrib.auth.models import (UserManager, AbstractBaseUser,
                                         PermissionsMixin)
 from django.template.loader import get_template
 
-# django-tagging imports deprecated Django helpers that were removed in
-# newer Django releases. Provide compatibility aliases before importing it.
-from django.utils import encoding as django_encoding
-if not hasattr(django_encoding, 'smart_text'):
-    django_encoding.smart_text = django_encoding.force_str
-if not hasattr(django_encoding, 'smart_str'):
-    django_encoding.smart_str = django_encoding.force_str
-
+# django-tagging is imported below; it uses modern imports now
 from tagging.registry import register
 
 from treemap.species.codes import ITREE_REGIONS, get_itree_code
@@ -458,17 +451,17 @@ class Species(PendingAuditable, models.Model):
                                           verbose_name='Other Part of Name')
 
     # From original OTM (some renamed) ###
-    is_native = models.NullBooleanField(verbose_name='Native to Region')
+    is_native = models.BooleanField(null=True, verbose_name='Native to Region')
     flowering_period = models.CharField(max_length=255, blank=True,
                                         verbose_name='Flowering Period')
     fruit_or_nut_period = models.CharField(max_length=255, blank=True,
                                            verbose_name='Fruit or Nut Period')
-    fall_conspicuous = models.NullBooleanField(verbose_name='Fall Conspicuous')
-    flower_conspicuous = models.NullBooleanField(
-        verbose_name='Flower Conspicuous')
-    palatable_human = models.NullBooleanField(verbose_name='Edible')
-    has_wildlife_value = models.NullBooleanField(
-        verbose_name='Has Wildlife Value')
+    fall_conspicuous = models.BooleanField(null=True, verbose_name='Fall Conspicuous')
+    flower_conspicuous = models.BooleanField(
+        null=True, verbose_name='Flower Conspicuous')
+    palatable_human = models.BooleanField(null=True, verbose_name='Edible')
+    has_wildlife_value = models.BooleanField(
+        null=True, verbose_name='Has Wildlife Value')
     fact_sheet_url = models.URLField(max_length=255, blank=True,
                                      verbose_name='Fact Sheet URL')
     plant_guide_url = models.URLField(max_length=255, blank=True,

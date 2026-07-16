@@ -62,7 +62,7 @@ from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 from django.contrib.gis.db import models
 from django.db import transaction
@@ -878,14 +878,14 @@ class UserDefinedFieldDefinition(models.Model):
             elif isinstance(value, datetime):
                 return value.strftime(DATETIME_FORMAT)
         elif isinstance(value, bool):
-            return force_text(value).lower()
+            return force_str(value).lower()
         elif isinstance(value, (int, float, Decimal)):
-            return force_text(value)
+            return force_str(value)
         # Order matters. Strings are Iterable.
         elif isinstance(value, str):
             return value
         elif isinstance(value, Iterable):
-            return force_text(json.dumps(value, cls=DecimalEncoder))
+            return force_str(json.dumps(value, cls=DecimalEncoder))
         # Setting a scalar choice udf value to None normally removes
         # the udf key from the hstore, during UDFModel.clean_fields(),
         # but if None reaches here, we must make sure it is not
@@ -893,7 +893,7 @@ class UserDefinedFieldDefinition(models.Model):
         elif value is None:
             return value
         else:
-            return force_text(value)
+            return force_str(value)
 
     def clean_value(self, value, datatype_dict=None):
         """

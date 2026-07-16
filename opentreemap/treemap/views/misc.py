@@ -8,8 +8,8 @@ import re
 import sass
 import json
 
-from django.utils.translation import ugettext as _
-from django.core.urlresolvers import reverse
+from django.utils.translation import gettext as _
+from django.urls import reverse
 from django.conf import settings
 from django.contrib.gis.geos import Polygon
 from django.core.exceptions import ValidationError

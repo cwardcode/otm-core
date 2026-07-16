@@ -6,7 +6,7 @@
 from django.core.paginator import Paginator, EmptyPage
 from django.db import transaction
 from django.http import Http404
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from opentreemap.util import get_ids_from_request
 

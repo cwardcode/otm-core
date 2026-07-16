@@ -16,7 +16,7 @@ from django.shortcuts import get_object_or_404, render
 from django.core.paginator import Paginator, Page, EmptyPage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from treemap.models import Species, Tree, User, MapFeature
 from treemap.units import (storage_to_instance_units_factor,

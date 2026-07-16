@@ -10,7 +10,7 @@ from io import BytesIO
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from registration.models import RegistrationProfile
 

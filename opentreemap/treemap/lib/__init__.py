@@ -6,7 +6,7 @@
 import re
 
 from django.db import connection
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils.formats import number_format
 
 from treemap.units import get_units, get_display_value

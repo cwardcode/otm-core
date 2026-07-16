@@ -9,7 +9,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.utils.timezone import now
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from opentreemap.util import request_is_embedded
 
