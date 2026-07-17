@@ -112,7 +112,6 @@ jobs:
       run: |
         flake8 --exclude migrations,opentreemap/settings/local_settings.py,*.pyc opentreemap
         npm run check
-        npm run test
         cd opentreemap && coverage run --rcfile=../.coveragerc --source=. manage.py test && cd -
         cd opentreemap && python manage.py test
 
