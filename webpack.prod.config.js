@@ -3,7 +3,7 @@
 const { merge } = require('webpack-merge');
 const webpack = require('webpack');
 const config = require('./webpack.common.config.js');
-const reversePath = __dirname + '/assets/js/shim/reverse.js';
+const reversePath = __dirname + '/assets/js/shim/reverse-shim.js';
 
 module.exports = merge(config, {
     mode: 'production',
@@ -20,19 +20,6 @@ module.exports = merge(config, {
         alias: Object.assign({}, config.resolve.alias, { reverse: reversePath })
     },
     devtool: 'source-map',
-    module: {
-        rules: [
-            {
-                include: reversePath,
-                use: [
-                    {
-                        loader: 'exports-loader',
-                        options: { exports: 'Urls' }
-                    }
-                ]
-            }
-        ]
-    },
     optimization: {
         minimize: true
     }
