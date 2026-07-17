@@ -107,6 +107,7 @@ def detail_link(thing):
     else:
         return None
 
+
 AUDIT_MODEL_LOOKUP_FNS = {
     'mapfeature': lambda id: MapFeature.objects.get(pk=id),
     'tree': lambda id: Tree.objects.get(pk=id),

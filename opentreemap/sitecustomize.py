@@ -16,16 +16,20 @@ if PROJECT_ROOT not in sys.path:
 try:
     from django.utils import encoding as django_encoding
     import django.core as django_core
-except Exception:  # pragma: no cover - import may fail before Django is installed
+except Exception:  # pragma: no cover
     django_encoding = None
     django_core = None
 
 if django_encoding is not None:
     # Implement proper shims for unmaintained packages like django-tagging
     # These maintain the original behavior more faithfully than simple aliasing
-    
+
     if not hasattr(django_encoding, 'smart_text'):
-        def smart_text(s, encoding='utf-8', strings_only=False, errors='strict'):
+        def smart_text(
+                s,
+                encoding='utf-8',
+                strings_only=False,
+                errors='strict'):
             """
             Return a string representing 's'. Treats bytestrings using the
             specified encoding. If strings_only is True, don't attempt
@@ -46,11 +50,15 @@ if django_encoding is not None:
             if strings_only:
                 return s
             return str(s)
-        
+
         django_encoding.smart_text = smart_text
 
     if not hasattr(django_encoding, 'smart_str'):
-        def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
+        def smart_str(
+                s,
+                encoding='utf-8',
+                strings_only=False,
+                errors='strict'):
             """
             Return a string representing 's'. Treats bytestrings using the
             specified encoding. If strings_only is True, don't attempt
@@ -71,11 +79,15 @@ if django_encoding is not None:
             if strings_only:
                 return s
             return str(s)
-        
+
         django_encoding.smart_str = smart_str
 
     if not hasattr(django_encoding, 'force_text'):
-        def force_text(s, encoding='utf-8', strings_only=False, errors='strict'):
+        def force_text(
+                s,
+                encoding='utf-8',
+                strings_only=False,
+                errors='strict'):
             """
             Similar to smart_text, except that lazy instances are resolved to
             strings, rather than kept as lazy objects.
@@ -98,7 +110,7 @@ if django_encoding is not None:
             if strings_only:
                 return s
             return str(s)
-        
+
         django_encoding.force_text = force_text
 
 if django_core is not None:

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import string
 import re
 import sass
@@ -188,7 +186,7 @@ def species_list(request, instance):
         display_name = "%s [%s]" % (sdict['common_name'],
                                     sci_name)
 
-        tokens = tokenize(species)
+        tokens = tokenize(sdict)
 
         sdict.update({
             'scientific_name': sci_name,
@@ -225,7 +223,7 @@ def tags_list(request, instance):
         return {token.strip(string.punctuation) for token in tokens}
 
     def annotate_tag_dict(sdict):
-        tokens = tokenize(tag)
+        tokens = tokenize(sdict)
         tag_name = Tag.objects.filter(id=sdict['tag']).values('name')
         tag_name_value = tag_name[0]['name']
         sdict.update({
@@ -316,14 +314,16 @@ def error_page(status_code):
 
     return inner_fn
 
+
 def filter_actions(request, instance, feature_id, tree_id, tree_action):
     from treemap.udf import UserDefinedCollectionValue
-    qs = UserDefinedCollectionValue.objects.filter(model_id=tree_id).values('id', 'data')
+    qs = UserDefinedCollectionValue.objects.filter(
+        model_id=tree_id).values('id', 'data')
     qs_list = list(qs)
     if tree_action == 'All':
-       return {
-        "actions": qs_list
-    }
+        return {
+            "actions": qs_list
+        }
 
     filtered_list = []
     for i in range(len(qs_list)):

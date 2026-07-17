@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from functools import partial
 
 from django.core.paginator import Paginator, EmptyPage
@@ -81,7 +79,8 @@ def comment_moderation(request, instance):
                         archived=is_archived, sort=sort, removed=is_removed,
                         page=paged_comments.number)
 
-    comments_url_for_pagination = urlizer.re_path('archived', 'removed', 'sort')
+    comments_url_for_pagination = urlizer.re_path(
+        'archived', 'removed', 'sort')
     comments_url_for_sort = urlizer.re_path('archived', 'removed')
 
     full_params = urlizer.params('archived', 'removed', 'sort', 'page')

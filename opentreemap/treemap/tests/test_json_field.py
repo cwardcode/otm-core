@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from treemap.tests import make_instance
 from treemap.instance import Instance
 from treemap.tests.base import OTMTestCase
@@ -59,7 +57,7 @@ class JsonFieldTests(OTMTestCase):
         self.instance.save()
 
         self.assertEqual(set(Instance.objects.filter(config__contains='a')),
-                          {self.instance})
+                         {self.instance})
 
         self.assertEqual(set(Instance.objects.filter(config__contains='x')),
-                          set())
+                         set())

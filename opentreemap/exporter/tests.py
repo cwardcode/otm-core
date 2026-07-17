@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import csv
 import json
 
@@ -141,7 +139,7 @@ class ExportTreeTaskTest(AsyncCSVTestCase):
     @override_settings(FEATURE_BACKEND_FUNCTION=None)
     def test_psuedo_async_tree_export(self):
         self.assertPsuedoAsyncTaskWorks('tree', self.user, 'Diameter', '2.0',
-                                        '.*tree_export(_\d+)?\.csv')
+                                        '.*tree_export(_\\d+)?\\.csv')
 
 
 class ExportSpeciesTaskTest(AsyncCSVTestCase):
@@ -160,8 +158,12 @@ class ExportSpeciesTaskTest(AsyncCSVTestCase):
     @media_dir
     @override_settings(FEATURE_BACKEND_FUNCTION=None)
     def test_psuedo_async_species_export(self):
-        self.assertPsuedoAsyncTaskWorks('species', self.user, 'Common Name',
-                                        'foo', '.*species_export(_\d+)?\.csv')
+        self.assertPsuedoAsyncTaskWorks(
+            'species',
+            self.user,
+            'Common Name',
+            'foo',
+            '.*species_export(_\\d+)?\\.csv')
 
 
 class UserExportsTestCase(OTMTestCase):
@@ -340,10 +342,11 @@ class UserExportsTest(UserExportsTestCase):
             .filter(model_id=self.user1.get_instance_user(self.instance).pk)\
             .update(created=last_week)
 
-        Audit.objects.filter(model='InstanceUser')\
-            .filter(model_id=
-                    self.commander.get_instance_user(self.instance).pk)\
-            .update(created=last_week)
+        Audit.objects.filter(
+            model='InstanceUser') .filter(
+            model_id=self.commander.get_instance_user(
+                self.instance).pk) .update(
+                created=last_week)
 
         Audit.objects.filter(model='InstanceUser')\
             .filter(model_id=self.user2.get_instance_user(self.instance).pk)\

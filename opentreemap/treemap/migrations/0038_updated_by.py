@@ -21,7 +21,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='mapfeature',
             name='updated_by',
-            field=models.ForeignKey(blank=True, null=True,
-                                    to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                to=settings.AUTH_USER_MODEL,
+                on_delete=models.CASCADE),
         ),
     ]

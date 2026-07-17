@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import json
 import io
 import csv
@@ -336,7 +334,8 @@ def _get_tree_limit_context(ie):
 
 
 def _get_status_panels(ie, instance, panel_name, page_number):
-    get_page = lambda spec_name: page_number if spec_name == panel_name else 1
+    def get_page(
+        spec_name): return page_number if spec_name == panel_name else 1
 
     panels = [_get_status_panel(instance, ie, spec, get_page(spec['name']))
               for spec in _get_status_panel_specs(ie)]

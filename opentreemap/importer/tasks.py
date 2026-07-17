@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import json
 
 from celery import shared_task, chord
@@ -53,7 +51,8 @@ def _create_rows(ie, reader):
 
     for row in reader:
         data = clean_row_data(row)
-        if len([_f for _f in list(data.values()) if _f]) > 0:  # skip blank rows
+        if len([_f for _f in list(data.values()) if _f]
+               ) > 0:  # skip blank rows
             data = json.dumps(data)
             rows.append(RowModel(data=data, import_event=ie, idx=idx))
 
@@ -127,7 +126,7 @@ def _assure_status_is_at_least_verifying(ie):
 @shared_task()
 def _validate_rows(import_type, import_event_id, start_row_id):
     ie = _get_import_event(import_type, import_event_id)
-    rows = ie.rows()[start_row_id:(start_row_id+settings.IMPORT_BATCH_SIZE)]
+    rows = ie.rows()[start_row_id:(start_row_id + settings.IMPORT_BATCH_SIZE)]
     for row in rows:
         row.validate_row()
     ie.update_progress_timestamp_and_save()

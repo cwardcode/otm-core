@@ -14,6 +14,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='mapfeature',
             name='hide_at_zoom',
-            field=models.IntegerField(default=None, null=True, db_index=True, blank=True),
+            field=models.IntegerField(
+                default=None,
+                null=True,
+                db_index=True,
+                blank=True),
         ),
     ]

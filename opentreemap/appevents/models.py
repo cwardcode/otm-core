@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from django.db import models
 
 from treemap.json_field import JSONField
@@ -27,6 +25,7 @@ class AppEvent(models.Model):
             app_event.data[key] = value
         app_event.save()
         return app_event
+
 
 # The signals need to be imported after the models are defined
 from . import signals  # NOQA

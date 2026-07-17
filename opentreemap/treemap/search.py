@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from json import loads
 from datetime import datetime
 from functools import partial
@@ -312,7 +310,7 @@ def _parse_by_key_type(key, mapping):
 
 def _unparse_scalars(scalars):
     return dict(list(zip([qd['key'] for qd in scalars],
-                    [qd['value'] for qd in scalars])))
+                         [qd['value'] for qd in scalars])))
 
 
 def _parse_collections(by_type, mapping):
@@ -513,6 +511,7 @@ def _simple_pred(key):
 def _hstore_exact_predicate(val):
     return {'__exact': val}
 
+
 # a predicate_builder takes a value for the
 # corresponding predicate type and returns
 # a singleton dictionary with a mapping of
@@ -606,16 +605,16 @@ def _parse_props(props, valuesdict):
 
 
 def _parse_prop(predicate_props, valuesdict, key, val):
-        valid_values = predicate_props['combines_with'].union({key})
-        if not valid_values.issuperset(set(valuesdict.keys())):
-            raise ParseException(
-                'Cannot use these keys together: %s vs %s' %
-                (list(valuesdict.keys()), valid_values))
+    valid_values = predicate_props['combines_with'].union({key})
+    if not valid_values.issuperset(set(valuesdict.keys())):
+        raise ParseException(
+            'Cannot use these keys together: %s vs %s' %
+            (list(valuesdict.keys()), valid_values))
 
-        predicate_builder = predicate_props['predicate_builder']
-        param_pair = predicate_builder(val)
-        # Return a 2-tuple rather than a single-key dict
-        return list(param_pair.items())[0]
+    predicate_builder = predicate_props['predicate_builder']
+    param_pair = predicate_builder(val)
+    # Return a 2-tuple rather than a single-key dict
+    return list(param_pair.items())[0]
 
 
 def _parse_dict_props_for_mapping(mapping, valuesdict):

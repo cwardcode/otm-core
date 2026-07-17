@@ -1,12 +1,12 @@
 
 
-
-
 from io import StringIO
 from json import loads, dumps
 from urllib.parse import urlparse
 
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 import os
 import json
 import base64
@@ -830,11 +830,6 @@ class UpdatePlotAndTree(OTMTestCase):
     # def test_update_creates_tree_with_pending(self):
     #     test_plot = mkPlot(self.instance, self.user)
     #     test_plot_id = test_plot.id
-
-
-
-
-
 
     def test_update_tree(self):
         test_plot = mkPlot(self.instance, self.user)

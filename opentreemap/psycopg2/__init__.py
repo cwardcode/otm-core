@@ -26,7 +26,8 @@ def _load_psycopg2_real() -> ModuleType:
         entry_path = Path(entry).resolve()
         if entry_path in {package_dir, project_root}:
             continue
-        spec = importlib.machinery.PathFinder.find_spec("psycopg2", [str(entry_path)])
+        spec = importlib.machinery.PathFinder.find_spec(
+            "psycopg2", [str(entry_path)])
         if spec is None:
             continue
         origin = getattr(spec, "origin", None)
@@ -45,7 +46,10 @@ def _load_psycopg3() -> ModuleType:
 
     module = ModuleType("psycopg2")
     module.connect = connect
-    module.extras = type("Extras", (), {"register_hstore": staticmethod(hstore.register_hstore)})
+    module.extras = type(
+        "Extras", (), {
+            "register_hstore": staticmethod(
+                hstore.register_hstore)})
     return module
 
 
@@ -71,4 +75,5 @@ for name in dir(_impl):
         continue
     globals()[name] = getattr(_impl, name)
 
-__all__ = getattr(_impl, "__all__", []) or [name for name in globals() if not name.startswith("_")]
+__all__ = getattr(_impl, "__all__", []) or [
+    name for name in globals() if not name.startswith("_")]

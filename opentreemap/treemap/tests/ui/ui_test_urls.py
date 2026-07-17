@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from django.urls import include, re_path
 from django.http import HttpResponse
 

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import copy
 from datetime import datetime
 
@@ -49,7 +47,7 @@ def global_settings(request):
         comment_file_path = finders.find('version.txt')
         with open(comment_file_path, 'r') as f:
             header_comment = f.read()
-    except:
+    except BaseException:
         header_comment = "Version information not available\n"
 
     term = copy.copy(REPLACEABLE_TERMS)

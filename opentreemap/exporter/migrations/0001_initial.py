@@ -16,14 +16,50 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ExportJob',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('status', models.IntegerField(default=0, choices=[(0, 'Pending'), (1, 'Query returned no trees or planting sites.'), (2, 'User has no permissions on this model'), (3, 'Ready'), (-1, 'Something went wrong with your export.')])),
-                ('outfile', models.FileField(upload_to='exports/%Y/%m/%d')),
-                ('created', models.DateTimeField(null=True, blank=True)),
-                ('modified', models.DateTimeField(null=True, blank=True)),
-                ('description', models.CharField(max_length=255)),
-                ('instance', models.ForeignKey(to='treemap.Instance', on_delete=models.CASCADE)),
-                ('user', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
+                ('id',
+                 models.AutoField(
+                     verbose_name='ID',
+                     serialize=False,
+                     auto_created=True,
+                     primary_key=True)),
+                ('status',
+                 models.IntegerField(
+                     default=0,
+                     choices=[
+                         (0,
+                          'Pending'),
+                         (1,
+                          'Query returned no trees or planting sites.'),
+                         (2,
+                          'User has no permissions on this model'),
+                         (3,
+                          'Ready'),
+                         (-1,
+                          'Something went wrong with your export.')])),
+                ('outfile',
+                 models.FileField(
+                     upload_to='exports/%Y/%m/%d')),
+                ('created',
+                 models.DateTimeField(
+                     null=True,
+                     blank=True)),
+                ('modified',
+                 models.DateTimeField(
+                     null=True,
+                     blank=True)),
+                ('description',
+                 models.CharField(
+                     max_length=255)),
+                ('instance',
+                 models.ForeignKey(
+                     to='treemap.Instance',
+                     on_delete=models.CASCADE)),
+                ('user',
+                 models.ForeignKey(
+                     blank=True,
+                     to=settings.AUTH_USER_MODEL,
+                     null=True,
+                     on_delete=models.CASCADE)),
             ],
         ),
     ]

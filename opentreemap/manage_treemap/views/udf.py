@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import json
 
 from django.db import transaction
@@ -155,7 +153,7 @@ def udf_list(request, instance):
     udf_models = [dict_update(model, {
         'specs': [{'udf': udf, 'datatype': _get_type_display(udf)}
                   for udf in udfs if udf.model_type == model['name']]
-        }) for model in udf_models]
+    }) for model in udf_models]
 
     return {
         "udf_models": udf_models,
@@ -218,6 +216,7 @@ def remove_udf_notifications(request, instance):
     instance.save()
 
     return {'success': True}
+
 
 TYPE_MAP = {
     "float": _("Decimal Number"),

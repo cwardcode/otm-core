@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import datetime
 from string import Template
 
@@ -234,8 +232,8 @@ def context_dict_for_plot(request, plot, tree_id=None, **kwargs):
         class UrlTemplate(Template):
             delimiter = '#'
             pattern = '''
-            \#(?:
-                (?P<escaped>\#)         |  # escape with repeated delimiter
+            \\#(?:
+                (?P<escaped>\\#)         |  # escape with repeated delimiter
                 (?P<named>(?:{0}))      |  # "#foo" substitutes foo keyword
                 {{(?P<braced>(?:{0}))}} |  # "#{{foo}}" substitutes foo keyword
                 (?P<invalid>{{}})          # requires a name

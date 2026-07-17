@@ -38,7 +38,7 @@ function idToPlotDetailUrl(id) {
 }
 
 function initMap(data) {}
-window.initMap = initMap
+window.initMap = initMap;
 function init(options) {
     map = options.map;
     embed = options.embed;

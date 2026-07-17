@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import os
 import pytz
 from exceptions import NotImplementedError
@@ -243,7 +241,7 @@ def _base_process_comment(migration_rules, migration_event,
                   "it is assigned to a ContentType (model) "
                   "that does not exist in OTM2 .. SKIPPING"
                   % comment_obj.comment.encode('utf-8'))
-        except:
+        except BaseException:
             # There was a problem handling the comment string when
             # printing the warning message. Ignore it and move on
             # rather than crash the import.

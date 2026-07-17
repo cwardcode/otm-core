@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import json
 import re
 from modgrammar import Grammar, OPTIONAL, G, WORD, OR, ParseError
@@ -198,7 +196,7 @@ def inline_edit_tag(tag, Node):
 
         elems = results.elements
 
-        one_or_none = lambda e: e[1].string if e else None
+        def one_or_none(e): return e[1].string if e else None
 
         label = _token_to_variable(
             elems[0][1].string
@@ -575,6 +573,7 @@ class SearchNode(CreateNode):
     def treat_multichoice_as_choice(self):
         # When used for searching, multichoice and choice fields act the same
         return True
+
 
 register.tag('field', inline_edit_tag('field', FieldNode))
 register.tag('create', inline_edit_tag('create', CreateNode))

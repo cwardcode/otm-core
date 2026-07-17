@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import json
 
 from django.contrib.auth.models import Permission
@@ -57,12 +55,12 @@ class UserRolesTest(OTMTestCase):
         self.factory = RequestFactory()
 
     def _add_user_to_instance_view(self, email):
-            body = {'email': email}
-            return create_user_role(
-                make_request(method='POST',
-                             body=json.dumps(body),
-                             user=self.commander),
-                self.instance)
+        body = {'email': email}
+        return create_user_role(
+            make_request(method='POST',
+                         body=json.dumps(body),
+                         user=self.commander),
+            self.instance)
 
     def test_add_user_to_instance(self):
         mail.outbox = []
@@ -199,7 +197,7 @@ class UserRolesTest(OTMTestCase):
                          user=self.commander),
             self.instance)
 
-        #requery iuser
+        # requery iuser
         iuser = InstanceUser.objects.get(pk=iuser.pk)
         self.assertEqual(iuser.role, new_role)
         self.assertEqual(iuser.admin, False)
@@ -213,7 +211,7 @@ class UserRolesTest(OTMTestCase):
                          user=self.commander),
             self.instance)
 
-        #requery iuser
+        # requery iuser
         iuser = InstanceUser.objects.get(pk=iuser.pk)
         self.assertEqual(iuser.role, new_role)
         self.assertEqual(iuser.admin, True)
@@ -232,7 +230,7 @@ class UserRolesTest(OTMTestCase):
                          user=self.commander),
             self.instance)
 
-        #requery iuser
+        # requery iuser
         iuser = InstanceUser.objects.get(pk=iuser.pk)
         self.assertEqual(iuser.admin, False)
 
@@ -245,7 +243,7 @@ class UserRolesTest(OTMTestCase):
                          user=self.commander),
             self.instance)
 
-        #requery iuser
+        # requery iuser
         iuser = InstanceUser.objects.get(pk=iuser.pk)
         self.assertEqual(iuser.admin, True)
 
@@ -358,7 +356,7 @@ class FieldPermMgmtTest(OTMTestCase):
         request = make_request(method='PUT', body=json_updates)
         roles_update(request, self.instance)
 
-        #requery new_role
+        # requery new_role
         self.new_role = Role.objects.get(pk=self.new_role.pk)
 
         self.assertEqual(1,

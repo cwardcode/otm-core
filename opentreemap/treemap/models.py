@@ -352,8 +352,8 @@ class User(AbstractUniqueEmailUser, Auditable):
             return Audit.objects.filter(instance=None,
                                         model='User',
                                         model_id=self.pk)\
-                                .order_by('created')[0]\
-                                .created
+                .order_by('created')[0]\
+                .created
         except IndexError:
             # A user has no audit records?
             return None
@@ -456,7 +456,8 @@ class Species(PendingAuditable, models.Model):
                                         verbose_name='Flowering Period')
     fruit_or_nut_period = models.CharField(max_length=255, blank=True,
                                            verbose_name='Fruit or Nut Period')
-    fall_conspicuous = models.BooleanField(null=True, verbose_name='Fall Conspicuous')
+    fall_conspicuous = models.BooleanField(
+        null=True, verbose_name='Fall Conspicuous')
     flower_conspicuous = models.BooleanField(
         null=True, verbose_name='Flower Conspicuous')
     palatable_human = models.BooleanField(null=True, verbose_name='Edible')
@@ -544,7 +545,7 @@ class Species(PendingAuditable, models.Model):
         override = ITreeCodeOverride.objects.filter(
             instance_species=self,
             region=ITreeRegion.objects.get(code=region_code),
-            )
+        )
         if override.exists():
             return override[0].itree_code
         else:
@@ -598,6 +599,7 @@ class InstanceUser(Auditable, models.Model):
             return ''
         return '%s %s' % (username, self.instance.name)
 
+
 post_save.connect(invalidate_adjuncts, sender=InstanceUser)
 post_delete.connect(invalidate_adjuncts, sender=InstanceUser)
 
@@ -624,8 +626,12 @@ class MapFeature(Convertible, UDFModel, PendingAuditable):
     # efficient.
     updated_at = models.DateTimeField(default=timezone.now,
                                       verbose_name=_("Last Updated"))
-    updated_by = models.ForeignKey(User, null=True, blank=True,
-                                   verbose_name=_("Last Updated By"), on_delete=models.CASCADE)
+    updated_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        verbose_name=_("Last Updated By"),
+        on_delete=models.CASCADE)
 
     objects = models.Manager()
 
@@ -1070,8 +1076,12 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
 
     plot = models.ForeignKey(Plot, on_delete=models.CASCADE)
 
-    species = models.ForeignKey(Species, null=True, blank=True,
-                                verbose_name=_("Species"), on_delete=models.CASCADE)
+    species = models.ForeignKey(
+        Species,
+        null=True,
+        blank=True,
+        verbose_name=_("Species"),
+        on_delete=models.CASCADE)
 
     readonly = models.BooleanField(default=False)
     diameter = models.FloatField(null=True, blank=True,
@@ -1243,6 +1253,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
         self.plot.update_updated_fields(user)
         self.instance.update_universal_rev()
         super(Tree, self).delete_with_user(user, *args, **kwargs)
+
 
 register(Tree)
 
@@ -1425,6 +1436,7 @@ class BoundaryManager(models.Manager):
     """
     By default, exclude anonymous boundaries from queries.
     """
+
     def get_queryset(self):
         return super(BoundaryManager, self).get_queryset().exclude(
             name='', category='', searchable=False)
@@ -1497,6 +1509,7 @@ class ITreeRegionInMemory(ITreeRegionAbstract):
     into an ITreeRegion-like object and use it with the same interface
     as objects that come out of the database.
     """
+
     def __init__(self, code):
         self.code = code
 

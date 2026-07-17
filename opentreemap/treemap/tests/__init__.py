@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import logging
 from io import StringIO
 import subprocess
@@ -398,6 +396,7 @@ def make_permission(codename, Model, name=None):
 
 def media_dir(f):
     "Helper method for MediaTest classes to force a specific media dir"
+
     def m(self):
         with self._media_dir():
             f(self)
@@ -420,10 +419,10 @@ class LocalMediaTestCase(OTMTestCase):
         self.mediaUrl = '/testingmedia/'
 
     def _media_dir(self):
-        return self.settings(DEFAULT_FILE_STORAGE=
-                             'django.core.files.storage.FileSystemStorage',
-                             MEDIA_ROOT=self.photoDir,
-                             MEDIA_URL=self.mediaUrl)
+        return self.settings(
+            DEFAULT_FILE_STORAGE='django.core.files.storage.FileSystemStorage',
+            MEDIA_ROOT=self.photoDir,
+            MEDIA_URL=self.mediaUrl)
 
     @staticmethod
     def resource_path(name):
@@ -433,7 +432,7 @@ class LocalMediaTestCase(OTMTestCase):
         return path
 
     def load_resource(self, name):
-        return file(self.resource_path(name))
+        return open(self.resource_path(name))
 
     def tearDown(self):
         shutil.rmtree(self.photoDir)

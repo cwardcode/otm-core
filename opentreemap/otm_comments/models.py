@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from threadedcomments.models import ThreadedComment
 
 from django.conf import settings
@@ -58,8 +56,12 @@ class EnhancedThreadedComment(ThreadedComment):
 
 
 class EnhancedThreadedCommentFlag(models.Model, Auditable):
-    comment = models.ForeignKey(EnhancedThreadedComment, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    comment = models.ForeignKey(
+        EnhancedThreadedComment,
+        on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE)
     flagged_at = models.DateTimeField(auto_now_add=True)
     # whether the flag itself was hidden, NOT the related
     # comment. That is decided by `comment.is_removed`

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from copy import deepcopy
 
 from django.contrib.auth.models import Permission
@@ -195,10 +193,10 @@ def roles_list(request, instance):
             'codename')
         for Model in models}
 
-    photo_code_name = lambda action, Model: '{}_{}photo'.format(
+    def photo_code_name(action, Model): return '{}_{}photo'.format(
         action, Model.__name__.lower())
 
-    photo_class_for_model = lambda Model: \
+    def photo_class_for_model(Model): return \
         TreePhoto if Model is Tree else MapFeaturePhoto
 
     model_photo_permissions = {
@@ -224,7 +222,7 @@ def roles_list(request, instance):
             'role': role,
             'has_permission': RolePermissionModel.objects.filter(
                 role=role, permission=p).exists()
-            } for p in permissions]
+        } for p in permissions]
 
     def get_role_model_perms(role, Model):
         return _get_role_model_perms(
@@ -267,10 +265,12 @@ def roles_list(request, instance):
         return list(zip(*[get_field_perms(role, Model) for role in roles]))
 
     def role_model_perms(Model):
-        return list(zip(*[get_role_model_perms(role, Model) for role in roles]))
+        return list(zip(*[get_role_model_perms(role, Model)
+                    for role in roles]))
 
     def role_photo_perms(Model):
-        return list(zip(*[get_role_photo_perms(role, Model) for role in roles]))
+        return list(zip(*[get_role_photo_perms(role, Model)
+                    for role in roles]))
 
     groups = [{
         'role_model_perms': role_model_perms(Model),

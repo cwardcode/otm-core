@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import json
 import psycopg2
 
@@ -46,7 +44,7 @@ def destructure_query_set(node):
         children = [destructure_query_set(c) for c in node.children]
         try:
             child_hash = frozenset(children)
-        except:
+        except BaseException:
             # Necessary for udf collection queries, which contain
             # (selector, dict) pairs, and the dicts are unhashable
             child_hash = dict(children)

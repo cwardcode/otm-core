@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from django.core.exceptions import MultipleObjectsReturned
 
 from django.contrib.gis.db import models
@@ -27,8 +25,11 @@ class MigrationEvent(models.Model):
 
 
 class AbstractRelic(models.Model):
-    migration_event = models.ForeignKey(MigrationEvent,
-                                        null=True, blank=True, on_delete=models.CASCADE)
+    migration_event = models.ForeignKey(
+        MigrationEvent,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE)
     instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
     otm1_model_id = models.IntegerField()
     otm2_model_id = models.IntegerField()

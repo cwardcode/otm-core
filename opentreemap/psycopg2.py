@@ -26,7 +26,8 @@ def _load_driver() -> ModuleType:
         entry_path = Path(entry).resolve()
         if entry_path == self_dir:
             continue
-        spec = importlib.machinery.PathFinder.find_spec("psycopg2", [str(entry_path)])
+        spec = importlib.machinery.PathFinder.find_spec(
+            "psycopg2", [str(entry_path)])
         if spec is None:
             continue
         origin = getattr(spec, "origin", None)
@@ -39,7 +40,7 @@ def _load_driver() -> ModuleType:
 
     try:
         return importlib.import_module("psycopg")
-    except ImportError as exc:  # pragma: no cover - fallback for environments without psycopg
+    except ImportError as exc:  # pragma: no cover
         raise ImportError("Neither psycopg2 nor psycopg is installed") from exc
 
 

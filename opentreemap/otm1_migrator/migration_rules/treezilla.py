@@ -29,6 +29,7 @@ def set_boundary_fields(boundary_obj, boundary_dict):
     boundary_obj.sort_order = boundary_type['sort_order']
     return boundary_obj
 
+
 MIGRATION_RULES['boundary']['presave_actions'] = (MIGRATION_RULES['boundary']
                                                   .get('presave_actions', [])
                                                   + [set_boundary_fields])
@@ -50,6 +51,7 @@ def convert_tree_measurements(tree_obj, tree_dict):
         tree_obj.height = height_in_meters * METERS_TO_FEET
 
     return tree_obj
+
 
 MIGRATION_RULES['tree']['presave_actions'] = (MIGRATION_RULES['tree']
                                               .get('presave_actions', [])
@@ -74,6 +76,7 @@ def create_override(species_obj, species_dict):
         itree_code=itree_code)
     override.save_with_user(User.system_user())
     return species_obj
+
 
 MIGRATION_RULES['species']['postsave_actions'] = (MIGRATION_RULES['species']
                                                   .get('postsave_actions', [])

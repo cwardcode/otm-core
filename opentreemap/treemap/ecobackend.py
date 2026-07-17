@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
-
-
-import urllib.request, urllib.error, urllib.parse
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.error
+import urllib.parse
+import urllib.request
+import urllib.parse
+import urllib.error
 import json
 import re
 import sys
@@ -107,8 +109,8 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
         else:
             data = json.dumps(params)
         req = urllib.request.Request(url,
-                              data,
-                              {'Content-Type': 'application/json'})
+                                     data,
+                                     {'Content-Type': 'application/json'})
     else:
         paramString = "&".join(["%s=%s" % (urllib.parse.quote_plus(str(name)),
                                            urllib.parse.quote_plus(str(val)))
@@ -130,7 +132,8 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
         return result, None
     except urllib.error.HTTPError as e:
         error_body = e.fp.read()
-        for code, patterns in list(ECOBENEFIT_FAILURE_CODES_AND_PATTERNS.items()):
+        for code, patterns in list(
+                ECOBENEFIT_FAILURE_CODES_AND_PATTERNS.items()):
             for pattern in patterns:
                 match = re.match(pattern, error_body)
                 if match:
@@ -152,7 +155,10 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
                     # fully detailed message so that Rollbar can group
                     # and count similar failures.
                     LOG_FUNCTION_FOR_FAILURE_CODE[code](
-                        "ECOBENEFIT FAILURE: %s %s ", code, pattern, extra=extra)
+                        "ECOBENEFIT FAILURE: %s %s ",
+                        code,
+                        pattern,
+                        extra=extra)
                     return (None, code)
         else:
             # If we did not break out of the loop by returning early

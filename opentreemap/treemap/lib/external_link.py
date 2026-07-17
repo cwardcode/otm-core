@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import re
 
 from django.utils.translation import gettext_lazy as _
@@ -16,6 +14,7 @@ _valid_url_tokens = ['tree.id', 'planting_site.id', 'planting_site.custom_id']
 def get_external_link_choice_pattern():
     return '|'.join([choice.replace('.', r'\.')
                      for choice in _valid_url_tokens])
+
 
 _validation_pattern = r'''\#(?:   # starts with a hash
     (?P<valid>{{(?:{})}}) |       # valid group is braced, filled by format
@@ -46,7 +45,7 @@ def validate_token_template(token_template):
 
 
 def get_url_tokens_for_display(in_bold=False):
-    show = lambda t: ('<b>#{%s}</b>' if in_bold else '#{%s}') % t
+    def show(t): return ('<b>#{%s}</b>' if in_bold else '#{%s}') % t
 
     return (', '.join(show(token) for token in _valid_url_tokens[:-1]) +
             str(_(' or ')) + show(_valid_url_tokens[-1]))

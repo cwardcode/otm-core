@@ -14,6 +14,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='rainbarrel',
             name='capacity',
-            field=models.FloatField(help_text='Capacity', error_messages={'invalid': 'Please enter a number.'}),
+            field=models.FloatField(
+                help_text='Capacity',
+                error_messages={
+                    'invalid': 'Please enter a number.'}),
         ),
     ]

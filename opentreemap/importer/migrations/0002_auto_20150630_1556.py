@@ -17,36 +17,43 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='treeimportrow',
             name='plot',
-            field=models.ForeignKey(blank=True, to='treemap.Plot', null=True, on_delete=models.CASCADE),
+            field=models.ForeignKey(
+                blank=True, to='treemap.Plot', null=True, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='treeimportevent',
             name='instance',
-            field=models.ForeignKey(to='treemap.Instance', on_delete=models.CASCADE),
+            field=models.ForeignKey(
+                to='treemap.Instance', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='treeimportevent',
             name='owner',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
+            field=models.ForeignKey(
+                to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='speciesimportrow',
             name='import_event',
-            field=models.ForeignKey(to='importer.SpeciesImportEvent', on_delete=models.CASCADE),
+            field=models.ForeignKey(
+                to='importer.SpeciesImportEvent', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='speciesimportrow',
             name='species',
-            field=models.ForeignKey(blank=True, to='treemap.Species', null=True, on_delete=models.CASCADE),
+            field=models.ForeignKey(
+                blank=True, to='treemap.Species', null=True, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='speciesimportevent',
             name='instance',
-            field=models.ForeignKey(to='treemap.Instance', on_delete=models.CASCADE),
+            field=models.ForeignKey(
+                to='treemap.Instance', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='speciesimportevent',
             name='owner',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
+            field=models.ForeignKey(
+                to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
         ),
     ]

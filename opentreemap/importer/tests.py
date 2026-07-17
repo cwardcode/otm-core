@@ -2,8 +2,6 @@
 # flake8: noqa
 
 
-
-
 import tempfile
 import csv
 import json
@@ -203,7 +201,6 @@ class TreeValidationTest(TreeValidationTestBase):
         i.validate_row()
         self.assertHasError(i, errors.SPECIES_DBH_TOO_HIGH)  # 15 > 12
         self.assertNotHasError(i, errors.SPECIES_HEIGHT_TOO_HIGH)  # 25 < 30
-
 
     def test_proximity(self):
         p1 = mkPlot(self.instance, self.user,
@@ -464,21 +461,23 @@ class TreeUdfValidationTest(TreeValidationTestBase):
         row['planting site: test date'] = '12/8/15'
         i = self.mkrow(row)
         i.validate_row()
-        self.assertHasError(i, errors.INVALID_UDF_VALUE,
-                            data="[u'Test date must be formatted as YYYY-MM-DD']")
+        self.assertHasError(
+            i,
+            errors.INVALID_UDF_VALUE,
+            data="[u'Test date must be formatted as YYYY-MM-DD']")
 
     def test_choice_udf(self):
         UserDefinedFieldDefinition.objects.create(
             instance=self.instance,
             model_type='Plot',
             datatype=json.dumps({'type': 'choice',
-                             'choices': ['a', 'b', 'c']}),
+                                 'choices': ['a', 'b', 'c']}),
             iscollection=False,
             name='Test choice')
 
         row = {'point x': '16',
-           'point y': '20',
-           'planting site: test choice': 'a'}
+               'point y': '20',
+               'planting site: test choice': 'a'}
 
         i = self.mkrow(row)
         i.validate_row()
@@ -497,11 +496,11 @@ class TreeUdfValidationTest(TreeValidationTestBase):
             instance=self.instance,
             model_type='Plot',
             datatype=json.dumps({'type': 'multichoice',
-                             'choices': ['a', 'b', 'c']}),
+                                 'choices': ['a', 'b', 'c']}),
             iscollection=False,
             name='Test multichoice')
 
-        ## VALID
+        # VALID
 
         row = {'point x': '16',
                'point y': '20',
@@ -530,7 +529,7 @@ class TreeUdfValidationTest(TreeValidationTestBase):
         i.validate_row()
         self.assertNotHasError(i, errors.INVALID_UDF_VALUE)
 
-        ## INVALID
+        # INVALID
 
         # This is an error because the JSON parser requires that
         # strings be wrapped with double quotes.
@@ -568,12 +567,21 @@ class SpeciesValidationTest(ValidationTest):
             self.instance = make_instance()
             self.instance.itree_region_default = 'NoEastXXX'
             self.instance.save()
-        self._add_species([
-            {"otm_code": "PR"  , "common_name": "Plum"         , "genus": "Prunus"},
-            {"otm_code": "PR"  , "common_name": "Cherry"       , "genus": "Prunus"},
-            {"otm_code": "PRAM", "common_name": "American plum", "genus": "Prunus", "species": "americana"},
-            {"otm_code": "PRAV", "common_name": "Sweet cherry" , "genus": "Prunus", "species": "avium"},
-            ])
+        self._add_species([{"otm_code": "PR",
+                            "common_name": "Plum",
+                            "genus": "Prunus"},
+                           {"otm_code": "PR",
+                            "common_name": "Cherry",
+                            "genus": "Prunus"},
+                           {"otm_code": "PRAM",
+                            "common_name": "American plum",
+                            "genus": "Prunus",
+                            "species": "americana"},
+                           {"otm_code": "PRAV",
+                            "common_name": "Sweet cherry",
+                            "genus": "Prunus",
+                            "species": "avium"},
+                           ])
         if not self.user:
             self.user = make_admin_user(self.instance)
         import_event = SpeciesImportEvent(
@@ -1155,15 +1163,15 @@ class TreeIntegrationTests(IntegrationTests):
 
         p1_geom = plot1.geom
         p1_geom.transform(4326)
-        self.assertEqual(int(p1_geom.x*10), 342)
-        self.assertEqual(int(p1_geom.y*10), 291)
+        self.assertEqual(int(p1_geom.x * 10), 342)
+        self.assertEqual(int(p1_geom.y * 10), 291)
         self.assertEqual(plot1.current_tree().diameter, 12)
 
         p2_geom = plot2.geom
         p2_geom.transform(4326)
-        self.assertIn(int(p2_geom.x*10), [191, 192])
+        self.assertIn(int(p2_geom.x * 10), [191, 192])
         # FP math is annoying, some systems the following is 271, others 272
-        self.assertIn(int(p2_geom.y*10), [271, 272])
+        self.assertIn(int(p2_geom.y * 10), [271, 272])
         self.assertEqual(plot2.current_tree().diameter, 14)
 
     def test_blank_rows_ignored(self):
@@ -1261,7 +1269,6 @@ class TreeIntegrationTests(IntegrationTests):
         self.assertEqual(ierrors['1'],
                          [(errors.INVALID_GEOM[0], gflds, None)])
 
-
         self.assertNotIn('2', ierrors)
         self.assertNotIn('3', ierrors)
         self.assertEqual(ierrors['4'],
@@ -1332,7 +1339,6 @@ class TreeIntegrationTests(IntegrationTests):
 
         self.assertTrue(isinstance(response, HttpResponseBadRequest))
 
-
     def test_unit_changes(self):
         csv = ("| point x | point y | tree height | canopy height | "
                "diameter | planting site width | planting site length |\n"
@@ -1344,7 +1350,9 @@ class TreeIntegrationTests(IntegrationTests):
         set_attr_on_json_field(
             self.instance, 'config.value_display.tree.height.units', 'm')
         set_attr_on_json_field(
-            self.instance, 'config.value_display.tree.canopy_height.units', 'm')
+            self.instance,
+            'config.value_display.tree.canopy_height.units',
+            'm')
         set_attr_on_json_field(
             self.instance, 'config.value_display.plot.length.units', 'm')
         set_attr_on_json_field(
@@ -1469,8 +1477,8 @@ class TreeIntegrationTests(IntegrationTests):
 
         plot_geom = plot.geom
         plot_geom.transform(4326)
-        self.assertEqual(int(plot_geom.x*100), 4553)
-        self.assertEqual(int(plot_geom.y*100), 3109)
+        self.assertEqual(int(plot_geom.x * 100), 4553)
+        self.assertEqual(int(plot_geom.y * 100), 3109)
         self.assertEqual(plot.width, 19.2)
         self.assertEqual(plot.length, 13)
         # TODO: READONLY restore when implemented
@@ -1505,12 +1513,12 @@ class TreeIntegrationTests(IntegrationTests):
         self.assertEqual(p1_geom, p2_geom)
 
         p1_geom.transform(4326)
-        self.assertEqual(int(p1_geom.x*100), 4553)
-        self.assertEqual(int(p1_geom.y*100), 3109)
-
+        self.assertEqual(int(p1_geom.x * 100), 4553)
+        self.assertEqual(int(p1_geom.y * 100), 3109)
 
     def test_import_updates_updated_at_fields(self):
-        original_creator = make_admin_user(self.instance, username='original_creator')
+        original_creator = make_admin_user(
+            self.instance, username='original_creator')
         p1 = mkPlot(self.instance, original_creator)
         t1 = mkTree(self.instance, original_creator)
 
@@ -1538,14 +1546,18 @@ class TreeIntegrationTests(IntegrationTests):
         self.assertGreater(p1.updated_at, p1_original_updated_at)
         self.assertGreater(t1.plot.updated_at, p2_original_updated_at)
 
-
     def test_swap_locations_using_otm_id(self):
         center = self.instance.center
         self.assertEqual(3857, center.srid)
         p1 = mkPlot(self.instance, self.user,
                     geom=Point(center.x, center.y, srid=center.srid))
-        p2 = mkPlot(self.instance, self.user,
-                    geom=Point(center.x + 100, center.y + 100, srid=center.srid))
+        p2 = mkPlot(
+            self.instance,
+            self.user,
+            geom=Point(
+                center.x + 100,
+                center.y + 100,
+                srid=center.srid))
 
         csv_point_1 = p1.geom.clone()
         csv_point_1.transform(4326)
@@ -1594,7 +1606,7 @@ class TreeIntegrationTests(IntegrationTests):
             [False,  # tp=False means no tree even if data present
              True,   # tp=True means tree even if no data present
              True,   # tp missing means tree when data present
-             False]) # tp missing means no tree when no data present
+             False])  # tp missing means no tree when no data present
 
     def test_common_name_matching(self):
         apple = Species(instance=self.instance, genus='malus',

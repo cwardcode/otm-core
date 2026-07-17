@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from copy import deepcopy
 
 from django.contrib.gis.db import models
@@ -255,7 +253,10 @@ class Instance(models.Model):
     eco_rev = models.IntegerField(default=_DEFAULT_REV)
 
     eco_benefits_conversion = models.ForeignKey(
-        'BenefitCurrencyConversion', null=True, blank=True, on_delete=models.CASCADE)
+        'BenefitCurrencyConversion',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE)
 
     """ Center of the map when loading the instance """
     bounds = models.OneToOneField(InstanceBounds,
@@ -268,7 +269,10 @@ class Instance(models.Model):
     """
     center_override = models.PointField(srid=3857, null=True, blank=True)
 
-    default_role = models.ForeignKey('Role', related_name='default_role', on_delete=models.CASCADE)
+    default_role = models.ForeignKey(
+        'Role',
+        related_name='default_role',
+        on_delete=models.CASCADE)
 
     users = models.ManyToManyField('User', through='InstanceUser')
 
@@ -456,8 +460,10 @@ class Instance(models.Model):
 
     @property
     def scss_query_string(self):
-        scss_vars = ({k: val for k, val in list(self.scss_variables.items()) if val}
-                     if self.scss_variables else {})
+        scss_vars = (
+            {k: val for k, val in list(self.scss_variables.items()) if val}
+            if self.scss_variables else {}
+        )
         return urlencode(scss_vars)
 
     @property

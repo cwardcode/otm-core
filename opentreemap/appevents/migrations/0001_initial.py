@@ -14,7 +14,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='AppEvent',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                 serialize=False, auto_created=True, primary_key=True)),
                 ('event_type', models.CharField(max_length=255)),
                 ('data', treemap.json_field.JSONField(blank=True)),
                 ('triggered_at', models.DateTimeField(auto_now_add=True)),

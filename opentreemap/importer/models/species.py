@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import itertools
 
 from collections import OrderedDict
@@ -94,10 +92,15 @@ class SpeciesImportRow(GenericImportRow):
     ))
 
     # Species reference
-    species = models.ForeignKey(Species, null=True, blank=True, on_delete=models.CASCADE)
+    species = models.ForeignKey(
+        Species,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE)
     merged = models.BooleanField(default=False)
 
-    import_event = models.ForeignKey(SpeciesImportEvent, on_delete=models.CASCADE)
+    import_event = models.ForeignKey(
+        SpeciesImportEvent, on_delete=models.CASCADE)
 
     class Meta:
         app_label = 'importer'
@@ -116,7 +119,7 @@ class SpeciesImportRow(GenericImportRow):
         This should only be called after a verify because it
         uses cleaned data.
         """
-        #TODO: Test me
+        # TODO: Test me
         if species is None:
             return {}
 

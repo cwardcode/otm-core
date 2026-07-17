@@ -24,7 +24,9 @@ def add_to_config(config, *categories):
     for category in categories:
         lookup = '.'.join(['search_config', category])
         specs = config.setdefault(lookup, [])
-        if True not in [identifier in v for s in specs for v in list(s.values())]:
+        if True not in [
+            identifier in v for s in specs for v in list(
+                s.values())]:
             # mutates config[lookup]
             specs.append({'identifier': identifier})
 

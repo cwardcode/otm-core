@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import collections
 
 from registration.models import RegistrationProfile
@@ -267,7 +265,7 @@ def users(request, instance):
                        (query + '%',)),
                 Length('user__username'),
                 'user__username'
-            )
+        )
 
     if max_items:
         users_qs = users_qs[:int(max_items)]

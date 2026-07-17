@@ -17,16 +17,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='InstanceInvitation',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('email', models.CharField(max_length=255, validators=[django.core.validators.EmailValidator()])),
+                ('id', models.AutoField(verbose_name='ID',
+                 serialize=False, auto_created=True, primary_key=True)),
+                ('email', models.CharField(max_length=255, validators=[
+                 django.core.validators.EmailValidator()])),
                 ('admin', models.BooleanField(default=False)),
                 ('created', models.DateField(auto_now_add=True)),
                 ('updated', models.DateField(auto_now=True)),
                 ('accepted', models.BooleanField(default=False)),
                 ('activation_key', models.CharField(unique=True, max_length=40)),
-                ('created_by', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
-                ('instance', models.ForeignKey(to='treemap.Instance', on_delete=models.CASCADE)),
-                ('role', models.ForeignKey(to='treemap.Role', on_delete=models.CASCADE)),
+                ('created_by', models.ForeignKey(
+                    to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('instance', models.ForeignKey(
+                    to='treemap.Instance', on_delete=models.CASCADE)),
+                ('role', models.ForeignKey(
+                    to='treemap.Role', on_delete=models.CASCADE)),
             ],
         ),
         migrations.AlterUniqueTogether(

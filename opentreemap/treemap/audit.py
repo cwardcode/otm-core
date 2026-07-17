@@ -1,7 +1,5 @@
 
 
-
-
 import json
 import hashlib
 from functools import partial
@@ -17,7 +15,8 @@ from django.utils.dateformat import format as dformat
 from django.dispatch import receiver
 from django.db import models as django_models
 from django.db.models.signals import post_save, post_delete
-from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
+from django.core.exceptions import (FieldDoesNotExist, ObjectDoesNotExist,
+                                    ValidationError)
 from django.db import IntegrityError, connection, transaction
 from django.conf import settings
 from django.contrib.auth.models import Permission
@@ -83,8 +82,8 @@ def _reserve_model_id(model_class):
         cursor.execute("select nextval('%s');" % id_seq_name)
         results = cursor.fetchone()
         model_id = results[0]
-        assert(type(model_id) in [int, int])
-    except:
+        assert (type(model_id) in [int, int])
+    except BaseException:
         msg = "There was a database error while retrieving a unique audit ID."
         raise IntegrityError(msg)
 
@@ -105,8 +104,8 @@ def _reserve_model_id_range(model_class, num):
             {'seq': id_seq_name, 'num': num})
 
         model_ids = [row[0] for row in cursor]
-        assert(type(model_id) in [int, int] for model_id in model_ids)
-    except:
+        assert (type(model_id) in [int, int] for model_id in model_ids)
+    except BaseException:
         msg = "There was a database error while retrieving a unique audit ID."
         raise IntegrityError(msg)
 
@@ -444,7 +443,7 @@ def get_related_audits(insert_audit, approved_only=False):
                                           model_id=insert_audit.model_id,
                                           model=insert_audit.model,
                                           action=Audit.Type.Insert)\
-                                  .exclude(pk=insert_audit.pk)
+        .exclude(pk=insert_audit.pk)
     if approved_only:
         related_audits = related_audits.filter(
             ref__action=Audit.Type.PendingApprove)
@@ -471,9 +470,9 @@ def _verify_user_can_apply_audit(audit, user):
              if perm.field_name == field]
     if len(perms) == 1:
         if perms[0].permission_level != FieldPermission.WRITE_DIRECTLY:
-                raise AuthorizeException(
-                    "User %s can't edit field %s on model %s" %
-                    (user, field, model))
+            raise AuthorizeException(
+                "User %s can't edit field %s on model %s" %
+                (user, field, model))
     elif len(perms) == 0:
         raise AuthorizeException(
             "User %s can't edit field %s on model %s"
@@ -568,6 +567,7 @@ class UserTrackable(Dictable):
     circular dependencies in the initialization process
     in the first place.
     '''
+
     def __init__(self, *args, **kwargs):
         # _do_not_track returns the static do_not_track set unioned
         # with any fields that are added during instance initialization.
@@ -798,7 +798,11 @@ class Role(models.Model):
     objects = RoleManager()
 
     name = models.CharField(max_length=255)
-    instance = models.ForeignKey('Instance', null=True, blank=True, on_delete=models.CASCADE)
+    instance = models.ForeignKey(
+        'Instance',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE)
 
     default_permission_level = models.IntegerField(
         db_column='default_permission',
@@ -1047,6 +1051,7 @@ class Auditable(UserTrackable):
     If you want to use this with Authorizable, you should mixin
     PendingAuditable, which joins both classes together nicely
     """
+
     def audits(self):
         return Audit.audits_for_object(self)
 
@@ -1189,6 +1194,7 @@ class _PendingAuditable(Auditable):
     You should never use this directly, since it requires Authorizable.
     Instead use PendingAuditable (no underscore)
     """
+
     def __init__(self, *args, **kwargs):
         super(_PendingAuditable, self).__init__(*args, **kwargs)
         self.is_pending_insert = False
@@ -1317,7 +1323,11 @@ class Audit(models.Model):
     model = models.CharField(max_length=255, null=True, db_index=True)
     model_id = models.IntegerField(null=True, db_index=True)
     instance = models.ForeignKey(
-        'Instance', null=True, blank=True, db_index=True, on_delete=models.CASCADE)
+        'Instance',
+        null=True,
+        blank=True,
+        db_index=True,
+        on_delete=models.CASCADE)
 
     field = models.CharField(max_length=255, null=True)
     previous_value = models.TextField(null=True)

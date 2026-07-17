@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import json
 import logging
 
@@ -138,6 +136,6 @@ def request_is_embedded(request):
     embed_value = None
     try:
         embed_value = request.GET.get('embed')
-    except:
+    except BaseException:
         pass
     return embed_value is not None and 0 < len(embed_value)

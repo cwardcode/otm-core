@@ -171,7 +171,7 @@ def _get_role_model_action_perms(apps, role_model_permissions, permissions,
     role_model_action_perms = role_model_permissions.filter(
         permission__in=action_permissions)
 
-    get_model = lambda rmap: apps.get_model(
+    def get_model(rmap): return apps.get_model(
         rmap.permission.content_type.app_label,
         rmap.permission.content_type.model)
     return {(rmap.role, get_model(rmap))
@@ -235,7 +235,7 @@ def _fieldnames_required_for_create(not_tracked, Model):
             if (not field.null and
                 not field.blank and
                 not field.primary_key and
-                not field.name in not_tracked)}
+                field.name not in not_tracked)}
 
 
 def _tracked_fields(not_tracked, Model):

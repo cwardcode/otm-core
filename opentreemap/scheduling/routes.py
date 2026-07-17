@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from functools import partial
 
 from django_tinsel.decorators import route, render_template, json_api_call
@@ -14,7 +12,10 @@ from scheduling.views import update_instance_fields_with_validator
 from treemap.decorators import (require_http_method, admin_instance_request,
                                 return_400_if_validation_errors)
 
-admin_route = lambda **kwargs: admin_instance_request(route(**kwargs))
+
+def admin_route(**kwargs):
+    return admin_instance_request(route(**kwargs))
+
 
 json_do = partial(do, json_api_call, return_400_if_validation_errors)
 

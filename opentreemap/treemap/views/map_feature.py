@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import json
 import hashlib
 from functools import wraps
@@ -89,8 +87,7 @@ def map_feature_detail(request, instance, feature_id,
     if should_render:
         template = 'treemap/map_feature_detail.html'
         context['map_feature_partial'] = partial
-        latlon = context['feature'].latlon
-        #context['map_query'] = '?z=%s/%s/%s' % (18, latlon.y, latlon.x)
+        # context['map_query'] = '?z=%s/%s/%s' % (18, latlon.y, latlon.x)
         context['map_query'] = '?z=%s' % (18)
         return render(request, template, context)
     else:
@@ -182,7 +179,7 @@ def render_map_feature_add(request, instance, type):
         app = MapFeature.get_subclass(type).__module__.split('.')[0]
         try:
             template = '%s/%s_add.html' % (app, type)
-        except:
+        except BaseException:
             template = 'treemap/resource_add.html'
         return render(request, template, {'object_name': to_object_name(type)})
     else:

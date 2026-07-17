@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import os
 import json
 from io import StringIO
@@ -181,7 +179,7 @@ class BoundaryViewTest(ViewTestCase):
         point4326 = point3857.transform(4326, clone=True)
         n = point4326.get_x()
         request_dict = {
-            'polygon': [[n, n], [n, n+1], [n+1, n+1], [n+1, n], [n, n]]
+            'polygon': [[n, n], [n, n + 1], [n + 1, n + 1], [n + 1, n], [n, n]]
         }
         content = add_anonymous_boundary(make_request(
             body=json.dumps(request_dict)))
@@ -1717,7 +1715,7 @@ class SpeciesViewTests(ViewTestCase):
 
     def test_get_species_list(self):
         self.assertEqual(species_list(make_request(), self.instance),
-                          self.species_json)
+                         self.species_json)
 
     def test_get_species_list_max_items(self):
         self.assertEqual(
@@ -1738,10 +1736,10 @@ class UserViewTests(ViewTestCase):
     def test_get_by_username(self):
         context = user(make_request(), self.joe.username)
         self.assertEqual(self.joe.username, context['user'].username,
-                          'the user view should return a dict with user with '
-                          '"username" set to %s ' % self.joe.username)
+                         'the user view should return a dict with user with '
+                         '"username" set to %s ' % self.joe.username)
         self.assertEqual(list, type(context['audits']),
-                          'the user view should return a list of audits')
+                         'the user view should return a list of audits')
 
     def test_get_with_invalid_username_returns_404(self):
         self.assertRaises(Http404, user, make_request(),
@@ -1808,8 +1806,8 @@ class UserUpdateViewTests(ViewTestCase):
         self.assertOk(update_user(
             make_request(user=self.joe, body=update), self.joe))
         self.assertEqual('Joseph',
-                          User.objects.get(username='joe').first_name,
-                          'The first_name was not updated')
+                         User.objects.get(username='joe').first_name,
+                         'The first_name was not updated')
 
     def test_expects_keys_prefixed_with_user(self):
         self.joe.name = 'Joe'
@@ -1856,8 +1854,8 @@ class InstanceUserViewTests(ViewTestCase):
         self.assertEqual(res.status_code, 302, "should be a 302 Found \
             temporary redirect")
         self.assertEqual(expected_url, res['Location'],
-                          'the view should redirect to %s not %s ' %
-                          (expected_url, res['Location']))
+                         'the view should redirect to %s not %s ' %
+                         (expected_url, res['Location']))
 
     def test_get_with_invalid_username_redirects(self):
         test_username = 'no_way_username'
@@ -1869,8 +1867,8 @@ class InstanceUserViewTests(ViewTestCase):
         self.assertEqual(res.status_code, 302, "should be a 302 Found \
             temporary redirect")
         self.assertEqual(expected_url, res['Location'],
-                          'the view should redirect to %s not %s ' %
-                          (expected_url, res['Location']))
+                         'the view should redirect to %s not %s ' %
+                         (expected_url, res['Location']))
 
 
 class SettingsJsViewTests(ViewTestCase):
@@ -1910,6 +1908,7 @@ class InstanceSettingsJsViewTests(SettingsJsViewTests):
     test case ensures that we run all the root tests on the
     instance versision of the view as well.
     """
+
     def setUp(self):
         super(InstanceSettingsJsViewTests, self).setUp()
         self.get_response = lambda: instance_settings_js(

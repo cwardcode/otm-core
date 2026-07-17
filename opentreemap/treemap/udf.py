@@ -49,9 +49,6 @@ http://stackoverflow.com/a/43745677/14405
 '''
 
 
-
-
-
 import json
 import copy
 import re
@@ -164,7 +161,9 @@ class UserDefinedCollectionValue(UserTrackable, models.Model):
     particular collection field. We audit all of the fields on this
     object and expand the audits in the same way that scalar udfs work.
     """
-    field_definition = models.ForeignKey('UserDefinedFieldDefinition', on_delete=models.CASCADE)
+    field_definition = models.ForeignKey(
+        'UserDefinedFieldDefinition',
+        on_delete=models.CASCADE)
     model_id = models.IntegerField()
     data = HStoreField()
 
@@ -531,11 +530,11 @@ class UserDefinedFieldDefinition(models.Model):
                 audit.save()
 
     @staticmethod
-    def _list_replace_or_remove(l, old, new):
-        if l is None:
+    def _list_replace_or_remove(values, old, new):
+        if values is None:
             return None
         new_l = [_f for _f in [(new if choice == old else choice)
-             for choice in l] if _f]
+                               for choice in values] if _f]
         return new_l or None
 
     def add_choice(self, new_choice_value, name=None):

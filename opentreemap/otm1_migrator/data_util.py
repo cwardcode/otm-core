@@ -60,7 +60,7 @@ def dict_to_model(config, model_name, data_dict, instance):
     else:
         try:
             instance_field = ModelClass._meta.get_field('instance')
-        except:
+        except BaseException:
             pass
         # instance *must* be set during initialization
         model = ModelClass() \
@@ -132,7 +132,7 @@ def add_udfs_to_migration_rules(migration_rules, udfs, instance):
             prefixed = 'udf:' + field_rules['udf.name']
             model_rules['renamed_fields'][field] = prefixed
 
-            conversions = {str(i+1): v for i, v in
+            conversions = {str(i + 1): v for i, v in
                            enumerate(field_rules.get('udf.choices', []))}
 
             if conversions:
@@ -188,5 +188,5 @@ def correct_none_string(value):
 
 
 def inflate_date(date_str):
-    assert date_str != '' and not date_str is None
+    assert date_str != '' and date_str is not None
     return dateutil.parser.parse(date_str)

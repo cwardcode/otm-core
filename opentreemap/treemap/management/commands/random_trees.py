@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import random
 import math
 
@@ -63,7 +61,7 @@ class Command(InstanceDataCommand):
         n = options['n']
         self.stdout.write("Will create %s plots" % n)
 
-        get_prob = lambda option: float(min(100, max(0, option))) / 100.0
+        def get_prob(option): return float(min(100, max(0, option))) / 100.0
         tree_prob = get_prob(options['ptree'])
         species_prob = get_prob(options['pspecies'])
         diameter_prob = get_prob(options['pdiameter'])

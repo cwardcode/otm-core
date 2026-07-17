@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import locale
 import re
 
@@ -34,7 +32,7 @@ def management_root(request, instance_url_name):
 
 
 def admin_counts(request, instance):
-    humanize = lambda n: '' if n == 0 else n if n < 100 else '99+'
+    def humanize(n): return '' if n == 0 else n if n < 100 else '99+'
 
     comment_count = get_comments({}, instance).count()
     photo_count = get_photos(instance).count()
@@ -345,9 +343,9 @@ def units(request, instance):
             instance.feature_enabled('green_infrastructure'),
          'label_dict': {
              GreenInfrastructureCategory.RAINFALL: _('Annual Rainfall'),
-             GreenInfrastructureCategory.AREA:     _('Area')
-         },
-         'value_names': GreenInfrastructureCategory.GROUPS},
+             GreenInfrastructureCategory.AREA: _('Area')
+        },
+            'value_names': GreenInfrastructureCategory.GROUPS},
     ]
 
     def get_label_getter(attrs):

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
 import hashlib
 
 from django.conf import settings
@@ -31,7 +30,7 @@ def get_cached_benefits(class_name, filter, compute_value):
 
 def get_cached_plot_count(filter):
     prefix = 'count/Plot'
-    compute_value = lambda: filter.get_object_count(Plot)
+    def compute_value(): return filter.get_object_count(Plot)
 
     return _get_or_compute(prefix, filter, compute_value)
 

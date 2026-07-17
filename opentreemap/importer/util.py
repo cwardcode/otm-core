@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
-import codecs
 import csv
 import io
 
@@ -56,4 +53,3 @@ def utf8_file_to_csv_dictreader(f):
     dialect = _guess_dialect_and_reset_read_pointer(f)
     dialect.doublequote = True
     return csv.DictReader(_as_utf8(f), dialect=dialect)
-

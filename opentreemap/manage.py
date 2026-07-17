@@ -5,8 +5,14 @@ import sys
 if __name__ == "__main__":
     if 'DJANGO_SETTINGS_MODULE' not in os.environ:
         os.environ['DJANGO_SETTINGS_MODULE'] = 'opentreemap.settings'
-        if os.path.exists(os.path.join(os.path.dirname(__file__), '..', 'ci', 'local_settings.py')):
-            os.environ['OTM_LOCAL_SETTINGS'] = os.path.join(os.path.dirname(__file__), '..', 'ci', 'local_settings.py')
+        if os.path.exists(
+            os.path.join(
+                os.path.dirname(__file__),
+                '..',
+                'ci',
+                'local_settings.py')):
+            os.environ['OTM_LOCAL_SETTINGS'] = os.path.join(
+                os.path.dirname(__file__), '..', 'ci', 'local_settings.py')
 
     try:
         from django.utils import encoding as django_encoding
@@ -21,7 +27,11 @@ if __name__ == "__main__":
     if django_encoding is not None:
         # Implement proper shims that maintain original behavior
         if not hasattr(django_encoding, 'smart_text'):
-            def smart_text(s, encoding='utf-8', strings_only=False, errors='strict'):
+            def smart_text(
+                    s,
+                    encoding='utf-8',
+                    strings_only=False,
+                    errors='strict'):
                 """
                 Return a string representing 's'. Treats bytestrings using the
                 specified encoding. If strings_only is True, don't attempt
@@ -42,11 +52,15 @@ if __name__ == "__main__":
                 if strings_only:
                     return s
                 return str(s)
-            
+
             django_encoding.smart_text = smart_text
 
         if not hasattr(django_encoding, 'smart_str'):
-            def smart_str(s, encoding='utf-8', strings_only=False, errors='strict'):
+            def smart_str(
+                    s,
+                    encoding='utf-8',
+                    strings_only=False,
+                    errors='strict'):
                 """
                 Return a string representing 's'. Treats bytestrings using the
                 specified encoding. If strings_only is True, don't attempt
@@ -67,14 +81,18 @@ if __name__ == "__main__":
                 if strings_only:
                     return s
                 return str(s)
-            
+
             django_encoding.smart_str = smart_str
 
         if not hasattr(django_encoding, 'force_text'):
-            def force_text(s, encoding='utf-8', strings_only=False, errors='strict'):
+            def force_text(
+                    s,
+                    encoding='utf-8',
+                    strings_only=False,
+                    errors='strict'):
                 """
-                Similar to smart_text, except that lazy instances are resolved to
-                strings, rather than kept as lazy objects.
+                Similar to smart_text, except that lazy instances
+                are resolved to strings, rather than kept as lazy objects.
                 """
                 # Resolve lazy objects
                 if hasattr(s, '_proxy____args'):
@@ -94,7 +112,7 @@ if __name__ == "__main__":
                 if strings_only:
                     return s
                 return str(s)
-            
+
             django_encoding.force_text = force_text
 
         if not hasattr(django_encoding, 'python_2_unicode_compatible'):
@@ -114,10 +132,13 @@ if __name__ == "__main__":
         if not hasattr(django_translation, 'ungettext'):
             django_translation.ungettext = django_translation.ngettext
         if not hasattr(django_translation, 'ungettext_lazy'):
-            django_translation.ungettext_lazy = django_translation.ngettext_lazy
+            django_translation.ungettext_lazy = (
+                django_translation.ngettext_lazy
+            )
 
-    # Some legacy third-party packages may still expect the old django.core.urlresolvers
-    # module path. Provide an alias for backward compatibility.
+    # Some legacy third-party packages may still expect the old
+    # django.core.urlresolvers module path.
+    # Provide an alias for backward compatibility.
     if django_core is not None and not hasattr(django_core, 'urlresolvers'):
         import django.urls as django_urls
         django_core.urlresolvers = django_urls
@@ -135,7 +156,11 @@ if __name__ == "__main__":
     try:
         from django.utils import http as django_http
         if not hasattr(django_http, 'is_safe_url'):
-            def is_safe_url(url, host=None, allowed_hosts=None, require_https=False):
+            def is_safe_url(
+                    url,
+                    host=None,
+                    allowed_hosts=None,
+                    require_https=False):
                 if allowed_hosts is None:
                     allowed_hosts = {host} if host else set()
                 return django_http.url_has_allowed_host_and_scheme(
@@ -178,7 +203,9 @@ if __name__ == "__main__":
         sys.modules['django.utils.six.moves'] = six.moves
         sys.modules['django.utils.six.moves.builtins'] = six.moves.builtins
         sys.modules['django.utils.six.moves.urllib'] = six.moves.urllib
-        sys.modules['django.utils.six.moves.urllib.parse'] = six.moves.urllib.parse
+        sys.modules['django.utils.six.moves.urllib.parse'] = (
+            six.moves.urllib.parse
+        )
 
     from django.core.management import execute_from_command_line
 

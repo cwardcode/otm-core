@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 # Helpers for building a JSON schema
 
 string = {'type': 'string'}
@@ -20,9 +18,13 @@ def obj(properties, optional_properties=None):
     return {
         'type': 'object',
         'additionalProperties': False,
-        'required': list(properties.keys()),
-        'properties': dict(list(properties.items()) + list(optional_properties.items()))
-    }
+        'required': list(
+            properties.keys()),
+        'properties': dict(
+            list(
+                properties.items()) +
+            list(
+                optional_properties.items()))}
 
 
 def obj_list(properties, optional_properties=None):

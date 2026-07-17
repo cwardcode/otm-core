@@ -17,6 +17,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='appevent',
             name='data',
-            field=treemap.json_field.JSONField(blank=True, default=treemap.DotDict.DotDict),
+            field=treemap.json_field.JSONField(
+                blank=True,
+                default=treemap.DotDict.DotDict),
         ),
     ]

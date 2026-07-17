@@ -18,28 +18,56 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MapFeatureTag',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('tag', models.CharField(max_length=120)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('id',
+                 models.AutoField(
+                     auto_created=True,
+                     primary_key=True,
+                     serialize=False,
+                     verbose_name='ID')),
+                ('tag',
+                 models.CharField(
+                     max_length=120)),
+                ('created_at',
+                 models.DateTimeField(
+                     auto_now_add=True)),
             ],
-            bases=(models.Model, treemap.audit.PendingAuditable, treemap.units.Convertible),
+            bases=(
+                models.Model,
+                treemap.audit.PendingAuditable,
+                treemap.units.Convertible),
         ),
         migrations.CreateModel(
             name='TreeTag',
             fields=[
-                ('mapfeaturetag_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='treemap.MapFeatureTag')),
-                ('tree', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='treemap.Tree')),
+                ('mapfeaturetag_ptr',
+                 models.OneToOneField(
+                     auto_created=True,
+                     on_delete=django.db.models.deletion.CASCADE,
+                     parent_link=True,
+                     primary_key=True,
+                     serialize=False,
+                     to='treemap.MapFeatureTag')),
+                ('tree',
+                 models.ForeignKey(
+                     on_delete=django.db.models.deletion.CASCADE,
+                     to='treemap.Tree')),
             ],
-            bases=('treemap.mapfeaturetag',),
+            bases=(
+                'treemap.mapfeaturetag',
+            ),
         ),
         migrations.AddField(
             model_name='mapfeaturetag',
             name='instance',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='treemap.Instance'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='treemap.Instance'),
         ),
         migrations.AddField(
             model_name='mapfeaturetag',
             name='map_feature',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='treemap.MapFeature'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='treemap.MapFeature'),
         ),
     ]

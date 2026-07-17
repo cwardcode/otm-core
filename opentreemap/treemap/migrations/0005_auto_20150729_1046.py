@@ -14,11 +14,31 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='fieldpermission',
             name='permission_level',
-            field=models.IntegerField(default=0, choices=[(0, 'Invisible'), (1, 'Read Only'), (2, 'Pending Write Access'), (3, 'Full Write Access')]),
+            field=models.IntegerField(
+                default=0,
+                choices=[
+                    (0,
+                     'Invisible'),
+                    (1,
+                     'Read Only'),
+                    (2,
+                     'Pending Write Access'),
+                    (3,
+                     'Full Write Access')]),
         ),
         migrations.AlterField(
             model_name='role',
             name='default_permission',
-            field=models.IntegerField(default=0, choices=[(0, 'Invisible'), (1, 'Read Only'), (2, 'Pending Write Access'), (3, 'Full Write Access')]),
+            field=models.IntegerField(
+                default=0,
+                choices=[
+                    (0,
+                     'Invisible'),
+                    (1,
+                     'Read Only'),
+                    (2,
+                     'Pending Write Access'),
+                    (3,
+                     'Full Write Access')]),
         ),
     ]

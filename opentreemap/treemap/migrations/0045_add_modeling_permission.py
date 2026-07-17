@@ -66,5 +66,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-         migrations.RunPython(add_permission, remove_permission)
+        migrations.RunPython(add_permission, remove_permission)
     ]

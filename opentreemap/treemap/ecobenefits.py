@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from django.utils.translation import gettext_lazy as _
 from django.contrib.gis.geos.point import Point
 from django.db import connection
@@ -17,7 +15,7 @@ WATTS_PER_BTU = 0.29307107
 GAL_PER_CUBIC_M = 264.172052
 LBS_PER_KG = 2.20462
 FEET_SQ_PER_METER_SQ = 10.7639
-FEET_PER_INCH = 1/12.0
+FEET_PER_INCH = 1 / 12.0
 GALLONS_PER_CUBIC_FT = 7.48
 
 
@@ -337,7 +335,7 @@ def compute_currency_and_transform_units(instance, benefits):
     return {'plot': rslt}
 
 
-#TODO: Does this helper exist?
+# TODO: Does this helper exist?
 def _sum_dict(d1, d2):
     if d1 is None:
         return d2
@@ -358,7 +356,7 @@ def _sum_dict(d1, d2):
 
 def _benefits_for_class(cls, filter):
     benefits_fn = cls.benefits.benefits_for_filter
-    compute_benefits = lambda: benefits_fn(filter.instance, filter)
+    def compute_benefits(): return benefits_fn(filter.instance, filter)
 
     return get_cached_benefits(cls.__name__, filter, compute_benefits)
 
@@ -438,13 +436,14 @@ def within_itree_regions(request):
             .filter(geometry__contains=Point(float(x),
                                              float(y))).exists())
 
+
 benefit_labels = {
     # Translators: 'Energy conserved' is the name of an eco benefit
-    BenefitCategory.ENERGY:     _('Energy conserved'),
+    BenefitCategory.ENERGY: _('Energy conserved'),
     # Translators: 'Stormwater filtered' is the name of an eco benefit
     BenefitCategory.STORMWATER: _('Stormwater filtered'),
     # Translators: 'Carbon dioxide removed' is the name of an eco benefit
-    BenefitCategory.CO2:        _('Carbon dioxide removed'),
+    BenefitCategory.CO2: _('Carbon dioxide removed'),
     # Translators: 'Carbon dioxide stored' is the name of an eco benefit
     BenefitCategory.CO2STORAGE: _('Carbon dioxide stored to date'),
     # Translators: 'Air quality improved' is the name of an eco benefit

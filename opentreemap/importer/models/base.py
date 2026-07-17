@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import json
 from datetime import datetime, timedelta
 
@@ -101,7 +99,12 @@ class GenericImportEvent(models.Model):
         return self.status in (self.VERIFIYING, self.CREATING)
 
     def is_finished(self):
-        return self.status in (self.FINISHED_VERIFICATION, self.FINISHED_CREATING, self.FAILED_FILE_VERIFICATION, self.CANCELED, self.VERIFICATION_ERROR)
+        return self.status in (
+            self.FINISHED_VERIFICATION,
+            self.FINISHED_CREATING,
+            self.FAILED_FILE_VERIFICATION,
+            self.CANCELED,
+            self.VERIFICATION_ERROR)
 
     def can_export(self):
         return (not self.is_running()
@@ -113,7 +116,8 @@ class GenericImportEvent(models.Model):
         return self.status in (self.LOADING, self.VERIFIYING)
 
     def can_add_to_map(self):
-        return self.has_current_schema_version() and self.status in (self.FINISHED_VERIFICATION, self.FINISHED_CREATING)
+        return self.has_current_schema_version() and self.status in (
+            self.FINISHED_VERIFICATION, self.FINISHED_CREATING)
 
     def has_current_schema_version(self):
         return self.schema_version == self.import_schema_version
@@ -331,7 +335,7 @@ class GenericImportRow(models.Model):
     def safe_float(self, fld):
         try:
             return float(self.datadict[fld])
-        except:
+        except BaseException:
             self.append_error(errors.FLOAT_ERROR, fld)
             return False
 
@@ -352,7 +356,7 @@ class GenericImportRow(models.Model):
     def safe_int(self, fld):
         try:
             return int(self.datadict[fld])
-        except:
+        except BaseException:
             self.append_error(errors.INT_ERROR, fld)
             return False
 

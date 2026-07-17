@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from copy import deepcopy
 import tempfile
 import json
@@ -344,6 +342,7 @@ class LoginForwardingTests(OTMTestCase):
         path = '/anything/else/'
         self.assertEqual(
             self.render_template(self.literal_template, path), '')
+
 
 _TEMPLATES = deepcopy(settings.TEMPLATES)
 _TEMPLATES[0]['OPTIONS']['loaders'] = [

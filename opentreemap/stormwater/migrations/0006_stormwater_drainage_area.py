@@ -12,13 +12,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='bioswale',
-            name='drainage_area',
-            field=models.FloatField(null=True, verbose_name='Adjacent Drainage Area', error_messages={'invalid': 'Please enter a number.'}),
-        ),
-        migrations.AddField(
-            model_name='raingarden',
-            name='drainage_area',
-            field=models.FloatField(null=True, verbose_name='Adjacent Drainage Area', error_messages={'invalid': 'Please enter a number.'}),
-        ),
-    ]
+            model_name='bioswale', name='drainage_area', field=models.FloatField(
+                null=True, verbose_name='Adjacent Drainage Area', error_messages={
+                    'invalid': 'Please enter a number.'}), ), migrations.AddField(
+            model_name='raingarden', name='drainage_area', field=models.FloatField(
+                null=True, verbose_name='Adjacent Drainage Area', error_messages={
+                    'invalid': 'Please enter a number.'}), ), ]

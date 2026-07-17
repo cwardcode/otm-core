@@ -1,7 +1,5 @@
 
 
-
-
 import datetime
 import json
 
@@ -54,7 +52,7 @@ class UdfBulkUpdateTest(OTMTestCase):
             'does/not/matter/', json.dumps(params),
             content_type='application/json')
         request.method = 'PUT'
-        setattr(request, 'user',  self.user)
+        setattr(request, 'user', self.user)
         setattr(request, 'instance', self.instance)
         return request
 

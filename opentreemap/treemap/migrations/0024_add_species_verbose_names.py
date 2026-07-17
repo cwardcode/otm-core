@@ -19,12 +19,14 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='species',
             name='cultivar',
-            field=models.CharField(max_length=255, verbose_name='Cultivar', blank=True),
+            field=models.CharField(
+                max_length=255, verbose_name='Cultivar', blank=True),
         ),
         migrations.AlterField(
             model_name='species',
             name='fact_sheet_url',
-            field=models.URLField(max_length=255, verbose_name='Fact Sheet URL', blank=True),
+            field=models.URLField(
+                max_length=255, verbose_name='Fact Sheet URL', blank=True),
         ),
         migrations.AlterField(
             model_name='species',
@@ -39,12 +41,14 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='species',
             name='flowering_period',
-            field=models.CharField(max_length=255, verbose_name='Flowering Period', blank=True),
+            field=models.CharField(
+                max_length=255, verbose_name='Flowering Period', blank=True),
         ),
         migrations.AlterField(
             model_name='species',
             name='fruit_or_nut_period',
-            field=models.CharField(max_length=255, verbose_name='Fruit or Nut Period', blank=True),
+            field=models.CharField(
+                max_length=255, verbose_name='Fruit or Nut Period', blank=True),
         ),
         migrations.AlterField(
             model_name='species',
@@ -59,7 +63,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='species',
             name='max_diameter',
-            field=models.IntegerField(default=200, verbose_name='Max Diameter'),
+            field=models.IntegerField(
+                default=200, verbose_name='Max Diameter'),
         ),
         migrations.AlterField(
             model_name='species',
@@ -69,16 +74,19 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='species',
             name='other_part_of_name',
-            field=models.CharField(max_length=255, verbose_name='Other Part of Name', blank=True),
+            field=models.CharField(
+                max_length=255, verbose_name='Other Part of Name', blank=True),
         ),
         migrations.AlterField(
             model_name='species',
             name='plant_guide_url',
-            field=models.URLField(max_length=255, verbose_name='Plant Guide URL', blank=True),
+            field=models.URLField(
+                max_length=255, verbose_name='Plant Guide URL', blank=True),
         ),
         migrations.AlterField(
             model_name='species',
             name='species',
-            field=models.CharField(max_length=255, verbose_name='Species', blank=True),
+            field=models.CharField(
+                max_length=255, verbose_name='Species', blank=True),
         ),
     ]

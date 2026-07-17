@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import csv
 import logging
 
@@ -44,7 +42,7 @@ def _job_transaction_manager(job_pk):
     job = ExportJob.objects.get(pk=job_pk)
     try:
         yield job
-    except:
+    except BaseException:
         job.fail()
         job.save()
         raise

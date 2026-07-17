@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 from django.db.models import Q
 
 from treemap.audit import Audit, Authorizable, get_auditable_class
@@ -23,10 +21,18 @@ PAGE_DEFAULT = 20
 ALLOWED_MODELS = get_filterable_audit_models()
 
 
-def get_audits(logged_in_user, instance, query_vars, user=None,
-               models=ALLOWED_MODELS, model_id=None, start_id=None,
-               prev_start_ids=None, page_size=PAGE_DEFAULT, exclude_pending=True,
-               should_count=False):
+def get_audits(
+        logged_in_user,
+        instance,
+        query_vars,
+        user=None,
+        models=ALLOWED_MODELS,
+        model_id=None,
+        start_id=None,
+        prev_start_ids=None,
+        page_size=PAGE_DEFAULT,
+        exclude_pending=True,
+        should_count=False):
     if prev_start_ids is None:
         prev_start_ids = []
     if instance:

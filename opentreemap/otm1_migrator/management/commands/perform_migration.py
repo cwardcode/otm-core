@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
-
-
+from otm1_migrator.migration_rules.standard_otm1 \
+    import MIGRATION_RULES as RULES
 import os
 import importlib
 import json
@@ -90,12 +90,6 @@ def save_objects(migration_rules, model_name, model_dicts, relic_ids,
             model_key_map[model_dict['pk']] = pk
 
 
-from otm1_migrator.migration_rules.standard_otm1 \
-    import MIGRATION_RULES as RULES
-from otm1_migrator.migration_rules.standard_otm1 \
-    import MODEL_ORDER as ORDER
-
-
 class Command(InstanceDataCommand):
 
     def add_arguments(self, parser):
@@ -155,7 +149,7 @@ class Command(InstanceDataCommand):
         try:
             model_order = migration_mod.MODEL_ORDER
         except AttributeError:
-            model_order = ORDER
+            model_order = list(RULES.keys())
         try:
             udfs = migration_mod.UDFS
         except AttributeError:

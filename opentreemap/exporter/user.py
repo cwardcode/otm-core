@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import csv
 import json
 
@@ -95,7 +93,7 @@ def _user_as_dict(user, instance):
 
     last_edits = Audit.objects.filter(instance=instance,
                                       user=user)\
-                              .order_by('-updated')[:1]
+        .order_by('-updated')[:1]
 
     if last_edits:
         last_edit = last_edits[0]

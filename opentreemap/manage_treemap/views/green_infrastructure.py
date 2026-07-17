@@ -44,8 +44,10 @@ def site_config_green_infrastructure(request, instance):
             })
         return form_fields
 
-    terminology_fields = {thing: _get_form_fields(defaults, thing)
-                          for thing, defaults in list(REPLACEABLE_TERMS.items())}
+    terminology_fields = {
+        thing: _get_form_fields(
+            defaults, thing) for thing, defaults in list(
+            REPLACEABLE_TERMS.items())}
 
     __, annual_rainfall_display_value = get_display_value(
         instance, 'greenInfrastructure', 'rainfall',
@@ -220,7 +222,7 @@ def _validate_and_set_individual_values(json_data, instance, error_dict):
     errors = None
     INVALID_KEY_MESSAGE = _("An invalid key was sent in the request")
     for identifier, value in json_data.items():
-        if not '.' in identifier:
+        if '.' not in identifier:
             error_dict[identifier] = [INVALID_KEY_MESSAGE]
         __, field_name = dotted_split(identifier, 2, maxsplit=1)
 

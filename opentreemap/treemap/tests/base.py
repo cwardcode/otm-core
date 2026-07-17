@@ -21,6 +21,7 @@ class OTMTestCase(TestCase):
     """
     Base class for OTM2 tests.
     """
+
     def assertValidationErrorDictContainsKey(self, ve, key):
         self.assertTrue(key in ve.error_dict,
                         'Expected "%s" to be a key in error_dict %s' %

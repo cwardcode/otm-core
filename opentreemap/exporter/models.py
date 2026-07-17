@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 import datetime
 
 from django.contrib.gis.db import models
@@ -38,7 +36,11 @@ class ExportJob(models.Model):
 
     status = models.IntegerField(choices=list(STATUS_CHOICES.items()),
                                  default=PENDING)
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE)
     outfile = models.FileField(upload_to="exports/%Y/%m/%d")
     created = models.DateTimeField(null=True, blank=True)
     modified = models.DateTimeField(null=True, blank=True)
