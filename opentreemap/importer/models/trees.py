@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.db import transaction
 
 from treemap.models import Species, Plot, Tree
@@ -116,10 +114,14 @@ class TreeImportRow(GenericImportRow):
     }
 
     # plot that was created from this row
-    plot = models.ForeignKey(Plot, null=True, blank=True)
+    plot = models.ForeignKey(
+        Plot,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE)
 
     # The main import event
-    import_event = models.ForeignKey(TreeImportEvent)
+    import_event = models.ForeignKey(TreeImportEvent, on_delete=models.CASCADE)
 
     class Meta:
         app_label = 'importer'
@@ -159,14 +161,14 @@ class TreeImportRow(GenericImportRow):
         })
 
         plot_id = data.get(self.model_fields.OPENTREEMAP_PLOT_ID)
-        #tree_id = data.get(self.model_fields.OPENTREEMAP_TREE_ID, None)
+        # tree_id = data.get(self.model_fields.OPENTREEMAP_TREE_ID, None)
 
         # Check for an existing plot, use it if we're not already:
         if plot_id and (self.plot is None or self.plot.pk != plot_id):
             plot = Plot.objects.get(pk=plot_id)
         elif self.plot is not None:
             plot = self.plot
-        #elif tree_id:
+        # elif tree_id:
         #    plot = Tree.objects.get(pk=tree_id).plot
         else:
             plot = Plot(instance=self.import_event.instance)
@@ -210,7 +212,7 @@ class TreeImportRow(GenericImportRow):
 
     def _commit_plot_data(self, data, plot):
         plot_edited = False
-        for plot_attr, field_name in TreeImportRow.PLOT_MAP.iteritems():
+        for plot_attr, field_name in TreeImportRow.PLOT_MAP.items():
             value = data.get(field_name, None)
             if value:
                 plot_edited = True
@@ -231,7 +233,7 @@ class TreeImportRow(GenericImportRow):
             plot.update_updated_fields(ie.owner)
 
     def _commit_tree_data(self, data, plot, tree, tree_edited):
-        for tree_attr, field_name in TreeImportRow.TREE_MAP.iteritems():
+        for tree_attr, field_name in TreeImportRow.TREE_MAP.items():
             value = data.get(field_name, None)
             if value:
                 tree_edited = True
@@ -291,9 +293,9 @@ class TreeImportRow(GenericImportRow):
     def validate_plot_id_and_tree_id(self):
         result = True
         plot_id = self.cleaned.get(fields.trees.OPENTREEMAP_PLOT_ID)
-        #tree_id = self.cleaned.get(fields.trees.OPENTREEMAP_TREE_ID, None)
-#TODO CHANGED
-        #if tree_id:
+        # tree_id = self.cleaned.get(fields.trees.OPENTREEMAP_TREE_ID, None)
+# TODO CHANGED
+        # if tree_id:
         #    tree = Tree.objects.filter(pk=tree_id,
         #                               instance=self.import_event.instance)
         #    if not tree.exists():
@@ -326,13 +328,13 @@ class TreeImportRow(GenericImportRow):
         # row includes an OTM plot id or tree id. Proximity validation can
         # prevent instance admins from correcting the locations of
         # previously uploaded trees in bulk.
-        #plot_id = self.cleaned.get(fields.trees.OPENTREEMAP_PLOT_ID, None)
-        #tree_id = self.cleaned.get(fields.trees.OPENTREEMAP_TREE_ID, None)
-        #if plot_id is not None or tree_id is not None:
+        # plot_id = self.cleaned.get(fields.trees.OPENTREEMAP_PLOT_ID, None)
+        # tree_id = self.cleaned.get(fields.trees.OPENTREEMAP_TREE_ID, None)
+        # if plot_id is not None or tree_id is not None:
         #    return True
 
-        #offset = 3.048  # 10ft in meters
-        #nearby_bbox = Polygon(((point.x - offset, point.y - offset),
+        # offset = 3.048  # 10ft in meters
+        # nearby_bbox = Polygon(((point.x - offset, point.y - offset),
         #                       (point.x - offset, point.y + offset),
         #                       (point.x + offset, point.y + offset),
         #                       (point.x + offset, point.y - offset),
@@ -341,21 +343,21 @@ class TreeImportRow(GenericImportRow):
         # This gets called while committing each row.
         # Assume that the creator of the csv knows best,
         # and avoid proximity checks against other plots in the same csv.
-        #already_committed = self.import_event.rows()\
+        # already_committed = self.import_event.rows()\
         #    .filter(plot_id__isnull=False)\
         #    .values_list('plot_id')
 
         # Using MapFeature directly avoids a join between the
         # treemap_plot and treemap_mapfeature tables.
-        #nearby = MapFeature.objects\
+        # nearby = MapFeature.objects\
         #                   .filter(instance=self.import_event.instance)\
         #                   .filter(feature_type='Plot')\
         #                   .exclude(pk__in=already_committed)\
         #                   .filter(geom__intersects=nearby_bbox)
 
-        #nearby = nearby.distance(point).order_by('distance')[:5]
+        # nearby = nearby.distance(point).order_by('distance')[:5]
 
-        #if len(nearby) > 0:
+        # if len(nearby) > 0:
         #    flds = (fields.trees.POINT_X, fields.trees.POINT_Y)
         #    if nearby[0].distance.m < 0.001:
         #        self.append_error(errors.DUPLICATE_TREE, flds)
@@ -363,7 +365,7 @@ class TreeImportRow(GenericImportRow):
         #        self.append_error(errors.NEARBY_TREES, flds,
         #                          [p.pk for p in nearby])
         #    return False
-        #else:
+        # else:
         #    return True
         return True
 
@@ -439,7 +441,7 @@ class TreeImportRow(GenericImportRow):
                     message = str(ve)
                     if isinstance(ve.message_dict, dict):
                         message = '\n'.join(
-                            [unicode(m) for m in ve.message_dict.values()])
+                            [str(m) for m in list(ve.message_dict.values())])
                     self.append_error(
                         errors.INVALID_UDF_VALUE, column_name, message)
 

@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 
 from django.core.exceptions import ValidationError
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from treemap.instance import (add_species_to_instance, create_stewardship_udfs,
                               InstanceBounds)
@@ -128,9 +126,9 @@ class InstanceMobileApiFieldsTests(OTMTestCase):
 
         val_err = m.exception
         self.assertIn('mobile_api_fields', val_err.message_dict)
-        messages = {force_text(e) for e
+        messages = {force_str(e) for e
                     in val_err.message_dict['mobile_api_fields']}
-        self.assertIn(force_text(msg), messages)
+        self.assertIn(force_str(msg), messages)
 
     def test_basic_errors(self):
         self.assert_raises_code(INSTANCE_FIELD_ERRORS['no_field_groups'], [])
@@ -286,9 +284,9 @@ class InstanceWebDetailFieldsTests(OTMTestCase):
 
         val_err = m.exception
         self.assertIn('web_detail_fields', val_err.message_dict)
-        messages = {force_text(e) for e
+        messages = {force_str(e) for e
                     in val_err.message_dict['web_detail_fields']}
-        self.assertIn(force_text(msg), messages)
+        self.assertIn(force_str(msg), messages)
 
     def test_basic_errors(self):
         self.assert_raises_code(INSTANCE_FIELD_ERRORS['no_field_groups'], [])

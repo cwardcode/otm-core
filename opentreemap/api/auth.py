@@ -1,6 +1,4 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import base64
 import hashlib
@@ -20,18 +18,15 @@ def get_signature_for_request(request, secret_key):
     DeveloperGuide/HMACAuth.html
     """
 
-
     # This used to use request.REQUEST, but after some testing and analysis it
     # seems that both iOS & Android always pass named parameters in the query
     # string, even for non-GET requests
-    #params = sorted(request.GET.iteritems(), key=lambda a: a[0])
-
-
+    # params = sorted(request.GET.iteritems(), key=lambda a: a[0])
 
     # Sometimes reeading from body fails, so try reading as a file-like
     try:
         body_encoded = base64.b64encode(request.body)
-    except:
+    except BaseException:
         body_encoded = base64.b64encode(request.read())
 
     sig = base64.b64encode(

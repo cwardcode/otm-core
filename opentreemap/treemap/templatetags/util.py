@@ -107,6 +107,7 @@ def detail_link(thing):
     else:
         return None
 
+
 AUDIT_MODEL_LOOKUP_FNS = {
     'mapfeature': lambda id: MapFeature.objects.get(pk=id),
     'tree': lambda id: Tree.objects.get(pk=id),
@@ -125,7 +126,7 @@ def audit_detail_link(audit):
     """
     model = audit.model
 
-    if model in MapFeature.subclass_dict().keys():
+    if model in list(MapFeature.subclass_dict().keys()):
         model = 'mapfeature'
 
     model = model.lower()
@@ -149,7 +150,7 @@ def terminology(model, instance):
 @register.filter
 def display_name(audit_or_model_or_name, instance=None):
     audit = None
-    if isinstance(audit_or_model_or_name, (Audit, basestring)):
+    if isinstance(audit_or_model_or_name, (Audit, str)):
         if isinstance(audit_or_model_or_name, Audit):
             audit = audit_or_model_or_name
             name = audit.model

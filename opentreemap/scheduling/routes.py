@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
 
 from functools import partial
 
@@ -14,7 +12,10 @@ from scheduling.views import update_instance_fields_with_validator
 from treemap.decorators import (require_http_method, admin_instance_request,
                                 return_400_if_validation_errors)
 
-admin_route = lambda **kwargs: admin_instance_request(route(**kwargs))
+
+def admin_route(**kwargs):
+    return admin_instance_request(route(**kwargs))
+
 
 json_do = partial(do, json_api_call, return_400_if_validation_errors)
 

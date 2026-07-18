@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import re
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
+from functools import reduce
 
 
 # Utilities for external links
@@ -15,6 +14,7 @@ _valid_url_tokens = ['tree.id', 'planting_site.id', 'planting_site.custom_id']
 def get_external_link_choice_pattern():
     return '|'.join([choice.replace('.', r'\.')
                      for choice in _valid_url_tokens])
+
 
 _validation_pattern = r'''\#(?:   # starts with a hash
     (?P<valid>{{(?:{})}}) |       # valid group is braced, filled by format
@@ -34,7 +34,7 @@ def _re_group_count(compiled, text):
     return reduce(
         lambda ac, groupdict: {
             k: v if groupdict[k] is None else v + 1
-            for k, v in ac.iteritems()},
+            for k, v in ac.items()},
         [m.groupdict() for m in compiled.finditer(text)],
         totals)
 
@@ -45,7 +45,7 @@ def validate_token_template(token_template):
 
 
 def get_url_tokens_for_display(in_bold=False):
-    show = lambda t: ('<b>#{%s}</b>' if in_bold else '#{%s}') % t
+    def show(t): return ('<b>#{%s}</b>' if in_bold else '#{%s}') % t
 
     return (', '.join(show(token) for token in _valid_url_tokens[:-1]) +
-            unicode(_(' or ')) + show(_valid_url_tokens[-1]))
+            str(_(' or ')) + show(_valid_url_tokens[-1]))

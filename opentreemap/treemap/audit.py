@@ -1,6 +1,4 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 import hashlib
@@ -12,13 +10,13 @@ from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
 
 from django.forms.models import model_to_dict
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.dateformat import format as dformat
 from django.dispatch import receiver
 from django.db import models as django_models
 from django.db.models.signals import post_save, post_delete
-from django.db.models.fields import FieldDoesNotExist
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import (FieldDoesNotExist, ObjectDoesNotExist,
+                                    ValidationError)
 from django.db import IntegrityError, connection, transaction
 from django.conf import settings
 from django.contrib.auth.models import Permission
@@ -84,8 +82,8 @@ def _reserve_model_id(model_class):
         cursor.execute("select nextval('%s');" % id_seq_name)
         results = cursor.fetchone()
         model_id = results[0]
-        assert(type(model_id) in [int, long])
-    except:
+        assert (type(model_id) in [int, int])
+    except BaseException:
         msg = "There was a database error while retrieving a unique audit ID."
         raise IntegrityError(msg)
 
@@ -106,8 +104,8 @@ def _reserve_model_id_range(model_class, num):
             {'seq': id_seq_name, 'num': num})
 
         model_ids = [row[0] for row in cursor]
-        assert(type(model_id) in [int, long] for model_id in model_ids)
-    except:
+        assert (type(model_id) in [int, int] for model_id in model_ids)
+    except BaseException:
         msg = "There was a database error while retrieving a unique audit ID."
         raise IntegrityError(msg)
 
@@ -445,7 +443,7 @@ def get_related_audits(insert_audit, approved_only=False):
                                           model_id=insert_audit.model_id,
                                           model=insert_audit.model,
                                           action=Audit.Type.Insert)\
-                                  .exclude(pk=insert_audit.pk)
+        .exclude(pk=insert_audit.pk)
     if approved_only:
         related_audits = related_audits.filter(
             ref__action=Audit.Type.PendingApprove)
@@ -472,9 +470,9 @@ def _verify_user_can_apply_audit(audit, user):
              if perm.field_name == field]
     if len(perms) == 1:
         if perms[0].permission_level != FieldPermission.WRITE_DIRECTLY:
-                raise AuthorizeException(
-                    "User %s can't edit field %s on model %s" %
-                    (user, field, model))
+            raise AuthorizeException(
+                "User %s can't edit field %s on model %s" %
+                (user, field, model))
     elif len(perms) == 0:
         raise AuthorizeException(
             "User %s can't edit field %s on model %s"
@@ -530,7 +528,7 @@ class Dictable(object):
 
     @property
     def hash(self):
-        values = ['%s:%s' % (k, v) for (k, v) in self.as_dict().iteritems()]
+        values = ['%s:%s' % (k, v) for (k, v) in self.as_dict().items()]
         string = '|'.join(values).encode('utf-8')
         return hashlib.md5(string).hexdigest()
 
@@ -569,6 +567,7 @@ class UserTrackable(Dictable):
     circular dependencies in the initialization process
     in the first place.
     '''
+
     def __init__(self, *args, **kwargs):
         # _do_not_track returns the static do_not_track set unioned
         # with any fields that are added during instance initialization.
@@ -608,12 +607,12 @@ class UserTrackable(Dictable):
 
     def _direct_updates(self, updates, user):
         pending_fields = self.get_pending_fields(user)
-        return {key: val for key, val in updates.iteritems()
+        return {key: val for key, val in updates.items()
                 if key not in pending_fields}
 
     def _pending_updates(self, updates, user):
         pending_fields = self.get_pending_fields(user)
-        return {key: val for key, val in updates.iteritems()
+        return {key: val for key, val in updates.items()
                 if key in pending_fields}
 
     def _updated_fields(self):
@@ -662,12 +661,12 @@ class UserTrackable(Dictable):
             instance = self.get_instance()
         except AuthorizeException:
             return False
-        if not user or not user.is_authenticated():
+        if not user or not user.is_authenticated:
             return False
         return user.get_role(instance).name == Role.ADMINISTRATOR
 
     def fields(self):
-        return self.as_dict().keys()
+        return list(self.as_dict().keys())
 
     def get_previous_state(self):
         return self._previous_state
@@ -686,7 +685,7 @@ class UserTrackable(Dictable):
             # "initial" state is empty so we clear it here
             self.clear_previous_state()
         else:
-            self._previous_state = {k: v for k, v in self.as_dict().iteritems()
+            self._previous_state = {k: v for k, v in self.as_dict().items()
                                     if k not in self._do_not_track}
 
     @staticmethod
@@ -708,8 +707,8 @@ class UserTrackable(Dictable):
 class FieldPermission(models.Model):
     model_name = models.CharField(max_length=255)
     field_name = models.CharField(max_length=255)
-    role = models.ForeignKey('Role')
-    instance = models.ForeignKey('Instance')
+    role = models.ForeignKey('Role', on_delete=models.CASCADE)
+    instance = models.ForeignKey('Instance', on_delete=models.CASCADE)
 
     NONE = 0
     READ_ONLY = 1
@@ -799,7 +798,11 @@ class Role(models.Model):
     objects = RoleManager()
 
     name = models.CharField(max_length=255)
-    instance = models.ForeignKey('Instance', null=True, blank=True)
+    instance = models.ForeignKey(
+        'Instance',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE)
 
     default_permission_level = models.IntegerField(
         db_column='default_permission',
@@ -1048,6 +1051,7 @@ class Auditable(UserTrackable):
     If you want to use this with Authorizable, you should mixin
     PendingAuditable, which joins both classes together nicely
     """
+
     def audits(self):
         return Audit.audits_for_object(self)
 
@@ -1135,7 +1139,7 @@ class Auditable(UserTrackable):
                          requires_auth=False,
                          ref=None)
 
-        for [field, (prev_value, next_value)] in direct_updates.iteritems():
+        for [field, (prev_value, next_value)] in direct_updates.items():
             yield make_audit(field, prev_value, next_value)
 
     @property
@@ -1190,6 +1194,7 @@ class _PendingAuditable(Auditable):
     You should never use this directly, since it requires Authorizable.
     Instead use PendingAuditable (no underscore)
     """
+
     def __init__(self, *args, **kwargs):
         super(_PendingAuditable, self).__init__(*args, **kwargs)
         self.is_pending_insert = False
@@ -1238,7 +1243,7 @@ class _PendingAuditable(Auditable):
 
         # Before saving we need to restore any pending values to their
         # previous state
-        for pending_field, (old_val, __) in pending_updates.iteritems():
+        for pending_field, (old_val, __) in pending_updates.items():
             try:
                 self.apply_change(pending_field, old_val)
             except ValueError:
@@ -1293,7 +1298,7 @@ class _PendingAuditable(Auditable):
                          requires_auth=True,
                          ref=None)
 
-        for [field, (prev_value, next_value)] in pending_updates.iteritems():
+        for [field, (prev_value, next_value)] in pending_updates.items():
             yield make_pending_audit(field, prev_value, next_value)
 
 
@@ -1318,13 +1323,17 @@ class Audit(models.Model):
     model = models.CharField(max_length=255, null=True, db_index=True)
     model_id = models.IntegerField(null=True, db_index=True)
     instance = models.ForeignKey(
-        'Instance', null=True, blank=True, db_index=True)
+        'Instance',
+        null=True,
+        blank=True,
+        db_index=True,
+        on_delete=models.CASCADE)
 
     field = models.CharField(max_length=255, null=True)
     previous_value = models.TextField(null=True)
     current_value = models.TextField(null=True, db_index=True)
 
-    user = models.ForeignKey('treemap.User')
+    user = models.ForeignKey('treemap.User', on_delete=models.CASCADE)
     action = models.IntegerField()
 
     """
@@ -1360,7 +1369,7 @@ class Audit(models.Model):
             self.current_value = json.dumps(self.current_value)
 
     requires_auth = models.BooleanField(default=False)
-    ref = models.ForeignKey('Audit', null=True)
+    ref = models.ForeignKey('Audit', null=True, on_delete=models.CASCADE)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
@@ -1440,7 +1449,7 @@ class Audit(models.Model):
         if isinstance(field_cls, models.GeometryField):
             field_modified_value = GEOSGeometry(field_modified_value)
         elif isinstance(field_cls, models.ForeignKey):
-            if isinstance(field_modified_value, (str, unicode)):
+            if isinstance(field_modified_value, str):
                 # sometimes audit records have descriptive string values
                 # stored in what should be a foreign key field.
                 # these cannot be resolved to foreign key models.
@@ -1581,7 +1590,7 @@ class Audit(models.Model):
                 'created': str(self.created)}
 
     def __unicode__(self):
-        return u"pk=%s - action=%s - %s.%s:(%s) - %s => %s" % \
+        return "pk=%s - action=%s - %s.%s:(%s) - %s => %s" % \
             (self.pk, self.TYPES[self.action], self.model,
              self.field, self.model_id,
              self.previous_value, self.current_value)
@@ -1596,7 +1605,7 @@ class ReputationMetric(models.Model):
     how many reputation points are awarded/deducted for an
     approved/denied audit.
     """
-    instance = models.ForeignKey('Instance')
+    instance = models.ForeignKey('Instance', on_delete=models.CASCADE)
     model_name = models.CharField(max_length=255)
     action = models.CharField(max_length=255)
     direct_write_score = models.IntegerField(null=True, blank=True)
@@ -1644,7 +1653,7 @@ class ReputationMetric(models.Model):
             elif not audit.requires_auth:
                 iuser.reputation += rm.direct_write_score
 
-        for iuser in iusers.itervalues():
+        for iuser in iusers.values():
             iuser.save_base()
 
 
@@ -1658,7 +1667,7 @@ def _get_model_class(class_dict, cls, model_name):
     Convert a model name (as a string) into the model class
     """
     if model_name.startswith('udf:'):
-        from udf import UserDefinedCollectionValue
+        from .udf import UserDefinedCollectionValue
         return UserDefinedCollectionValue
 
     if not class_dict:

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 import re
@@ -12,7 +10,7 @@ from django.template.loader import get_template
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.utils import dateformat
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.conf import settings
 
 from opentreemap.util import dotted_split
@@ -55,7 +53,7 @@ FIELD_MAPPINGS = {
 
 FOREIGN_KEY_PREDICATE = 'IS'
 
-VALID_FIELD_KEYS = ','.join(FIELD_MAPPINGS.keys())
+VALID_FIELD_KEYS = ','.join(list(FIELD_MAPPINGS.keys()))
 
 
 class Variable(Grammar):
@@ -198,7 +196,7 @@ def inline_edit_tag(tag, Node):
 
         elems = results.elements
 
-        one_or_none = lambda e: e[1].string if e else None
+        def one_or_none(e): return e[1].string if e else None
 
         label = _token_to_variable(
             elems[0][1].string
@@ -334,7 +332,7 @@ class AbstractNode(template.Node):
         field_template = get_template(_resolve_variable(
                                       self.field_template, context)).template
 
-        if not isinstance(identifier, basestring)\
+        if not isinstance(identifier, str)\
            or not _identifier_regex.match(identifier):
             raise template.TemplateSyntaxError(
                 'expected a string with the format "object_name.property" '
@@ -434,7 +432,7 @@ class AbstractNode(template.Node):
         elif data_type == 'float':
             display_val = num_format(field_value)
         else:
-            display_val = unicode(field_value)
+            display_val = str(field_value)
 
         context['field'] = {
             'label': label,
@@ -539,7 +537,7 @@ class SearchNode(CreateNode):
         def update_field(settings):
             # Identifier is lower-cased above to match the calling convention
             # of update endpoints, so we shouldn't overwrite it :(
-            field.update({k: v for k, v in settings.items()
+            field.update({k: v for k, v in list(settings.items())
                           if v is not None and k != 'identifier'})
 
         search_settings = getattr(model, 'search_settings', {}).get(field_name)
@@ -575,6 +573,7 @@ class SearchNode(CreateNode):
     def treat_multichoice_as_choice(self):
         # When used for searching, multichoice and choice fields act the same
         return True
+
 
 register.tag('field', inline_edit_tag('field', FieldNode))
 register.tag('create', inline_edit_tag('create', CreateNode))

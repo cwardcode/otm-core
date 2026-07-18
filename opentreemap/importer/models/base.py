@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError
 from django.contrib.gis.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils.timezone import now
 
 from treemap.models import User, Instance
@@ -43,8 +41,8 @@ class GenericImportEvent(models.Model):
     field_order = models.TextField(default='')
 
     # Metadata about this particular import
-    owner = models.ForeignKey(User)
-    instance = models.ForeignKey(Instance)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now=True)
     completed = models.DateTimeField(null=True, blank=True)
 
@@ -101,7 +99,12 @@ class GenericImportEvent(models.Model):
         return self.status in (self.VERIFIYING, self.CREATING)
 
     def is_finished(self):
-        return self.status in (self.FINISHED_VERIFICATION, self.FINISHED_CREATING, self.FAILED_FILE_VERIFICATION, self.CANCELED, self.VERIFICATION_ERROR)
+        return self.status in (
+            self.FINISHED_VERIFICATION,
+            self.FINISHED_CREATING,
+            self.FAILED_FILE_VERIFICATION,
+            self.CANCELED,
+            self.VERIFICATION_ERROR)
 
     def can_export(self):
         return (not self.is_running()
@@ -113,7 +116,8 @@ class GenericImportEvent(models.Model):
         return self.status in (self.LOADING, self.VERIFIYING)
 
     def can_add_to_map(self):
-        return self.has_current_schema_version() and self.status in (self.FINISHED_VERIFICATION, self.FINISHED_CREATING)
+        return self.has_current_schema_version() and self.status in (
+            self.FINISHED_VERIFICATION, self.FINISHED_CREATING)
 
     def has_current_schema_version(self):
         return self.schema_version == self.import_schema_version
@@ -316,7 +320,7 @@ class GenericImportRow(models.Model):
 
         # If you give append_error a single field
         # there is no need to get angry
-        if isinstance(fields, basestring):
+        if isinstance(fields, str):
             fields = (fields,)  # make into tuple
 
         self.errors = json.dumps(
@@ -331,7 +335,7 @@ class GenericImportRow(models.Model):
     def safe_float(self, fld):
         try:
             return float(self.datadict[fld])
-        except:
+        except BaseException:
             self.append_error(errors.FLOAT_ERROR, fld)
             return False
 
@@ -352,7 +356,7 @@ class GenericImportRow(models.Model):
     def safe_int(self, fld):
         try:
             return int(self.datadict[fld])
-        except:
+        except BaseException:
             self.append_error(errors.INT_ERROR, fld)
             return False
 
@@ -380,7 +384,7 @@ class GenericImportRow(models.Model):
 
     @staticmethod
     def convert_units(data, converts):
-        for fld, factor in converts.iteritems():
+        for fld, factor in converts.items():
             if fld in data and factor != 1.0:
                 data[fld] = float(data[fld]) * factor
 

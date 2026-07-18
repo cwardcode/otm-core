@@ -1,6 +1,4 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 
@@ -65,6 +63,7 @@ def get_udfc_search_fields(instance, user):
 @register.filter
 def as_json(d):
     return json.dumps(d)
+
 
 udf_write_level = register.filter(perms.udf_write_level)
 map_feature_is_writable = register.filter(perms.map_feature_is_writable)

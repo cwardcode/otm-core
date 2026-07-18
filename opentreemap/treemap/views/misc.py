@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import string
 import re
 import sass
 import json
 
-from django.utils.translation import ugettext as _
-from django.core.urlresolvers import reverse
+from django.utils.translation import gettext as _
+from django.urls import reverse
 from django.conf import settings
 from django.contrib.gis.geos import Polygon
 from django.core.exceptions import ValidationError
@@ -188,7 +186,7 @@ def species_list(request, instance):
         display_name = "%s [%s]" % (sdict['common_name'],
                                     sci_name)
 
-        tokens = tokenize(species)
+        tokens = tokenize(sdict)
 
         sdict.update({
             'scientific_name': sci_name,
@@ -225,7 +223,7 @@ def tags_list(request, instance):
         return {token.strip(string.punctuation) for token in tokens}
 
     def annotate_tag_dict(sdict):
-        tokens = tokenize(tag)
+        tokens = tokenize(sdict)
         tag_name = Tag.objects.filter(id=sdict['tag']).values('name')
         tag_name_value = tag_name[0]['name']
         sdict.update({
@@ -249,11 +247,11 @@ def compile_scss(request):
     override variables with '!default' in our normal .scss files should have
     any effect
     """
-    # Webpack and libsass have different opinions on how url(...) works
+    # Webpack and libsass have different opinions on how re_path(...) works
     scss = "$staticUrl: '/static/';\n"
     # We can probably be a bit looser with what we allow here in the future if
     # we need to, but we must do some checking so that libsass doesn't explode
-    for key, value in request.GET.items():
+    for key, value in list(request.GET.items()):
         if _SCSS_VAR_NAME_RE.match(key) and COLOR_RE.match(value):
             scss += '$%s: #%s;\n' % (key, value)
         elif key == 'url':
@@ -295,7 +293,7 @@ def public_instances_geojson(request):
 def error_page(status_code):
     template = '%s.html' % status_code
 
-    def inner_fn(request):
+    def inner_fn(request, exception=None):
         reasons = {
             404: _('URL or resource not found'),
             500: _('An unhandled error occured'),
@@ -316,14 +314,16 @@ def error_page(status_code):
 
     return inner_fn
 
+
 def filter_actions(request, instance, feature_id, tree_id, tree_action):
     from treemap.udf import UserDefinedCollectionValue
-    qs = UserDefinedCollectionValue.objects.filter(model_id=tree_id).values('id', 'data')
+    qs = UserDefinedCollectionValue.objects.filter(
+        model_id=tree_id).values('id', 'data')
     qs_list = list(qs)
     if tree_action == 'All':
-       return {
-        "actions": qs_list
-    }
+        return {
+            "actions": qs_list
+        }
 
     filtered_list = []
     for i in range(len(qs_list)):

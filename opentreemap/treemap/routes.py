@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from functools import partial
 
@@ -159,6 +157,11 @@ map_feature_popup = do(
     etag(feature_views.map_feature_hash),
     render_template('treemap/partials/map_feature_popup.html'),
     feature_views.map_feature_popup)
+
+map_feature_for_point = do(
+    instance_request,
+    json_api_call,
+    feature_views.map_feature_for_point)
 
 canopy_popup = do(
     instance_request,

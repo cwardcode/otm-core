@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from PIL import Image
 import hashlib
 import os
-from cStringIO import StringIO
+from io import StringIO
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -22,7 +20,7 @@ def _rotate_image_based_on_exif(img):
             img = img.rotate(-90, expand=True)
         elif orientation == 5:  # Left turn
             img = img.rotate(90, expand=True)
-    except:
+    except BaseException:
         pass
 
     return img
@@ -96,7 +94,7 @@ def save_uploaded_image(image_data, name_prefix, thumb_size=None,
         image_data.seek(0)
 
         return image_file, thumb_file
-    except:
+    except BaseException:
         raise ValidationError(_('Image upload issue'))
 
 

@@ -2,10 +2,12 @@
 
 
 def all_itree_region_codes():
-    return _CODES.keys()
+    return list(_CODES.keys())
+
 
 def all_species_codes():
     return species_codes_for_regions(all_itree_region_codes())
+
 
 def species_codes_for_regions(region_codes):
     if region_codes is None:
@@ -15,6 +17,7 @@ def species_codes_for_regions(region_codes):
         species_codes.extend(_CODES[region_code])
     # Converting to a set removes duplicates
     return list(set(species_codes))
+
 
 def get_itree_code(region_code, otm_code):
     if (
@@ -46,7 +49,7 @@ def get_itree_code(region_code, otm_code):
 # NOTE: if you change this, also recreate otm-ecoservice/data/species.json
 
 _CODES = {
-##################################################
+    ##################################################
     'CaNCCoJBK': {
         'AB': 'CEL OTHER',
         'AC': 'BDM OTHER',
@@ -354,9 +357,9 @@ _CODES = {
         'YURE': 'PES OTHER',
         'YUTO': 'PES OTHER',
         'ZESE': 'BDL OTHER'
-    } # END CaNCCoJBK
+    }  # END CaNCCoJBK
     ,
-##################################################
+    ##################################################
     'CenFlaXXX': {
         'ACAC2': 'PES OTHER',
         'ACNE': 'BDM OTHER',
@@ -571,10 +574,10 @@ _CODES = {
         'WARO': 'WARO',
         'WOBI2': 'PEM OTHER',
         'YU1': 'PES OTHER'
-    } # END CenFlaXXX
+    }  # END CenFlaXXX
     ,
-##################################################
-    'GulfCoCHS' : {
+    ##################################################
+    'GulfCoCHS': {
         'ACBU': 'ACRU',
         'ACGI': 'ACRU',
         'ACNE': 'ACRU',
@@ -749,9 +752,9 @@ _CODES = {
         'WIFL': 'BDS OTHER',
         'YUGL2': 'PES OTHER',
         'ZESE': 'BDL OTHER'
-    } # END GulfCoCHS
+    }  # END GulfCoCHS
     ,
-##################################################
+    ##################################################
     'InlEmpCLM': {
         'ABPR': 'CEL OTHER',
         'ACBA2': 'BEM OTHER',
@@ -1012,9 +1015,9 @@ _CODES = {
         'YUGU': 'PES OTHER',
         'ZESE': 'BDL OTHER',
         'ZESE_V': 'BDL OTHER'
-    } # END InlEmpCLM
+    }  # END InlEmpCLM
     ,
-##################################################
+    ##################################################
     'InlValMOD': {
         'AC': 'ACSA1',
         'ACBU': 'ACSA1',
@@ -1209,9 +1212,9 @@ _CODES = {
         'WARO': 'WARO',
         'ZESE': 'ZESE',
         'ZESE_V': 'ZESE'
-    } # END InlValMOD
+    }  # END InlValMOD
     ,
-##################################################
+    ##################################################
     'InterWABQ': {
         'ACNE': 'BDL OTHER',
         'ACPL': 'BDL OTHER',
@@ -1298,9 +1301,9 @@ _CODES = {
         'VI5': 'BDS OTHER',
         'WARO': 'WARO',
         'ZESE': 'ULPU'
-    } # END InterWABQ
+    }  # END InterWABQ
     ,
-##################################################
+    ##################################################
     'LoMidWXXX': {
         'AB': 'CEL OTHER',
         'ABBA': 'CEL OTHER',
@@ -1514,10 +1517,10 @@ _CODES = {
         'VISP2': 'BDS OTHER',
         'WARO': 'WARO',
         'ZESE': 'BDL OTHER'
-    } # END LoMidWXXX
+    }  # END LoMidWXXX
     ,
-##################################################
-    'MidWstMSP' : {
+    ##################################################
+    'MidWstMSP': {
         'AC': 'ACRU',
         'ACGI': 'MA2',
         'ACNE': 'ACNE',
@@ -1622,9 +1625,9 @@ _CODES = {
         'ULPA': 'BDL OTHER',
         'ULPU': 'ULPU',
         'ULS': 'FRPE',
-    } # END MidWstMSP
+    }  # END MidWstMSP
     ,
-##################################################
+    ##################################################
     'NMtnPrFNL': {
         'ABBA': 'CEL OTHER',
         'ABCO': 'PIPU',
@@ -1758,9 +1761,9 @@ _CODES = {
         'ULPU': 'ULPU',
         'ULS': 'FRPE',
         'WISI': 'MA2'
-    } # END NMtnPrFNL
+    }  # END NMtnPrFNL
     ,
-##################################################
+    ##################################################
     'NoEastXXX': {
         'AB': 'CEL OTHER',
         'ABBA': 'CEL OTHER',
@@ -2020,9 +2023,9 @@ _CODES = {
         'ULTH': 'ULAM',
         'ZE': 'ZESE',
         'ZESE': 'ZESE',
-    } # END NoEastXXX
+    }  # END NoEastXXX
     ,
-##################################################
+    ##################################################
     'PacfNWLOG': {
         'ABGR': 'CEL OTHER',
         'ABLA': 'CEL OTHER',
@@ -2195,9 +2198,9 @@ _CODES = {
         'ULPU': 'ULAM',
         'WARO': 'WARO',
         'WISI': 'BDS OTHER'
-    } # END PacfNWLOG
+    }  # END PacfNWLOG
     ,
-##################################################
+    ##################################################
     'PiedmtCLT': {
         'AB': 'CEL OTHER',
         'ABCO': 'CEL OTHER',
@@ -2443,9 +2446,9 @@ _CODES = {
         'WARO': 'WARO',
         'YU1': 'PES OTHER',
         'ZESE': 'BDL OTHER',
-    } # END PiedmtCLT
+    }  # END PiedmtCLT
     ,
-##################################################
+    ##################################################
     'SoCalCSMA': {
         'AC': 'BDL OTHER',
         'ACBA2': 'BEM OTHER',
@@ -2733,9 +2736,9 @@ _CODES = {
         'YU1': 'PES OTHER',
         'YUGL2': 'PES OTHER',
         'YUGU': 'PES OTHER',
-    } # END SoCalCSMA
+    }  # END SoCalCSMA
     ,
-##################################################
+    ##################################################
     'SWDsrtGDL': {
         'ACAN': 'ACSA3',
         'ACFA': 'ACFA',
@@ -2853,9 +2856,9 @@ _CODES = {
         'VIAG': 'BDS OTHER',
         'WAFI': 'WAFI',
         'WARO': 'WARO'
-    } # END SWDsrtGDL
+    }  # END SWDsrtGDL
     ,
-##################################################
+    ##################################################
     'TpIntWBOI': {
         'AB': 'CEL OTHER',
         'ABAL': 'CEL OTHER',
@@ -3049,9 +3052,9 @@ _CODES = {
         'ULPR': 'ULPU',
         'ULPU': 'ULPU',
         'ULS': 'ULPU'
-    } # END TpIntWBOI
+    }  # END TpIntWBOI
     ,
-##################################################
+    ##################################################
     'TropicPacXXX': {
         'ACCO': 'BEM OTHER',
         'ACKO': 'BEL OTHER',
@@ -3284,7 +3287,7 @@ _CODES = {
         'VEME': 'VEME',
         'VIPA6': 'BEL OTHER',
         'WARO': 'PES OTHER'
-    } # END TropicPacXXX
+    }  # END TropicPacXXX
 }
 
 # The currency conversions are in the following units:
@@ -3520,4 +3523,5 @@ ITREE_REGIONS = {
 }
 
 
-ITREE_REGION_CHOICES = [(code, conf['name']) for code, conf in ITREE_REGIONS.items()]
+ITREE_REGION_CHOICES = [(code, conf['name'])
+                        for code, conf in list(ITREE_REGIONS.items())]

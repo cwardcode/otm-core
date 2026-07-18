@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from django.contrib.gis.db import models
 from django.db import connection
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from stormwater.benefits import PolygonalBasinBenefitCalculator
 from treemap.decorators import classproperty
@@ -19,7 +17,7 @@ class PolygonalMapFeature(MapFeature):
 
     polygon = models.MultiPolygonField(srid=3857)
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
     @classproperty
     def always_writable(cls):
@@ -81,7 +79,7 @@ class PolygonalMapFeature(MapFeature):
 
 
 class Bioswale(PolygonalMapFeature, ValidationMixin):
-    objects = models.GeoManager()
+    objects = models.Manager()
     drainage_area = models.FloatField(
         null=True,
         blank=True,
@@ -143,7 +141,7 @@ class Bioswale(PolygonalMapFeature, ValidationMixin):
 
 
 class RainGarden(PolygonalMapFeature, ValidationMixin):
-    objects = models.GeoManager()
+    objects = models.Manager()
     drainage_area = models.FloatField(
         null=True,
         blank=True,
@@ -205,7 +203,7 @@ class RainGarden(PolygonalMapFeature, ValidationMixin):
 
 
 class RainBarrel(MapFeature):
-    objects = models.GeoManager()
+    objects = models.Manager()
     capacity = models.FloatField(
         verbose_name=_("Capacity"),
         error_messages={'invalid': _("Please enter a number.")})

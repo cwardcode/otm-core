@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
 
+
+from otm1_migrator.migration_rules.standard_otm1 \
+    import MIGRATION_RULES as RULES
 import os
 import importlib
 import json
@@ -48,10 +48,9 @@ def save_objects(migration_rules, model_name, model_dicts, relic_ids,
                      if dict['pk'] not in model_key_map)
 
     for model_dict in dicts_to_save:
-        dependencies = (migration_rules
+        dependencies = (list(migration_rules
                         .get(model_name, {})
-                        .get('dependencies', {})
-                        .items())
+                        .get('dependencies', {}).items()))
 
         old_model_dict = model_dict.copy()
         old_model_dict['fields'] = model_dict['fields'].copy()
@@ -89,12 +88,6 @@ def save_objects(migration_rules, model_name, model_dicts, relic_ids,
             else:
                 pk = models.UNBOUND_MODEL_ID
             model_key_map[model_dict['pk']] = pk
-
-
-from otm1_migrator.migration_rules.standard_otm1 \
-    import MIGRATION_RULES as RULES
-from otm1_migrator.migration_rules.standard_otm1 \
-    import MODEL_ORDER as ORDER
 
 
 class Command(InstanceDataCommand):
@@ -145,7 +138,7 @@ class Command(InstanceDataCommand):
 
         if options['config_file']:
             config_data = json.load(open(options['config_file'], 'r'))
-            for k, v in config_data.items():
+            for k, v in list(config_data.items()):
                 if not options.get(k):
                     options[k] = v
 
@@ -156,7 +149,7 @@ class Command(InstanceDataCommand):
         try:
             model_order = migration_mod.MODEL_ORDER
         except AttributeError:
-            model_order = ORDER
+            model_order = list(RULES.keys())
         try:
             udfs = migration_mod.UDFS
         except AttributeError:

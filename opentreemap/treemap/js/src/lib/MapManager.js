@@ -5,6 +5,7 @@ var $ = require('jquery'),
     R = require('ramda'),
     L = require('leaflet'),
     Bacon = require('baconjs'),
+    querystring = require('querystring'),
     format = require('util').format,
     U = require('treemap/lib/utility.js'),
     BU = require('treemap/lib/baconUtils.js'),
@@ -119,7 +120,8 @@ MapManager.prototype = {
     ZOOM_PLOT: 18,
 
     createTreeMap: function (options) {
-        var hasPolygons = getDomMapBool('has-polygons', options.domId),
+        var usePgTileserv = usingPgTileservBackend(),
+            hasPolygons = getDomMapBool('has-polygons', options.domId),
             hasBoundaries = getDomMapBool('has-boundaries', options.domId),
             plotLayer = layersLib.createPlotTileLayer(),
             allPlotsLayer = layersLib.createPlotTileLayer(),
@@ -136,8 +138,23 @@ MapManager.prototype = {
             this.layersControl.addOverlay(plotLayer, 'OpenTreeMap Trees');
         } else {
             map.addLayer(plotLayer);
-            map.addLayer(utfLayer);
-            var baseUtfEventStream = BU.leafletEventStream(utfLayer, 'click');
+            var baseUtfEventStream;
+
+            if (usePgTileserv) {
+                baseUtfEventStream = BU.leafletSingleClickStream(
+                    map,
+                    parseInt(config.doubleClickInterval, 10) || 300
+                ).flatMap(function(e) {
+                    return BU.getJsonFromUrl(
+                        makeMapFeatureForPointUrl(e.latlng.lng, e.latlng.lat)
+                    ).map(function(response) {
+                        return _.merge({}, e, response);
+                    });
+                });
+            } else {
+                map.addLayer(utfLayer);
+                baseUtfEventStream = BU.leafletEventStream(utfLayer, 'click');
+            }
 
             if (hasPolygons) {
                 var polygonLayer = layersLib.createPolygonTileLayer(),
@@ -148,34 +165,39 @@ MapManager.prototype = {
                 allPolygonsLayer.setOpacity(0.3);
                 map.addLayer(polygonLayer);
 
-                // When a map has polygons, we check to see if a utf event was
-                // for a dot, and if not, and if the map is zoomed in enough to
-                // see polygons, we make an AJAX call to see if there
-                // is a polygon in that location.
-                var shouldCheckForPolygon = function(e) {
-                        return map.getZoom() >= MIN_ZOOM_OPTION.minZoom && e.data === null;
-                    },
-                    plotUtfEventStream = baseUtfEventStream.filter(R.complement(shouldCheckForPolygon)),
-                    emptyUtfEventStream = baseUtfEventStream.filter(shouldCheckForPolygon),
+                if (usePgTileserv) {
+                    map.utfEvents = baseUtfEventStream;
+                } else {
 
-                    polygonDataStream = emptyUtfEventStream.map(function(e) {
-                        var lat = e.latlng.lat,
-                            lng = e.latlng.lng,
-                            // The distance parameter changes as a function of zoom
-                            // halving with every zoom level.  I arrived at 20
-                            // meters at zoom level 15 through trial and error
-                            dist = 20 / Math.pow(2, map.getZoom() - MIN_ZOOM_OPTION.minZoom),
-                            url = reverse.polygon_for_point({instance_url_name: config.instance.url_name});
+                    // When a map has polygons, we check to see if a utf event was
+                    // for a dot, and if not, and if the map is zoomed in enough to
+                    // see polygons, we make an AJAX call to see if there
+                    // is a polygon in that location.
+                    var shouldCheckForPolygon = function(e) {
+                            return map.getZoom() >= MIN_ZOOM_OPTION.minZoom && e.data === null;
+                        },
+                        plotUtfEventStream = baseUtfEventStream.filter(R.complement(shouldCheckForPolygon)),
+                        emptyUtfEventStream = baseUtfEventStream.filter(shouldCheckForPolygon),
 
-                        return url + format('?lng=%d&lat=%d&distance=%d', lng, lat, dist);
-                    }).flatMap(BU.getJsonFromUrl);
+                        polygonDataStream = emptyUtfEventStream.map(function(e) {
+                            var lat = e.latlng.lat,
+                                lng = e.latlng.lng,
+                                // The distance parameter changes as a function of zoom
+                                // halving with every zoom level.  I arrived at 20
+                                // meters at zoom level 15 through trial and error
+                                dist = 20 / Math.pow(2, map.getZoom() - MIN_ZOOM_OPTION.minZoom),
+                                url = reverse.polygon_for_point({instance_url_name: config.instance.url_name});
 
-                map.utfEvents = Bacon.mergeAll(
-                    plotUtfEventStream,
-                    emptyUtfEventStream.zip(polygonDataStream, function(utf, polygon) {
-                        return _.merge({}, utf, polygon);
-                    })
-                );
+                            return url + format('?lng=%d&lat=%d&distance=%d', lng, lat, dist);
+                        }).flatMap(BU.getJsonFromUrl);
+
+                    map.utfEvents = Bacon.mergeAll(
+                        plotUtfEventStream,
+                        emptyUtfEventStream.zip(polygonDataStream, function(utf, polygon) {
+                            return _.merge({}, utf, polygon);
+                        })
+                    );
+                }
             } else {
                 map.utfEvents = baseUtfEventStream;
             }
@@ -307,7 +329,9 @@ MapManager.prototype = {
     },
 
     updateRevHashes: function (response) {
-        this._utfLayer.setHashes(response);
+        if (this._utfLayer) {
+            this._utfLayer.setHashes(response);
+        }
         this._plotLayer.setHashes(response);
         this._allPlotsLayer.setHashes(response);
 
@@ -486,6 +510,29 @@ function addCustomLayer(mapManager, layerInfo) {
     if (layerInfo.showByDefault) {
         mapManager.map.addLayer(layer);
     }
+}
+
+function usingPgTileservBackend() {
+    return config.tileBackend === 'pg_tileserv';
+}
+
+function makeMapFeatureForPointUrl(lng, lat) {
+    var query = querystring.parse(window.location.search.replace(/^\?/, '')),
+        payload = {
+            lng: lng,
+            lat: lat,
+            restrict: JSON.stringify(config.instance.mapFeatureTypes)
+        };
+
+    if (query.q) {
+        payload.q = query.q;
+    }
+
+    if (query.show) {
+        payload.show = query.show;
+    }
+
+    return config.mapFeatureForPointUrl + '?' + querystring.stringify(payload);
 }
 
 module.exports = MapManager;

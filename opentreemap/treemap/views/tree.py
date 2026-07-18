@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import hashlib
 
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
-from django.utils.translation import ungettext
+from django.urls import reverse
+from django.utils.translation import ngettext
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.http import HttpResponseRedirect
@@ -76,8 +74,8 @@ def search_tree_benefits(request, instance):
     n_empty_plots = n_plots - n_trees
     n_resources = 0
 
-    tree_count_label = ungettext('tree', 'trees', n_trees) + ','
-    empty_plot_count_label = ungettext(
+    tree_count_label = ngettext('tree', 'trees', n_trees) + ','
+    empty_plot_count_label = ngettext(
         'empty planting site', 'empty planting sites', n_empty_plots)
     has_resources = instance.has_resources and 'resource' in basis
     if has_resources:

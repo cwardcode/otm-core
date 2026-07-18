@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import datetime
 from collections import OrderedDict
 
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from django.apps import apps
 from django.shortcuts import get_object_or_404, resolve_url
@@ -15,7 +13,7 @@ from django.utils.encoding import force_str
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.conf import settings
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from opentreemap.util import dict_pop
 from treemap.instance import Instance
@@ -74,7 +72,7 @@ def add_visited_instance(request, instance):
     visited_instances[instance.pk] = stamp
 
     # turn back into a list of tuples
-    request.session['visited_instances'] = visited_instances.items()
+    request.session['visited_instances'] = list(visited_instances.items())
     request.session.modified = True
 
 
@@ -134,7 +132,7 @@ def package_field_errors(model_name, validation_error):
     Return a version keyed by "objectname.fieldname" instead of "fieldname".
     """
     dict = {'%s.%s' % (to_object_name(model_name), field): msgs
-            for (field, msgs) in validation_error.message_dict.iteritems()}
+            for (field, msgs) in validation_error.message_dict.items()}
 
     return dict
 
@@ -193,7 +191,7 @@ def get_csv_response(filename):
 
     # add BOM to support CSVs in MS Excel
     # http://en.wikipedia.org/wiki/Byte_order_mark
-    response.write(u'\ufeff'.encode('utf8'))
+    response.write('\ufeff'.encode('utf8'))
     return response
 
 

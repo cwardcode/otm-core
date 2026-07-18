@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import random
 import math
@@ -63,7 +61,7 @@ class Command(InstanceDataCommand):
         n = options['n']
         self.stdout.write("Will create %s plots" % n)
 
-        get_prob = lambda option: float(min(100, max(0, option))) / 100.0
+        def get_prob(option): return float(min(100, max(0, option))) / 100.0
         tree_prob = get_prob(options['ptree'])
         species_prob = get_prob(options['pspecies'])
         diameter_prob = get_prob(options['pdiameter'])
@@ -74,7 +72,7 @@ class Command(InstanceDataCommand):
 
         ct = 0
         cp = 0
-        for i in xrange(0, n):
+        for i in range(0, n):
             mktree = random.random() < tree_prob
             radius = random.gauss(0.0, max_radius)
             theta = random.random() * 2.0 * math.pi

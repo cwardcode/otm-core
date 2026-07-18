@@ -56,4 +56,5 @@ def transform_geometry(geometry_wkt):
         bad_geom = fromstr(geometry_wkt, srid=102646)
         return bad_geom.transform(SpatialReference(4326), clone=True)
 
+
 MIGRATION_RULES['plot']['value_transformers']['geometry'] = transform_geometry

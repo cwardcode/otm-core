@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models, migrations
 
@@ -13,7 +13,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SpeciesImportEvent',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                 serialize=False, auto_created=True, primary_key=True)),
                 ('file_name', models.CharField(max_length=255)),
                 ('errors', models.TextField(default='')),
                 ('field_order', models.TextField(default='')),
@@ -22,13 +23,15 @@ class Migration(migrations.Migration):
                 ('status', models.IntegerField(default=1)),
                 ('task_id', models.CharField(default='', max_length=50, blank=True)),
                 ('max_diameter_conversion_factor', models.FloatField(default=1.0)),
-                ('max_tree_height_conversion_factor', models.FloatField(default=1.0)),
+                ('max_tree_height_conversion_factor',
+                 models.FloatField(default=1.0)),
             ],
         ),
         migrations.CreateModel(
             name='SpeciesImportRow',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                 serialize=False, auto_created=True, primary_key=True)),
                 ('data', models.TextField()),
                 ('idx', models.IntegerField()),
                 ('finished', models.BooleanField(default=False)),
@@ -40,7 +43,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TreeImportEvent',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                 serialize=False, auto_created=True, primary_key=True)),
                 ('file_name', models.CharField(max_length=255)),
                 ('errors', models.TextField(default='')),
                 ('field_order', models.TextField(default='')),
@@ -52,19 +56,22 @@ class Migration(migrations.Migration):
                 ('plot_width_conversion_factor', models.FloatField(default=1.0)),
                 ('diameter_conversion_factor', models.FloatField(default=1.0)),
                 ('tree_height_conversion_factor', models.FloatField(default=1.0)),
-                ('canopy_height_conversion_factor', models.FloatField(default=1.0)),
+                ('canopy_height_conversion_factor',
+                 models.FloatField(default=1.0)),
             ],
         ),
         migrations.CreateModel(
             name='TreeImportRow',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                 serialize=False, auto_created=True, primary_key=True)),
                 ('data', models.TextField()),
                 ('idx', models.IntegerField()),
                 ('finished', models.BooleanField(default=False)),
                 ('errors', models.TextField(default='')),
                 ('status', models.IntegerField(default=3)),
-                ('import_event', models.ForeignKey(to='importer.TreeImportEvent')),
+                ('import_event', models.ForeignKey(
+                    to='importer.TreeImportEvent', on_delete=models.CASCADE)),
             ],
         ),
     ]

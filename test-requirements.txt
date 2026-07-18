@@ -1,13 +1,6 @@
-coverage==4.2                # https://coverage.readthedocs.io/en/coverage-4.2/changes.html
-PyVirtualDisplay==0.2        # https://github.com/ponty/PyVirtualDisplay/releases
+coverage>=7.2
+PyVirtualDisplay>=3.0
 
-# We use Firefox and selenium for running UI tests. But using the latest 
-# versions is fragile because every few months a Firefox release is incompatible
-# with the current selenium. Since our UI tests don't depend on the latest features
-# of either we now use specific versions known to work together.
-#
-# Only update the selenium version number below if you know it works with
-# the currently-provisioned Firefox version.
-
-# https://github.com/SeleniumHQ/selenium/blob/master/py/CHANGES
-selenium==2.53.6 # rq.filter: ==2.53.6
+# We use Firefox and selenium for running UI tests.
+# Selenium is updated for modern compatibility.
+selenium>=4.9.0

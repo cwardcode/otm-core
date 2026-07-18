@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 import logging
@@ -129,7 +127,7 @@ def extent_as_json(extent):
 
 
 def extent_intersection(*extents):
-    extents = zip(*extents)
+    extents = list(zip(*extents))
     xmins, ymins, xmaxes, ymaxes = extents
     return (max(xmins), max(ymins), min(xmaxes), min(ymaxes))
 
@@ -138,6 +136,6 @@ def request_is_embedded(request):
     embed_value = None
     try:
         embed_value = request.GET.get('embed')
-    except:
+    except BaseException:
         pass
     return embed_value is not None and 0 < len(embed_value)

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 import hashlib
@@ -14,7 +12,9 @@ from django.conf import settings
 from django.db import transaction
 from django.contrib.gis.geos import Point, MultiPolygon, Polygon
 from django.contrib.gis.db.models import GeometryField
-from django.utils.translation import ugettext as _
+from django.contrib.gis.measure import D
+from django.utils.translation import gettext as _
+from django_tinsel.exceptions import HttpBadRequestException
 
 from opentreemap.util import dotted_split
 from treemap.lib.hide_at_zoom import (update_hide_at_zoom_after_move,
@@ -32,6 +32,8 @@ from treemap.lib.map_feature import (get_map_feature_or_404,
                                      raise_non_instance_404,
                                      context_dict_for_plot,
                                      context_dict_for_resource)
+from treemap.search import Filter
+from treemap.models import Plot
 from treemap.views.misc import add_map_info_to_context
 
 
@@ -89,8 +91,7 @@ def map_feature_detail(request, instance, feature_id,
     if should_render:
         template = 'treemap/map_feature_detail.html'
         context['map_feature_partial'] = partial
-        latlon = context['feature'].latlon
-        #context['map_query'] = '?z=%s/%s/%s' % (18, latlon.y, latlon.x)
+        # context['map_query'] = '?z=%s/%s/%s' % (18, latlon.y, latlon.x)
         context['map_query'] = '?z=%s' % (18)
         return render(request, template, context)
     else:
@@ -182,7 +183,7 @@ def render_map_feature_add(request, instance, type):
         app = MapFeature.get_subclass(type).__module__.split('.')[0]
         try:
             template = '%s/%s_add.html' % (app, type)
-        except:
+        except BaseException:
             template = 'treemap/resource_add.html'
         return render(request, template, {'object_name': to_object_name(type)})
     else:
@@ -297,7 +298,7 @@ def update_map_feature(request_dict, user, feature):
 
     rev_updates = ['universal_rev']
     old_geom = feature.geom
-    for (identifier, value) in request_dict.iteritems():
+    for (identifier, value) in request_dict.items():
         split_template = 'Malformed request - invalid field %s'
         object_name, field = dotted_split(identifier, 2,
                                           failure_format_string=split_template)
@@ -323,7 +324,7 @@ def update_map_feature(request_dict, user, feature):
             if field == 'species' and value:
                 value = get_object_or_404(Species,
                                           instance=feature.instance, pk=value)
-            elif field == 'plot' and value == unicode(feature.pk):
+            elif field == 'plot' and value == str(feature.pk):
                 value = feature
         else:
             raise ValueError(
@@ -414,6 +415,61 @@ def map_feature_popup(request, instance, feature_id):
         context['boundaries_with_canopy'] = \
             _get_boundaries_with_canopy(instance, feature.geom)
     return context
+
+
+def map_feature_for_point(request, instance):
+    try:
+        lng = float(request.GET['lng'])
+        lat = float(request.GET['lat'])
+    except (KeyError, ValueError):
+        raise HttpBadRequestException('Both lng and lat must be numbers')
+
+    try:
+        distance = float(request.GET.get('distance', settings.MAP_CLICK_RADIUS))
+    except ValueError:
+        raise HttpBadRequestException('The distance parameter must be a number')
+
+    restrict_types = instance.map_feature_types
+    restrict = request.GET.get('restrict')
+    if restrict:
+        try:
+            restrict_types = json.loads(restrict)
+        except ValueError:
+            raise HttpBadRequestException('The restrict parameter must be valid JSON')
+
+    filter_obj = Filter(request.GET.get('q', ''), request.GET.get('show', ''), instance)
+    point = Point(lng, lat, srid=4326)
+
+    nearest_feature = None
+    nearest_distance = None
+    classes = [Plot] + list(instance.resource_classes)
+
+    for Model in classes:
+        feature = filter_obj.get_objects(Model)\
+            .filter(feature_type__in=restrict_types)\
+            .distance(point)\
+            .filter(geom__distance_lte=(point, D(m=distance)))\
+            .order_by('distance')\
+            .first()
+
+        if not feature:
+            continue
+
+        this_distance = getattr(feature, 'distance', None)
+        if nearest_distance is None or this_distance < nearest_distance:
+            nearest_feature = feature
+            nearest_distance = this_distance
+
+    if nearest_feature:
+        return {
+            'data': {
+                'id': nearest_feature.pk
+            }
+        }
+
+    return {
+        'data': None
+    }
 
 
 def canopy_popup(request, instance):

@@ -4,6 +4,7 @@ var $ = require("jquery"),
     _ = require("lodash"),
     L = require('leaflet'),
     urlLib = require('url'),
+    querystring = require('querystring'),
     Search = require("treemap/lib/search.js"),
     config = require("treemap/lib/config.js"),
     format = require('util').format,
@@ -34,6 +35,8 @@ var $ = require("jquery"),
     // Tree dots (all and searched) and their UTF grids
     FEATURE_LAYER_OPTION = {zIndex: 4};
 
+require('leaflet.vectorgrid');
+
 ////////////////////////////////////////////////
 // public functions
 ////////////////////////////////////////////////
@@ -49,6 +52,10 @@ exports.createBoundariesTileLayer = function () {
     var revToUrl = getUrlMaker('treemap_boundary', 'png'),
         url = revToUrl(config.instance.geoRevHash),
         options = _.extend({}, MAX_ZOOM_OPTION, MIN_ZOOM_OPTION, BOUNDARY_LAYER_OPTION);
+    if (usingPgTileservBackend()) {
+        return createVectorLayer(url, getLayerStyles('boundary'), options);
+    }
+
     return L.tileLayer(url, options);
 };
 
@@ -60,6 +67,11 @@ exports.getCanopyBoundariesTileLayerUrl = function(tilerArgs) {
 exports.createCanopyBoundariesTileLayer = function () {
     var url = exports.getCanopyBoundariesTileLayerUrl(),
         options = _.extend({}, MAX_ZOOM_OPTION, CANOPY_BOUNDARY_LAYER_OPTION);
+
+    if (usingPgTileservBackend()) {
+        return createVectorLayer(url, getLayerStyles('canopy'), options);
+    }
+
     return L.tileLayer(url, options);
 };
 
@@ -76,6 +88,10 @@ exports.createPolygonTileLayer = function () {
 };
 
 exports.createPlotUTFLayer = function () {
+    if (usingPgTileservBackend()) {
+        return null;
+    }
+
     var layer,
         revToUrl = getUrlMaker('treemap_mapfeature', 'grid.json'),
         url = revToUrl(config.instance.geoRevHash),
@@ -133,11 +149,20 @@ function getUrlMaker(table, extension, tilerArgs) {
     return function revToUrl(rev) {
         var query = {
             'instance_id': config.instance.id,
-            'restrict': JSON.stringify(config.instance.mapFeatureTypes)
+            'restrict': JSON.stringify(config.instance.mapFeatureTypes),
+            'rev': rev
         };
 
         if (tilerArgs) {
             _.extend(query, tilerArgs);
+        }
+
+        if (usingPgTileservBackend()) {
+            return format(
+                '%s/functions/%s/{z}/{x}/{y}.pbf?%s',
+                config.tileHost || '',
+                pgTileservFunctionName(table),
+                querystring.stringify(query));
         }
 
         return format(
@@ -164,7 +189,13 @@ function filterableLayer (table, extension, layerOptions) {
     var revToUrl = getUrlMaker(table, extension),
         noSearchUrl = revToUrl(config.instance.geoRevHash),
         searchBaseUrl = revToUrl(config.instance.universalRevHash),
+        layer;
+
+    if (usingPgTileservBackend()) {
+        layer = createVectorLayer(noSearchUrl, getLayerStyles(table), layerOptions);
+    } else {
         layer = L.tileLayer(noSearchUrl, layerOptions);
+    }
 
     layer.setHashes = function(response) {
         noSearchUrl = revToUrl(response.geoRevHash);
@@ -187,4 +218,80 @@ function filterableLayer (table, extension, layerOptions) {
         layer.setUrl(fullUrl);
     };
     return layer;
+}
+
+function usingPgTileservBackend() {
+    return config.tileBackend === 'pg_tileserv';
+}
+
+function pgTileservFunctionName(table) {
+    var functionNames = {
+        treemap_mapfeature: 'otm_treemap_mapfeature',
+        stormwater_polygonalmapfeature: 'otm_stormwater_polygonalmapfeature',
+        treemap_boundary: 'otm_treemap_boundary',
+        treemap_canopy_boundary: 'otm_treemap_canopy_boundary'
+    };
+
+    return functionNames[table] || table;
+}
+
+function createVectorLayer(url, styles, options) {
+    return L.vectorGrid.protobuf(url, _.extend({}, options, {
+        interactive: true,
+        maxNativeZoom: options.maxNativeZoom || 21,
+        vectorTileLayerStyles: styles
+    }));
+}
+
+function getLayerStyles(table) {
+    var pointStyle = {
+            radius: 4,
+            weight: 1,
+            color: '#2f6d4b',
+            fillColor: '#46a36f',
+            fillOpacity: 0.9
+        },
+        polygonStyle = {
+            weight: 1,
+            color: '#3f6f8e',
+            fillColor: '#6ba5cb',
+            fillOpacity: 0.45
+        },
+        boundaryStyle = {
+            weight: 1,
+            color: '#4b5d6a',
+            fill: false
+        },
+        canopyStyle = {
+            weight: 1,
+            color: '#4c7f3d',
+            fillColor: '#8acb6d',
+            fillOpacity: 0.4
+        };
+
+    if (table === 'stormwater_polygonalmapfeature') {
+        return {
+            otm_stormwater_polygonalmapfeature: polygonStyle,
+            stormwater_polygonalmapfeature: polygonStyle
+        };
+    }
+
+    if (table === 'treemap_boundary' || table === 'boundary') {
+        return {
+            otm_treemap_boundary: boundaryStyle,
+            treemap_boundary: boundaryStyle
+        };
+    }
+
+    if (table === 'treemap_canopy_boundary' || table === 'canopy') {
+        return {
+            otm_treemap_canopy_boundary: canopyStyle,
+            treemap_canopy_boundary: canopyStyle
+        };
+    }
+
+    return {
+        otm_treemap_mapfeature: pointStyle,
+        treemap_mapfeature: pointStyle
+    };
 }

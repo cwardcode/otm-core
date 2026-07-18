@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 
@@ -10,7 +8,7 @@ from django.http import (HttpResponse, HttpResponseBadRequest,
                          HttpResponseNotFound)
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from opentreemap.util import json_from_request
 
@@ -66,7 +64,7 @@ def udf_bulk_update(request, instance):
         choice_map = {int(param['id']): param['changes']
                       for param in choice_changes}
         udfds = [udf for udf in udf_defs(instance)
-                 if udf.pk in choice_map.keys()]
+                 if udf.pk in list(choice_map.keys())]
 
         # Update one at a time rather than doing bulk_update.
         # There won't be that many of them, and we need to go through
@@ -155,7 +153,7 @@ def udf_list(request, instance):
     udf_models = [dict_update(model, {
         'specs': [{'udf': udf, 'datatype': _get_type_display(udf)}
                   for udf in udfs if udf.model_type == model['name']]
-        }) for model in udf_models]
+    }) for model in udf_models]
 
     return {
         "udf_models": udf_models,
@@ -218,6 +216,7 @@ def remove_udf_notifications(request, instance):
     instance.save()
 
     return {'success': True}
+
 
 TYPE_MAP = {
     "float": _("Decimal Number"),

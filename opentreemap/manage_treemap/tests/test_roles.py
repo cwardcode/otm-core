@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 
@@ -57,12 +55,12 @@ class UserRolesTest(OTMTestCase):
         self.factory = RequestFactory()
 
     def _add_user_to_instance_view(self, email):
-            body = {'email': email}
-            return create_user_role(
-                make_request(method='POST',
-                             body=json.dumps(body),
-                             user=self.commander),
-                self.instance)
+        body = {'email': email}
+        return create_user_role(
+            make_request(method='POST',
+                         body=json.dumps(body),
+                         user=self.commander),
+            self.instance)
 
     def test_add_user_to_instance(self):
         mail.outbox = []
@@ -80,7 +78,7 @@ class UserRolesTest(OTMTestCase):
         self.assertGreater(len(msg.subject), 10)
         self.assertGreater(len(msg.body), 10)
 
-        self.assertEquals(tuple(msg.to), (self.user4.email,))
+        self.assertEqual(tuple(msg.to), (self.user4.email,))
 
     def test_email_not_found_creates_invite(self):
         self.assertEqual(InstanceInvitation.objects.count(), 0)
@@ -114,7 +112,7 @@ class UserRolesTest(OTMTestCase):
         self.assertGreater(len(msg.subject), 10)
         self.assertGreater(len(msg.body), 10)
 
-        self.assertEquals(tuple(msg.to), (email,))
+        self.assertEqual(tuple(msg.to), (email,))
 
     def test_invalid_email(self):
         body = {'email': 'asdfasdf@'}
@@ -199,7 +197,7 @@ class UserRolesTest(OTMTestCase):
                          user=self.commander),
             self.instance)
 
-        #requery iuser
+        # requery iuser
         iuser = InstanceUser.objects.get(pk=iuser.pk)
         self.assertEqual(iuser.role, new_role)
         self.assertEqual(iuser.admin, False)
@@ -213,7 +211,7 @@ class UserRolesTest(OTMTestCase):
                          user=self.commander),
             self.instance)
 
-        #requery iuser
+        # requery iuser
         iuser = InstanceUser.objects.get(pk=iuser.pk)
         self.assertEqual(iuser.role, new_role)
         self.assertEqual(iuser.admin, True)
@@ -232,7 +230,7 @@ class UserRolesTest(OTMTestCase):
                          user=self.commander),
             self.instance)
 
-        #requery iuser
+        # requery iuser
         iuser = InstanceUser.objects.get(pk=iuser.pk)
         self.assertEqual(iuser.admin, False)
 
@@ -245,7 +243,7 @@ class UserRolesTest(OTMTestCase):
                          user=self.commander),
             self.instance)
 
-        #requery iuser
+        # requery iuser
         iuser = InstanceUser.objects.get(pk=iuser.pk)
         self.assertEqual(iuser.admin, True)
 
@@ -296,7 +294,7 @@ class ModelPermMgmtTest(OTMTestCase):
             'MapFeaturePhoto.delete_bioswalephoto']
 
         self.request_updates(
-            dict(zip(permissions, [True] * len(permissions))))
+            dict(list(zip(permissions, [True] * len(permissions)))))
 
         for existing in permissions:
             __, codename = dotted_split(existing, 2, maxsplit=1)
@@ -358,7 +356,7 @@ class FieldPermMgmtTest(OTMTestCase):
         request = make_request(method='PUT', body=json_updates)
         roles_update(request, self.instance)
 
-        #requery new_role
+        # requery new_role
         self.new_role = Role.objects.get(pk=self.new_role.pk)
 
         self.assertEqual(1,

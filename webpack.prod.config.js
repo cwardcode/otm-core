@@ -1,30 +1,26 @@
 "use strict";
 
-var webpack = require('webpack'),
-    config = require('./webpack.common.config.js'),
-    reversePath = __dirname + '/assets/js/shim/reverse.js';
+const { merge } = require('webpack-merge');
+const webpack = require('webpack');
+const config = require('./webpack.common.config.js');
+const reversePath = __dirname + '/assets/js/shim/reverse-shim.js';
 
-config.output.filename = '[name]-[chunkhash].js';
-
-// Allows require-ing the static file created by django-js-reverse
-config.resolve.alias.reverse = reversePath;
-
-config.devtool = 'source-map';
-
-config.module.loaders.push({
-    include: reversePath,
-    loader: 'imports?this=>window!exports?Urls'
+module.exports = merge(config, {
+    mode: 'production',
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify('production')
+        })
+    ],
+    output: {
+        filename: '[name]-[contenthash].js',
+        publicPath: '/static/'
+    },
+    resolve: {
+        alias: Object.assign({}, config.resolve.alias, { reverse: reversePath })
+    },
+    devtool: 'source-map',
+    optimization: {
+        minimize: true
+    }
 });
-
-config.plugins.concat([
-    new webpack.optimize.UglifyJsPlugin({
-        mangle: {
-            except: ['Urls', 'otm', 'google']
-        }
-    }),
-    new webpack.optimize.OccurrenceOrderPlugin()
-]);
-
-config.output.publicPath = '/static/';
-
-module.exports = config;

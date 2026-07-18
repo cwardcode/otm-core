@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 
@@ -53,7 +51,8 @@ def _create_rows(ie, reader):
 
     for row in reader:
         data = clean_row_data(row)
-        if len(filter(None, data.values())) > 0:  # skip blank rows
+        if len([_f for _f in list(data.values()) if _f]
+               ) > 0:  # skip blank rows
             data = json.dumps(data)
             rows.append(RowModel(data=data, import_event=ie, idx=idx))
 
@@ -92,7 +91,7 @@ def run_import_event_validation(import_type, import_event_id, file_obj):
     ie.update_progress_timestamp_and_save()
 
     try:
-        for i in xrange(0, ie.row_count, settings.IMPORT_BATCH_SIZE):
+        for i in range(0, ie.row_count, settings.IMPORT_BATCH_SIZE):
             _validate_rows(import_type, ie.id, i)
 
         _finalize_validation(import_type, import_event_id)
@@ -127,7 +126,7 @@ def _assure_status_is_at_least_verifying(ie):
 @shared_task()
 def _validate_rows(import_type, import_event_id, start_row_id):
     ie = _get_import_event(import_type, import_event_id)
-    rows = ie.rows()[start_row_id:(start_row_id+settings.IMPORT_BATCH_SIZE)]
+    rows = ie.rows()[start_row_id:(start_row_id + settings.IMPORT_BATCH_SIZE)]
     for row in rows:
         row.validate_row()
     ie.update_progress_timestamp_and_save()
@@ -153,7 +152,7 @@ def commit_import_event(import_type, import_event_id):
 
     commit_tasks = [
         _commit_rows(import_type, import_event_id, i)
-        for i in xrange(0, ie.row_count, settings.IMPORT_BATCH_SIZE)]
+        for i in range(0, ie.row_count, settings.IMPORT_BATCH_SIZE)]
 
     finalize_task = _finalize_commit(import_type, import_event_id)
 

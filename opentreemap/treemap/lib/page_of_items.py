@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from django.core.urlresolvers import reverse
 
@@ -14,11 +12,11 @@ class UrlParams(object):
     def params(self, *keys):
         return self._param_string(keys, self._params)
 
-    def url(self, *keys, **overrides):
+    def re_path(self, *keys, **overrides):
         params = self._params
         if overrides:
-            params = dict(params.items() + overrides.items())
-            keys = params.keys()
+            params = dict(list(params.items()) + list(overrides.items()))
+            keys = list(params.keys())
         return self._url + self._param_string(keys, params)
 
     @staticmethod
@@ -36,7 +34,7 @@ def make_filter_context(urlizer, filter_value, option_data):
         # The values become part of the option's URL query string, and are
         # also compared to the "filter_value" to determine if this is the
         # currently-selected option.
-        url = urlizer.url('sort', **param_dict)
+        url = urlizer.re_path('sort', **param_dict)
         return {
             'label': label,
             'label_lower': label_lower,

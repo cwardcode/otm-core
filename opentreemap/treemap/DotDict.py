@@ -14,6 +14,7 @@ class DotDict(dict):
         config = DotDict({})
         config.fruit.apple.type = 'macoun'
     """
+
     def __init__(self, value=None):
 
         if value is None:

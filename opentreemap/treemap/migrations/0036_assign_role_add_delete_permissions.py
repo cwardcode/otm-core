@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import migrations
 from django.db.models import Q
+from functools import reduce
 
 
 _WRITE_DIRECTLY = 3
@@ -71,7 +72,7 @@ def remove_permission(apps, schema_editor):
 
     ct_query = reduce(lambda q1, q2: q1 | q2, [
         Q(app_label=label, model__in=app_models)
-        for label, app_models in app_labels.iteritems()])
+        for label, app_models in app_labels.items()])
 
     photo_query = Q(app_label='treemap', model='mapfeaturephoto')
 
@@ -170,7 +171,7 @@ def _get_role_model_action_perms(apps, role_model_permissions, permissions,
     role_model_action_perms = role_model_permissions.filter(
         permission__in=action_permissions)
 
-    get_model = lambda rmap: apps.get_model(
+    def get_model(rmap): return apps.get_model(
         rmap.permission.content_type.app_label,
         rmap.permission.content_type.model)
     return {(rmap.role, get_model(rmap))
@@ -234,7 +235,7 @@ def _fieldnames_required_for_create(not_tracked, Model):
             if (not field.null and
                 not field.blank and
                 not field.primary_key and
-                not field.name in not_tracked)}
+                field.name not in not_tracked)}
 
 
 def _tracked_fields(not_tracked, Model):
