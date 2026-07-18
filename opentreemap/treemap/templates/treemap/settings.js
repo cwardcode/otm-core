@@ -21,6 +21,8 @@ otm.settings.urls = Object.freeze({
     otm.settings.tileHost = "{{ settings.TILE_HOST }}";
 {% endif %}
 
+otm.settings.tileBackend = "{{ settings.TILE_BACKEND }}";
+
 {% if request.user.is_authenticated %}
     otm.settings.loggedIn = true;
 {% else %}
@@ -106,6 +108,8 @@ otm.settings.doubleClickInterval = '{{ settings.DOUBLE_CLICK_INTERVAL }}';
         'canopyEnabled': {{ request.instance.canopy_enabled|yesno:"true,false" }},
         'canopyBoundaryCategory': '{{ request.instance.canopy_boundary_category }}'
     });
+
+    otm.settings.mapFeatureForPointUrl = "{% url 'map_feature_for_point' instance_url_name=request.instance.url_name %}";
 {% endif %}
 
 {% endlocalize %}

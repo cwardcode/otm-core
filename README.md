@@ -33,6 +33,17 @@ GOOGLE_MAPS_KEY=...
 `ROLLBAR_SERVER_SIDE_ACCESS_TOKEN` is a token for [Rollbar](rollbar.com).
 `GOOGLE_MAPS_KEY` is a browser key for the Google Maps Javascript API, [which can be obtained here](https://developers.google.com/maps/documentation/javascript/get-api-key).
 
+### Tile backend configuration
+
+The default map tile backend is now `pg_tileserv`/`martin` (vector tiles).
+
+- `TILE_BACKEND`: `pg_tileserv` (default) or `legacy`
+- `TILE_HOST`: base URL for your tile service (for example `https://tiles.example.org`)
+
+When `TILE_BACKEND=pg_tileserv`, OTM expects function tile endpoints in your
+tile service for map features, polygonal map features, boundaries, and canopy
+boundaries.
+
 ## Custom Python Packages
 
 Due to the somewhat outdated nature of this repository's dependencies, some custom packages have been created as forks to support necessry features that were added. These packages will need to be installed by running `pip install <package.whl>`.
@@ -52,8 +63,8 @@ Currently-required custom pakages:
 This repository (ie, otm-core) is but one of a few separate repositories 
 that together compose the OpenTreeMap project. Others include:
 
-* [otm-tiler](https://github.com/OpenTreeMap/otm-tiler) - map tile 
-server based on [Windshaft](https://github.com/CartoDB/Windshaft)
+* [otm-tiler](https://github.com/OpenTreeMap/otm-tiler) - legacy Windshaft-based
+  tile server (kept for compatibility)
 * [otm-ecoservice](https://github.com/OpenTreeMap/otm-ecoservice) - ecosystem 
 benefits calculation service
 * [otm-ios](https://github.com/OpenTreeMap/otm-ios) - An 

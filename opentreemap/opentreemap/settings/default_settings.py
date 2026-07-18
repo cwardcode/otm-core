@@ -105,6 +105,11 @@ OMGEO_SETTINGS = [[
 #
 TILE_HOST = None
 
+# Tile backend implementation. Supported values:
+# - 'legacy': legacy raster+utfgrid tiler endpoint
+# - 'pg_tileserv': pg_tileserv/martin vector tile backend
+TILE_BACKEND = os.environ.get('TILE_BACKEND', 'pg_tileserv')
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.

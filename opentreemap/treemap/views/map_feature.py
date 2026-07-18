@@ -12,7 +12,9 @@ from django.conf import settings
 from django.db import transaction
 from django.contrib.gis.geos import Point, MultiPolygon, Polygon
 from django.contrib.gis.db.models import GeometryField
+from django.contrib.gis.measure import D
 from django.utils.translation import gettext as _
+from django_tinsel.exceptions import HttpBadRequestException
 
 from opentreemap.util import dotted_split
 from treemap.lib.hide_at_zoom import (update_hide_at_zoom_after_move,
@@ -30,6 +32,8 @@ from treemap.lib.map_feature import (get_map_feature_or_404,
                                      raise_non_instance_404,
                                      context_dict_for_plot,
                                      context_dict_for_resource)
+from treemap.search import Filter
+from treemap.models import Plot
 from treemap.views.misc import add_map_info_to_context
 
 
@@ -411,6 +415,61 @@ def map_feature_popup(request, instance, feature_id):
         context['boundaries_with_canopy'] = \
             _get_boundaries_with_canopy(instance, feature.geom)
     return context
+
+
+def map_feature_for_point(request, instance):
+    try:
+        lng = float(request.GET['lng'])
+        lat = float(request.GET['lat'])
+    except (KeyError, ValueError):
+        raise HttpBadRequestException('Both lng and lat must be numbers')
+
+    try:
+        distance = float(request.GET.get('distance', settings.MAP_CLICK_RADIUS))
+    except ValueError:
+        raise HttpBadRequestException('The distance parameter must be a number')
+
+    restrict_types = instance.map_feature_types
+    restrict = request.GET.get('restrict')
+    if restrict:
+        try:
+            restrict_types = json.loads(restrict)
+        except ValueError:
+            raise HttpBadRequestException('The restrict parameter must be valid JSON')
+
+    filter_obj = Filter(request.GET.get('q', ''), request.GET.get('show', ''), instance)
+    point = Point(lng, lat, srid=4326)
+
+    nearest_feature = None
+    nearest_distance = None
+    classes = [Plot] + list(instance.resource_classes)
+
+    for Model in classes:
+        feature = filter_obj.get_objects(Model)\
+            .filter(feature_type__in=restrict_types)\
+            .distance(point)\
+            .filter(geom__distance_lte=(point, D(m=distance)))\
+            .order_by('distance')\
+            .first()
+
+        if not feature:
+            continue
+
+        this_distance = getattr(feature, 'distance', None)
+        if nearest_distance is None or this_distance < nearest_distance:
+            nearest_feature = feature
+            nearest_distance = this_distance
+
+    if nearest_feature:
+        return {
+            'data': {
+                'id': nearest_feature.pk
+            }
+        }
+
+    return {
+        'data': None
+    }
 
 
 def canopy_popup(request, instance):
