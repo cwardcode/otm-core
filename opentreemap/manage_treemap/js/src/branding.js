@@ -4,7 +4,6 @@ var $ = require('jquery'),
     _ = require('lodash'),
     uploadPanel = require('treemap/lib/uploadPanel.js'),
     inlineEditForm = require('treemap/lib/inlineEditForm.js'),
-    url = require('url'),
     adminPage = require('manage_treemap/lib/adminPage.js'),
     alerts = require('treemap/lib/alerts.js'),
     config = require('treemap/lib/config.js'),
@@ -57,16 +56,15 @@ function setColor(selector, value) {
 form.saveOkStream
     .map('.formData')
     .map(function (fieldDictionary) {
-        var cssUrlObject = url.parse(cssUrl, true),
-            query = _.reduce(fieldDictionary, function (query, value, name) {
+        var cssUrlObject = new URL(cssUrl, window.location.origin);
+        _.reduce(fieldDictionary, function (query, value, name) {
                 var field = name.split(".").pop();
                 if (value) {
-                    query[field] = value;
+                    cssUrlObject.searchParams.set(field, value);
                 }
                 return query;
-            }, cssUrlObject.query);
-        cssUrlObject.search = null;  // Force url.format to parse query object
-        cssUrl = url.format(cssUrlObject);
+            }, {});
+        cssUrl = cssUrlObject.pathname + cssUrlObject.search;
         return cssUrl;
     })
     .onValue($(dom.linkSelector), 'attr', 'href');

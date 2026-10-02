@@ -3,7 +3,6 @@
 var $ = require('jquery'),
     _ = require('lodash'),
     R = require('ramda'),
-    format = require('util').format,
     moment = require('moment'),
 
     udfRowTemplate = _.template(
@@ -60,7 +59,7 @@ exports.init = function(form) {
     // Wire up collection udfs
     $('a[data-udf-id]').on('click', function() {
         var id = $(this).data('udf-id'),
-            selector = format('table[data-udf-id="%s"] * [data-field-name]', id),
+            selector = 'table[data-udf-id="' + id + '"] * [data-field-name]',
             fields = $(selector).toArray(),
             data = _.map(fields, formatField);
 

@@ -12,7 +12,6 @@
 var _ = require('lodash'),
     Bacon = require('baconjs'),
     U = require('treemap/lib/utility.js'),
-    url = require('url'),
 
     modeNamesForUrl = [
         require('treemap/mapPage/addTreeMode.js').name,
@@ -230,7 +229,8 @@ function getStateFromCurrentUrl() {
 
 function getStateFromUrl(urlText) {
     var newState = {},
-        query = url.parse(urlText, true).query,
+        parsedUrl = new URL(urlText, window.location.origin),
+        query = queryObjectFromSearchParams(parsedUrl.searchParams),
         allKeys = _.union(_.keys(deserializers), _.keys(query));
 
     _.each(allKeys, function(k) {
@@ -250,7 +250,7 @@ function makeZoomLatLng(zoom, lat, lng) {
 }
 
 function getUrlFromState(state) {
-    var parsedUrl = url.parse(_window.getLocationHref()),
+    var parsedUrl = new URL(_window.getLocationHref(), window.location.origin),
         query = {};
 
     _.each(state, function(v, k) {
@@ -262,10 +262,24 @@ function getUrlFromState(state) {
         }
     });
 
-    parsedUrl.query = query;
-    parsedUrl.search = null;
-    var urlText = url.format(parsedUrl).replace(/%2F/g, '/');
+    parsedUrl.search = '';
+    _.forOwn(query, function(value, key) {
+        if (!_.isUndefined(value) && !_.isNull(value) && value !== '') {
+            parsedUrl.searchParams.set(key, value);
+        }
+    });
+    var urlText = parsedUrl.toString().replace(/%2F/g, '/');
     return urlText;
+}
+
+function queryObjectFromSearchParams(searchParams) {
+    var query = {};
+
+    searchParams.forEach(function(value, key) {
+        query[key] = value;
+    });
+
+    return query;
 }
 
 function setStateAndPushToApp(newState) {

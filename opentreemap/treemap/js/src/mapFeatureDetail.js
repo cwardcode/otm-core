@@ -31,7 +31,6 @@ var $ = require('jquery'),
     $editPanel = '#edit-tags-panel',
     addTagInput = '#add-tag-input',
     $addTagInputSection = $(addTagInput),
-    crypto = require('crypto'),
     moment = require('moment');
 
 // Placed onto the jquery object
@@ -124,41 +123,45 @@ function init() {
             var plotId = getPlotId(detailUrl);
             var data = $addTagInputSection.val();
             var req = { "name": data };
-            var baseReq = Buffer.from(JSON.stringify(req)).toString('base64');
-            var sig = crypto.createHmac(sig_alg, secret).update(baseReq).digest('base64');
-            var timestamp = moment.utc(new Date()).format("Y-M-DTHH:MM:ss");
-            return Bacon.fromPromise($.ajax({
-                url: '/api/v4/instance/wcu/tags/feature/'+plotId+'?access_key=LiUMH1KKT4y9SX15_qKAiA&timestamp='+timestamp+'&signature='+sig,
-                type: 'POST',
-                contentType: "application/json",
-                data: JSON.stringify(req)
-            }))
-            .onValue(function(resp) {
-                var modalBodyDiv = $('#tag-modal-content');
-                modalBodyDiv.css('text-align', 'center');
-                modalBodyDiv[0].innerHTML = '';
-                modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
-                document.location.reload();
-            });
+            var baseReq = base64EncodeUtf8(JSON.stringify(req));
+            hmacSha256Base64(secret, baseReq)
+                .then(function(sig) {
+                    var timestamp = moment.utc(new Date()).format("Y-M-DTHH:MM:ss");
+                    return Bacon.fromPromise($.ajax({
+                        url: '/api/v4/instance/wcu/tags/feature/' + plotId + '?access_key=LiUMH1KKT4y9SX15_qKAiA&timestamp=' + timestamp + '&signature=' + encodeURIComponent(sig),
+                        type: 'POST',
+                        contentType: "application/json",
+                        data: JSON.stringify(req)
+                    }))
+                    .onValue(function(resp) {
+                        var modalBodyDiv = $('#tag-modal-content');
+                        modalBodyDiv.css('text-align', 'center');
+                        modalBodyDiv[0].innerHTML = '';
+                        modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
+                        document.location.reload();
+                    });
+                });
         }
     });
 
     tagsPanelStream.deleteStream.onValue(function (event) {
         var plotId = getPlotId(detailUrl);
         var tagToDelete =  event.currentTarget.id.split('delete-button-')[1];
-        var sig = crypto.createHmac(sig_alg, secret).digest('base64');
-        var timestamp = moment.utc(new Date()).format("Y-M-DTHH:MM:ss");
-        return Bacon.fromPromise($.ajax({
-            url: '/api/v4/instance/wcu/tags/feature/'+plotId+'/'+tagToDelete+'?access_key=LiUMH1KKT4y9SX15_qKAiA&timestamp='+timestamp+'&signature='+sig,
-            type: 'DELETE'
-        }))
-        .onValue(function (resp){
-            var modalBodyDiv = $('#tag-modal-content');
-            modalBodyDiv.css('text-align', 'center');
-            modalBodyDiv[0].innerHTML = '';
-            modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
-            document.location.reload();
-        });
+        hmacSha256Base64(secret, '')
+            .then(function(sig) {
+                var timestamp = moment.utc(new Date()).format("Y-M-DTHH:MM:ss");
+                return Bacon.fromPromise($.ajax({
+                    url: '/api/v4/instance/wcu/tags/feature/' + plotId + '/' + tagToDelete + '?access_key=LiUMH1KKT4y9SX15_qKAiA&timestamp=' + timestamp + '&signature=' + encodeURIComponent(sig),
+                    type: 'DELETE'
+                }))
+                .onValue(function (resp){
+                    var modalBodyDiv = $('#tag-modal-content');
+                    modalBodyDiv.css('text-align', 'center');
+                    modalBodyDiv[0].innerHTML = '';
+                    modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
+                    document.location.reload();
+                });
+            });
     });
 
     function initDetailAfterRefresh() {
@@ -279,6 +282,51 @@ function init() {
 
     socialMediaSharing.init({
         imageFinishedStream: imageFinishedStream
+    });
+}
+
+function base64EncodeUtf8(input) {
+    return btoa(unescape(encodeURIComponent(input)));
+}
+
+function base64ToUint8Array(base64) {
+    var binary = atob(base64),
+        bytes = new Uint8Array(binary.length),
+        i;
+
+    for (i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+
+    return bytes;
+}
+
+function arrayBufferToBase64(buffer) {
+    var bytes = new Uint8Array(buffer),
+        binary = '',
+        i;
+
+    for (i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+
+    return btoa(binary);
+}
+
+function hmacSha256Base64(secretBase64, message) {
+    var secretBytes = base64ToUint8Array(secretBase64),
+        messageBytes = new TextEncoder().encode(message);
+
+    return window.crypto.subtle.importKey(
+        'raw',
+        secretBytes,
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+    ).then(function(key) {
+        return window.crypto.subtle.sign('HMAC', key, messageBytes);
+    }).then(function(signature) {
+        return arrayBufferToBase64(signature);
     });
 }
 

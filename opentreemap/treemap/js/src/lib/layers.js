@@ -3,10 +3,8 @@
 var $ = require("jquery"),
     _ = require("lodash"),
     L = require('leaflet'),
-    urlLib = require('url'),
     Search = require("treemap/lib/search.js"),
     config = require("treemap/lib/config.js"),
-    format = require('util').format,
 
     MAX_ZOOM_OPTION = exports.MAX_ZOOM_OPTION = {maxZoom: 21},
     // Min zoom level for detail layers
@@ -157,17 +155,15 @@ function getUrlMaker(table, extension, tilerArgs) {
         }
 
         if (usingPgTileservBackend()) {
-            return format(
-                '%s/functions/%s/{z}/{x}/{y}.pbf?%s',
-                config.tileHost || '',
-                pgTileservFunctionName(table),
-                makeQueryString(query));
+            return (config.tileHost || '') +
+                '/functions/' + pgTileservFunctionName(table) +
+                '/{z}/{x}/{y}.pbf?' + makeQueryString(query);
         }
 
-        return format(
-            '%s/tile/%s/database/otm/table/%s/{z}/{x}/{y}.%s%s',
-            config.tileHost || '', rev, table, extension,
-            urlLib.format({query: query}));
+        var queryString = makeQueryString(query);
+        return (config.tileHost || '') +
+            '/tile/' + rev + '/database/otm/table/' + table +
+            '/{z}/{x}/{y}.' + extension + (queryString ? '?' + queryString : '');
     };
 }
 

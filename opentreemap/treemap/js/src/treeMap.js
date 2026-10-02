@@ -4,7 +4,6 @@ var $ = require('jquery'),
     _ = require('lodash'),
     Bootstrap = require('bootstrap'),  // for $(...).collapse()
     Bacon = require('baconjs'),
-    url = require('url'),
     addTreeModeName = require('treemap/mapPage/addTreeMode.js').name,
     addResourceModeName = require('treemap/mapPage/addResourceMode.js').name,
     BU = require('treemap/lib/baconUtils.js'),
@@ -70,19 +69,34 @@ var performAdd = function (e, activateTheMode) {
         e.preventDefault();
         activateTheMode({mapFeatureType: mapFeatureType});
     } else {
-        var href = btn.href,
-            parsedHref = url.parse(href, true),
-            currentLocation = url.parse(location.href, true),
+        var parsedHref = new URL(btn.href, window.location.origin),
+            currentLocation = new URL(window.location.href),
+            hrefQuery = queryObjectFromSearchParams(parsedHref.searchParams),
+            currentQuery = queryObjectFromSearchParams(currentLocation.searchParams),
             adjustedQuery = _({})
-                .assign(currentLocation.query, parsedHref.query)
+                .assign(currentQuery, hrefQuery)
                 .omit('embed')
                 .value();
-        parsedHref.search = null;
-        parsedHref.query = adjustedQuery;
-        btn.href = url.format(parsedHref);
+        parsedHref.search = '';
+        _.forOwn(adjustedQuery, function(value, key) {
+            if (!_.isUndefined(value) && !_.isNull(value) && value !== '') {
+                parsedHref.searchParams.set(key, value);
+            }
+        });
+        btn.href = parsedHref.toString();
         // allow default
     }
 };
+
+function queryObjectFromSearchParams(searchParams) {
+    var query = {};
+
+    searchParams.forEach(function(value, key) {
+        query[key] = value;
+    });
+
+    return query;
+}
 
 buttonEnabler.run();
 

@@ -5,8 +5,7 @@
 
 var $ = require('jquery'),
     _ = require('lodash'),
-    polylineEditor = require('treemap/lib/polylineEditor.js'),
-    format = require('util').format;
+    polylineEditor = require('treemap/lib/polylineEditor.js');
 
 function init(obj, options) {
     var inlineEditForm = options.inlineEditForm,
@@ -126,7 +125,7 @@ exports.polygonMover = function (options) {
         onSaveBefore: function (data) {
             var points = this.editor.getPoints();
             if (!_.isNull(points)) {
-                data[format('%s.polygon', options.resourceType)] = {polygon: points};
+                data[options.resourceType + '.polygon'] = {polygon: points};
             }
         },
 

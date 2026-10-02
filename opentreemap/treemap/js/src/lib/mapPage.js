@@ -5,7 +5,6 @@
 var $ = require('jquery'),
     _ = require('lodash'),
     Bacon = require('baconjs'),
-    url = require('url'),
     L = require('leaflet'),
     MapManager = require('treemap/lib/MapManager.js'),
     mapManager = new MapManager(),
@@ -93,7 +92,7 @@ module.exports.init = function (options) {
         boundaryLayerStream.onValue(locationSearchUI.removeDrawingLayer);
     }
 
-    var queryObject = url.parse(location.href, true).query;
+    var queryObject = getLocationQueryObject();
     var embed = queryObject && queryObject.hasOwnProperty('embed');
 
     return {
@@ -107,6 +106,17 @@ module.exports.init = function (options) {
         initMapState: urlState.init
     };
 };
+
+function getLocationQueryObject() {
+    var params = new URLSearchParams(window.location.search),
+        query = {};
+
+    params.forEach(function(value, key) {
+        query[key] = value;
+    });
+
+    return query;
+}
 
 function onLocationFound(mapManager, latLng) {
     var marker = L.marker(latLng, {

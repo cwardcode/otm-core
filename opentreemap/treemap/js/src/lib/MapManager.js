@@ -5,7 +5,6 @@ var $ = require('jquery'),
     R = require('ramda'),
     L = require('leaflet'),
     Bacon = require('baconjs'),
-    format = require('util').format,
     U = require('treemap/lib/utility.js'),
     BU = require('treemap/lib/baconUtils.js'),
     urlState = require('treemap/lib/urlState.js'),
@@ -187,7 +186,7 @@ MapManager.prototype = {
                                 dist = 20 / Math.pow(2, map.getZoom() - MIN_ZOOM_OPTION.minZoom),
                                 url = reverse.polygon_for_point({instance_url_name: config.instance.url_name});
 
-                            return url + format('?lng=%d&lat=%d&distance=%d', lng, lat, dist);
+                            return url + '?lng=' + lng + '&lat=' + lat + '&distance=' + dist;
                         }).flatMap(BU.getJsonFromUrl);
 
                     map.utfEvents = Bacon.mergeAll(

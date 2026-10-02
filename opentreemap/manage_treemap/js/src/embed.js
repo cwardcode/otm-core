@@ -5,7 +5,6 @@ var $ = require('jquery'),
     adminPage = require('manage_treemap/lib/adminPage.js'),
     config = require('treemap/lib/config.js'),
     reverse = require('reverse'),
-    format = require('util').format,
     Bacon = require('baconjs');
 
 adminPage.init();
@@ -74,9 +73,18 @@ var validate = function ($target) {
 };
 
 var formatCustomSnippet = function () {
-    return format($iframeSizeCustom.val(),
-                  $iframeWidth.val(), $iframeHeight.val());
+    return fillTemplate($iframeSizeCustom.val(),
+                        [$iframeWidth.val(), $iframeHeight.val()]);
 };
+
+function fillTemplate(template, values) {
+    var i = 0;
+    return template.replace(/%[sd]/g, function() {
+        var value = values[i];
+        i += 1;
+        return value;
+    });
+}
 
 var fetchSnippet = function ($target) {
     if (!isCustom) {

@@ -1,18 +1,14 @@
 "use strict";
 
-var url = require('url'),
-    $ = require('jquery'),
+var $ = require('jquery'),
     L = require('leaflet'),
     _ = require('lodash'),
     console = require('console-browserify');
 
 exports.getUpdatedQueryString = function (k, v) {
-    var parsedUrl = url.parse(window.location.href, true);
-    var query = parsedUrl.query || {};
-
-    query[k] = v;
-
-    return makeQueryString(query);
+    var parsedUrl = new URL(window.location.href);
+    parsedUrl.searchParams.set(k, v);
+    return parsedUrl.searchParams.toString();
 };
 
 function makeQueryString(query) {
@@ -33,7 +29,8 @@ exports.getLastUrlSegment = function(urlString) {
 };
 
 var getUrlSegments = exports.getUrlSegments = function(inputUrl) {
-    var pathname = url.parse(inputUrl || window.location.href, false).pathname;
+    var parsedUrl = new URL(inputUrl || window.location.href, window.location.origin),
+        pathname = parsedUrl.pathname;
 
     if (endsWith(pathname, '/')) {
         pathname = pathname.substring(0, pathname.length - 1);
@@ -43,7 +40,7 @@ var getUrlSegments = exports.getUrlSegments = function(inputUrl) {
 };
 
 exports.removeLastUrlSegment = function(inputUrl) {
-    var updatedurl = url.parse(inputUrl || window.location.href, false);
+    var updatedurl = new URL(inputUrl || window.location.href, window.location.origin);
     var segs = getUrlSegments(inputUrl);
     segs.pop();
 
@@ -53,18 +50,18 @@ exports.removeLastUrlSegment = function(inputUrl) {
         updatedurl.pathname += '/';
     }
 
-    return url.format(updatedurl);
+    return updatedurl.toString();
 };
 
 exports.appendSegmentToUrl = function (segment, inputUrl, appendSlash) {
-    var parsedUrl = url.parse(inputUrl || window.location.href, false);
+    var parsedUrl = new URL(inputUrl || window.location.href, window.location.origin);
     var segs = getUrlSegments(inputUrl);
 
     segs.push(segment);
 
     parsedUrl.pathname = segs.join('/');
 
-    var formattedUrl = url.format(parsedUrl);
+    var formattedUrl = parsedUrl.toString();
 
     if (appendSlash) {
         formattedUrl += '/';

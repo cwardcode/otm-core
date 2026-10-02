@@ -2,7 +2,6 @@
 
 var $ = require('jquery'),
     BU = require('treemap/lib/baconUtils.js'),
-    url = require('url'),
     U = require('treemap/lib/utility.js'),
     _ = require('lodash'),
     Bacon = require('baconjs'),
@@ -34,10 +33,10 @@ var $ = require('jquery'),
 ////////////////////////////////////////
 
 function getQueryStringObject () {
-    var query = url.parse(window.location.href, true).query;
+    var params = new URLSearchParams(window.location.search);
     return {
-        q: query.q || '',
-        show: query.show || ''
+        q: params.get('q') || '',
+        show: params.get('show') || ''
     };
 }
 

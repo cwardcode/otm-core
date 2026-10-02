@@ -2,7 +2,6 @@
 
 var Bacon = require('baconjs'),
     $ = require('jquery'),
-    url = require('url'),
     R = require('ramda'),
     _ = require('lodash');
 
@@ -205,6 +204,7 @@ exports.reloadContainerOnClickAndRecordUrl = function() {
 };
 
 exports.recordUrl = function(partialUrl) {
-    var params = url.parse(partialUrl).query;
+    var parsedUrl = new URL(partialUrl, window.location.origin),
+        params = parsedUrl.searchParams.toString();
     history.replaceState(null, document.title, '?' + params + window.location.hash);
 };
