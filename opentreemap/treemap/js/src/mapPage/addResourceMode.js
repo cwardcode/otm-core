@@ -22,7 +22,8 @@ function init(options) {
     var manager = addMapFeature.init(options),
         $sidebar = $(options.sidebar),
         $footerStepCounts = U.$find('.footer-total-steps', $sidebar),
-        $resourceType = U.$find('input[name="addResourceType"]', $sidebar),
+        // This selector can be absent on instances without addable resource types.
+        $resourceType = $sidebar.find('input[name="addResourceType"]'),
         $form = U.$find(options.formSelector, $sidebar),
         $summaryHead = U.$find('.summaryHead', $sidebar),
         $continueLink = $('#addresource-viewdetails'),
