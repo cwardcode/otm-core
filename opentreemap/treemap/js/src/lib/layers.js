@@ -156,7 +156,7 @@ function getUrlMaker(table, extension, tilerArgs) {
 
         if (usingPgTileservBackend()) {
             return (config.tileHost || '') +
-                '/functions/' + pgTileservFunctionName(table) +
+                '/' + pgTileservLayerName(table) +
                 '/{z}/{x}/{y}.pbf?' + makeQueryString(query);
         }
 
@@ -231,23 +231,16 @@ function usingPgTileservBackend() {
     return config.tileBackend === 'pg_tileserv';
 }
 
-function pgTileservFunctionName(table) {
-    var functionNames = {
-        treemap_mapfeature: 'otm_treemap_mapfeature',
-        stormwater_polygonalmapfeature: 'otm_stormwater_polygonalmapfeature',
-        treemap_boundary: 'otm_treemap_boundary',
-        treemap_canopy_boundary: 'otm_treemap_canopy_boundary'
-    };
-
-    return qualifyPgTileservFunction(functionNames[table] || table);
+function pgTileservLayerName(table) {
+    return qualifyPgTileservLayer(table);
 }
 
-function qualifyPgTileservFunction(functionName) {
-    if (functionName.indexOf('.') >= 0) {
-        return functionName;
+function qualifyPgTileservLayer(layerName) {
+    if (layerName.indexOf('.') >= 0) {
+        return layerName;
     }
 
-    return 'public.' + functionName;
+    return 'public.' + layerName;
 }
 
 function createVectorLayer(url, styles, options) {
@@ -287,26 +280,30 @@ function getLayerStyles(table) {
     if (table === 'stormwater_polygonalmapfeature') {
         return {
             otm_stormwater_polygonalmapfeature: polygonStyle,
-            stormwater_polygonalmapfeature: polygonStyle
+            stormwater_polygonalmapfeature: polygonStyle,
+            'public.stormwater_polygonalmapfeature': polygonStyle
         };
     }
 
     if (table === 'treemap_boundary' || table === 'boundary') {
         return {
             otm_treemap_boundary: boundaryStyle,
-            treemap_boundary: boundaryStyle
+            treemap_boundary: boundaryStyle,
+            'public.treemap_boundary': boundaryStyle
         };
     }
 
     if (table === 'treemap_canopy_boundary' || table === 'canopy') {
         return {
             otm_treemap_canopy_boundary: canopyStyle,
-            treemap_canopy_boundary: canopyStyle
+            treemap_canopy_boundary: canopyStyle,
+            'public.treemap_canopy_boundary': canopyStyle
         };
     }
 
     return {
         otm_treemap_mapfeature: pointStyle,
-        treemap_mapfeature: pointStyle
+        treemap_mapfeature: pointStyle,
+        'public.treemap_mapfeature': pointStyle
     };
 }
