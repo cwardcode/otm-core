@@ -89,7 +89,7 @@
 
 {% block scripts %}
 {% include 'modeling/partials/scenarios/clientside_templates.html' %}
-<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ settings.GOOGLE_MAPS_API_KEY }}&loading=async"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ settings.GOOGLE_MAPS_API_KEY }}&libraries=geometry"></script>
 <script type="text/javascript">
     var modelingOptions = {
         config: otm.settings,
