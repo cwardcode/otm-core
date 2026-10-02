@@ -186,8 +186,11 @@ def inline_edit_tag(tag, Node):
     """
     def tag_parser(parser, token):
         try:
-            results = _inline_edit_parser.parse_string(token.contents,
-                                                       reset=True, eof=True)
+            try:
+                results = _inline_edit_parser.parse_string(
+                    token.contents, reset=True, eof=True)
+            except TypeError:
+                results = _inline_edit_parser.parse_string(token.contents)
         except ParseError as e:
             raise template.TemplateSyntaxError(
                 'expected format: %s [{label}] from {model.property}'

@@ -516,13 +516,20 @@ class Instance(models.Model):
         # we use the instance's url_name, latest tag update time, and
         # tag count (to handle deletions).
 
-        from tagging.models import Tag
+        from django.contrib.contenttypes.models import ContentType
+        from tagging.models import Tag, TaggedItem
         from treemap.models import Tree
-        my_tags = Tag.objects.usage_for_model(Tree)
+        try:
+            tag_count = len(Tag.objects.usage_for_model(Tree))
+        except Exception:
+            tree_type = ContentType.objects.get_for_model(Tree)
+            tag_count = TaggedItem.objects \
+                .filter(content_type=tree_type) \
+                .values('tag_id').distinct().count()
         version = 1
-        if my_tags:
+        if tag_count:
             return "%s_%s_%s" % (
-                self.url_name, len(my_tags), version
+                self.url_name, tag_count, version
             )
         else:
             return self.url_name
