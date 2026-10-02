@@ -3,7 +3,7 @@
 
 import json
 import re
-from modgrammar import Grammar, OPTIONAL, G, WORD, OR, ParseError
+from django.utils.text import smart_split
 
 from django import template
 from django.template.loader import get_template
@@ -56,25 +56,79 @@ FOREIGN_KEY_PREDICATE = 'IS'
 VALID_FIELD_KEYS = ','.join(list(FIELD_MAPPINGS.keys()))
 
 
-class Variable(Grammar):
-    grammar = (G('"', WORD('^"'), '"') | G("'", WORD("^'"), "'")
-               | WORD("a-zA-Z_", "a-zA-Z0-9_."))
+def _parse_inline_edit_bits(bits, tag):
+    # Expected shape:
+    #   <tag> [label] from <identifier> [for <user>] [in <instance>]
+    #   withtemplate <template> [withhelp <help>]
+    i = 1
+    n = len(bits)
 
+    def expect(keyword):
+        nonlocal i
+        if i >= n or bits[i] != keyword:
+            raise template.TemplateSyntaxError(
+                'expected format: %s [{label}] from {model.property}'
+                ' [for {user}] in {instance} withtemplate {template}' % tag)
+        i += 1
 
-class Label(Grammar):
-    grammar = (G('_("', WORD('^"'), '")') | G("_('", WORD("^'"), "')")
-               | Variable)
+    label = None
+    if tag in ('field', 'create'):
+        if i < n and bits[i] != 'from':
+            label = bits[i]
+            i += 1
 
+    expect('from')
+    if i >= n:
+        raise template.TemplateSyntaxError(
+            'expected format: %s [{label}] from {model.property}'
+            ' [for {user}] in {instance} withtemplate {template}' % tag)
+    identifier = bits[i]
+    i += 1
 
-class InlineEditGrammar(Grammar):
-    grammar = (OR(G(OR("field", "create"), OPTIONAL(Label)), "search"),
-               "from", Variable, OPTIONAL("for", Variable),
-               OPTIONAL("in", Variable), "withtemplate", Variable,
-               OPTIONAL("withhelp", Label))
-    grammar_whitespace = True
+    user = None
+    if i < n and bits[i] == 'for':
+        i += 1
+        if i >= n:
+            raise template.TemplateSyntaxError(
+                'expected format: %s [{label}] from {model.property}'
+                ' [for {user}] in {instance} withtemplate {template}' % tag)
+        user = bits[i]
+        i += 1
 
+    instance = None
+    if i < n and bits[i] == 'in':
+        i += 1
+        if i >= n:
+            raise template.TemplateSyntaxError(
+                'expected format: %s [{label}] from {model.property}'
+                ' [for {user}] in {instance} withtemplate {template}' % tag)
+        instance = bits[i]
+        i += 1
 
-_inline_edit_parser = InlineEditGrammar.parser()
+    expect('withtemplate')
+    if i >= n:
+        raise template.TemplateSyntaxError(
+            'expected format: %s [{label}] from {model.property}'
+            ' [for {user}] in {instance} withtemplate {template}' % tag)
+    field_template = bits[i]
+    i += 1
+
+    help_text = None
+    if i < n and bits[i] == 'withhelp':
+        i += 1
+        if i >= n:
+            raise template.TemplateSyntaxError(
+                'expected format: %s [{label}] from {model.property}'
+                ' [for {user}] in {instance} withtemplate {template}' % tag)
+        help_text = bits[i]
+        i += 1
+
+    if i != n:
+        raise template.TemplateSyntaxError(
+            'expected format: %s [{label}] from {model.property}'
+            ' [for {user}] in {instance} withtemplate {template}' % tag)
+
+    return label, identifier, user, instance, field_template, help_text
 
 
 def inline_edit_tag(tag, Node):
@@ -185,31 +239,21 @@ def inline_edit_tag(tag, Node):
         {% endif %}
     """
     def tag_parser(parser, token):
-        try:
-            try:
-                results = _inline_edit_parser.parse_string(
-                    token.contents, reset=True, eof=True)
-            except TypeError:
-                results = _inline_edit_parser.parse_string(token.contents)
-        except ParseError as e:
+        bits = list(smart_split(token.contents))
+        if not bits or bits[0] != tag:
             raise template.TemplateSyntaxError(
                 'expected format: %s [{label}] from {model.property}'
-                ' [for {user}] in {instance} withtemplate {template}, %s'
-                % (tag, e.message))
+                ' [for {user}] in {instance} withtemplate {template}' % tag)
 
-        elems = results.elements
+        label, identifier, user, instance, field_template, help_text = \
+            _parse_inline_edit_bits(bits, tag)
 
-        def one_or_none(e): return e[1].string if e else None
-
-        label = _token_to_variable(
-            elems[0][1].string
-            if len(elems[0].elements) > 1 and elems[0][1]
-            else None)
-        identifier = _token_to_variable(elems[2].string)
-        user = _token_to_variable(one_or_none(elems[3]))
-        instance = _token_to_variable(one_or_none(elems[4]))
-        field_template = _token_to_variable(elems[6].string)
-        help_text = _token_to_variable(one_or_none(elems[7]))
+        label = _token_to_variable(label)
+        identifier = _token_to_variable(identifier)
+        user = _token_to_variable(user)
+        instance = _token_to_variable(instance)
+        field_template = _token_to_variable(field_template)
+        help_text = _token_to_variable(help_text)
 
         return Node(label, identifier, user, field_template, instance,
                     help_text)
@@ -224,7 +268,15 @@ def _token_to_variable(token):
     """
     if token is None:
         return None
+    elif (token.startswith('_("') and token.endswith('")') and
+          len(token) >= 5):
+        return token[3:-2]
+    elif (token.startswith("_('") and token.endswith("')") and
+          len(token) >= 5):
+        return token[3:-2]
     elif token[0] == '"' and token[0] == token[-1] and len(token) >= 2:
+        return token[1:-1]
+    elif token[0] == "'" and token[0] == token[-1] and len(token) >= 2:
         return token[1:-1]
     else:
         return template.Variable(token)

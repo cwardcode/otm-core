@@ -71,3 +71,47 @@ def apply_django_compat_shims() -> None:
             )
 
         django_http.is_safe_url = _is_safe_url
+
+    try:
+        from django.conf import urls as django_conf_urls
+        from django.urls import re_path
+        if not hasattr(django_conf_urls, 'url'):
+            django_conf_urls.url = re_path
+    except Exception:
+        pass
+
+    if 'django.utils.six' not in sys.modules:
+        try:
+            import six
+            sys.modules['django.utils.six'] = six
+            sys.modules['django.utils.six.moves'] = six.moves
+            sys.modules['django.utils.six.moves.builtins'] = six.moves.builtins
+            sys.modules['django.utils.six.moves.urllib'] = six.moves.urllib
+            sys.modules['django.utils.six.moves.urllib.parse'] = (
+                six.moves.urllib.parse
+            )
+        except Exception:
+            pass
+
+    try:
+        import modgrammar
+        import modgrammar.util as modgrammar_util
+        orig_word = modgrammar.WORD
+        orig_regularize = modgrammar_util.regularize
+
+        def _word_compat(startchars, restchars=None, *args, **kwargs):
+            if isinstance(startchars, bytes):
+                startchars = startchars.decode('utf-8')
+            if isinstance(restchars, bytes):
+                restchars = restchars.decode('utf-8')
+            return orig_word(startchars, restchars, *args, **kwargs)
+
+        def _regularize_compat(grammar):
+            if isinstance(grammar, bytes):
+                grammar = grammar.decode('utf-8')
+            return orig_regularize(grammar)
+
+        modgrammar.WORD = _word_compat
+        modgrammar_util.regularize = _regularize_compat
+    except Exception:
+        pass
