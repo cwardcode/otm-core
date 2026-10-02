@@ -289,8 +289,21 @@ function base64EncodeUtf8(input) {
     return btoa(unescape(encodeURIComponent(input)));
 }
 
+function normalizeBase64(input) {
+    var normalized = (input || '')
+        .replace(/-/g, '+')
+        .replace(/_/g, '/'),
+        remainder = normalized.length % 4;
+
+    if (remainder > 0) {
+        normalized += '===='.slice(remainder);
+    }
+
+    return normalized;
+}
+
 function base64ToUint8Array(base64) {
-    var binary = atob(base64),
+    var binary = atob(normalizeBase64(base64)),
         bytes = new Uint8Array(binary.length),
         i;
 
