@@ -256,6 +256,7 @@ function getLayerStyles(table) {
             radius: 4,
             weight: 1,
             color: '#2f6d4b',
+            fill: true,
             fillColor: '#46a36f',
             fillOpacity: 0.9
         },
