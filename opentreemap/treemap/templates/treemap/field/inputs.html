@@ -19,7 +19,7 @@
                     {% if field.data_type == 'multichoice' %}
                     {% if option.value in field.value %}selected="selected"{% endif %}
                     {% else %}
-                    {% ifequal option.value field.value %}selected="selected"{% endifequal %}
+                     {% if option.value == field.value %}selected="selected"{% endif %}
                     {% endif %}
                     >{{option.display_value}}</option>
         {% endfor %}
