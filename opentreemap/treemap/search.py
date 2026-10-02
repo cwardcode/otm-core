@@ -123,6 +123,10 @@ class FilterContext(Q):
         super(FilterContext, self).__init__(*args, **kwargs)
 
     def add(self, thing, conn):
+        self_basekeys = getattr(self, 'basekeys', set())
+        if not hasattr(self, 'basekeys'):
+            self.basekeys = self_basekeys
+
         thing_basekeys = getattr(thing, 'basekeys', set())
         if thing_basekeys:
             self.basekeys = self.basekeys | thing_basekeys
