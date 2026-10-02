@@ -417,9 +417,34 @@ function getBasemapLayers(type) {
 
     type = type || config.instance.basemap.type;
 
+    function getGoogleMapStyles() {
+        var basemap = config.instance && config.instance.basemap,
+            raw = basemap && basemap.data;
+
+        if (_.isArray(raw)) {
+            return raw;
+        }
+
+        if (_.isString(raw) && raw.length > 0) {
+            try {
+                var parsed = JSON.parse(raw);
+                if (_.isArray(parsed)) {
+                    return parsed;
+                }
+            } catch (e) {
+                // Ignore invalid JSON and fall through to default.
+            }
+        }
+
+        return [];
+    }
+
     function makeGoogleLayer(layer) {
         return L.gridLayer.googleMutant(
-            _.extend(options, {type: layer}));
+            _.extend({}, options, {
+                type: layer,
+                styles: getGoogleMapStyles()
+            }));
     }
 
     function makeBingLayer(layer) {

@@ -21,8 +21,14 @@ def _create_rows_for_event(ie, csv_file):
     # so we can show progress. Caller does manual cleanup if necessary.
     reader = utf8_file_to_csv_dictreader(csv_file)
 
-    field_names = [f.strip().decode('utf-8') for f in reader.fieldnames
-                   if f.strip().lower() not in ie.ignored_fields()]
+    def _field_name_to_text(field_name):
+        if isinstance(field_name, bytes):
+            return field_name.strip().decode('utf-8')
+        return field_name.strip()
+
+    normalized_field_names = [_field_name_to_text(f) for f in reader.fieldnames]
+    field_names = [f for f in normalized_field_names
+                   if f.lower() not in ie.ignored_fields()]
     ie.field_order = json.dumps(field_names)
     ie.save()
 

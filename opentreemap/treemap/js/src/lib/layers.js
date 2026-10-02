@@ -258,7 +258,8 @@ function getLayerStyles(table) {
             color: '#2f6d4b',
             fill: true,
             fillColor: '#46a36f',
-            fillOpacity: 0.9
+            fillOpacity: 1,
+            opacity: 1
         },
         polygonStyle = {
             weight: 1,
@@ -279,32 +280,42 @@ function getLayerStyles(table) {
         };
 
     if (table === 'stormwater_polygonalmapfeature') {
-        return {
-            otm_stormwater_polygonalmapfeature: polygonStyle,
-            stormwater_polygonalmapfeature: polygonStyle,
-            'public.stormwater_polygonalmapfeature': polygonStyle
-        };
+        return styleMapForLayer(
+            ['otm_stormwater_polygonalmapfeature',
+             'stormwater_polygonalmapfeature',
+             'public.stormwater_polygonalmapfeature'],
+            polygonStyle);
     }
 
     if (table === 'treemap_boundary' || table === 'boundary') {
-        return {
-            otm_treemap_boundary: boundaryStyle,
-            treemap_boundary: boundaryStyle,
-            'public.treemap_boundary': boundaryStyle
-        };
+        return styleMapForLayer(
+            ['otm_treemap_boundary',
+             'treemap_boundary',
+             'public.treemap_boundary'],
+            boundaryStyle);
     }
 
     if (table === 'treemap_canopy_boundary' || table === 'canopy') {
-        return {
-            otm_treemap_canopy_boundary: canopyStyle,
-            treemap_canopy_boundary: canopyStyle,
-            'public.treemap_canopy_boundary': canopyStyle
-        };
+        return styleMapForLayer(
+            ['otm_treemap_canopy_boundary',
+             'treemap_canopy_boundary',
+             'public.treemap_canopy_boundary'],
+            canopyStyle);
     }
 
-    return {
-        otm_treemap_mapfeature: pointStyle,
-        treemap_mapfeature: pointStyle,
-        'public.treemap_mapfeature': pointStyle
-    };
+    return styleMapForLayer(
+        ['otm_treemap_mapfeature',
+         'treemap_mapfeature',
+         'public.treemap_mapfeature'],
+        pointStyle);
+}
+
+function styleMapForLayer(layerNames, style) {
+    var styles = {'default': style};
+
+    _.each(layerNames, function(name) {
+        styles[name] = style;
+    });
+
+    return styles;
 }
