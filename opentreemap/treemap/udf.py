@@ -1050,7 +1050,7 @@ class UDFPostgresField(HStoreField):
             self.default = UDFDictionary
 
     @staticmethod
-    def from_db_value(value, expression, connection, context):
+    def from_db_value(value, expression, connection, context=None):
         return UDFDictionary(value)
 
     def to_python(self, value):
