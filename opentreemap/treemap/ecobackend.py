@@ -91,7 +91,10 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
                 # the associated ST_XXX call
                 if isinstance(v, PostGISAdapter):
                     bytestring = v.ewkb
-                    hexstring = ''.join('%02X' % ord(x) for x in bytestring)
+                    if isinstance(bytestring, bytes):
+                        hexstring = ''.join('%02X' % x for x in bytestring)
+                    else:
+                        hexstring = ''.join('%02X' % ord(x) for x in bytestring)
 
                     v = "ST_GeomFromEWKT('%s')" % GEOSGeometry(hexstring).ewkt
                 elif not isinstance(v, str):
@@ -105,9 +108,9 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
                 else:
                     paramdata[k] = v
 
-            data = json.dumps(paramdata)
+            data = json.dumps(paramdata).encode('utf-8')
         else:
-            data = json.dumps(params)
+            data = json.dumps(params).encode('utf-8')
         req = urllib.request.Request(url,
                                      data,
                                      {'Content-Type': 'application/json'})
@@ -132,10 +135,14 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
         return result, None
     except urllib.error.HTTPError as e:
         error_body = e.fp.read()
+        if isinstance(error_body, bytes):
+            error_body_text = error_body.decode('utf-8', errors='replace')
+        else:
+            error_body_text = error_body
         for code, patterns in list(
                 ECOBENEFIT_FAILURE_CODES_AND_PATTERNS.items()):
             for pattern in patterns:
-                match = re.match(pattern, error_body)
+                match = re.match(pattern, error_body_text)
                 if match:
                     # When you pass a dictionary to a Python logger's
                     # `extra` kwarg, each key in the dictionary is
@@ -146,6 +153,7 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
                     extra = {
                         'extra_data': {
                             'ecobenefit_message': error_body,
+                            'ecobenefit_message_text': error_body_text,
                             'ecobenefit_matched_message_pattern': pattern,
                             'ecobenefit_failure_code': code
                         }
@@ -165,7 +173,7 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
             # that means we received an unknown response from the
             # ecoservice.
             LOG_FUNCTION_FOR_FAILURE_CODE[UNKNOWN_ECO_FAILURE](
-                "ECOBENEFIT FAILURE: " + error_body)
+                "ECOBENEFIT FAILURE: " + error_body_text)
             return general_unhandled_struct
     except urllib.error.URLError:
         logger.error("Error connecting to ecoservice", exc_info=sys.exc_info())
