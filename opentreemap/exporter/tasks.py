@@ -3,6 +3,7 @@
 
 import csv
 import logging
+import io
 
 from contextlib import contextmanager
 from functools import wraps
@@ -125,7 +126,11 @@ def async_users_export(job, data_format):
         filename = 'users.json'
 
     file_obj = TemporaryFile()
-    write_users(data_format, file_obj, instance)
+    text_file_obj = io.TextIOWrapper(file_obj, encoding='utf-8', newline='')
+    write_users(data_format, text_file_obj, instance)
+    text_file_obj.flush()
+    text_file_obj.detach()
+    file_obj.seek(0)
     job.complete_with(filename, File(file_obj))
     job.save()
 
@@ -312,11 +317,16 @@ def simple_async_csv(job, qs):
 def custom_async_csv(csv_rows, job_pk, filename, fields):
     with _job_transaction_manager(job_pk) as job:
         csv_obj = TemporaryFile()
+        text_csv_obj = io.TextIOWrapper(csv_obj, encoding='utf-8', newline='')
 
-        writer = csv.DictWriter(csv_obj, fields)
+        writer = csv.DictWriter(text_csv_obj, fields)
         writer.writeheader()
         for row in csv_rows:
             writer.writerow(sanitize_unicode_record(row))
+
+        text_csv_obj.flush()
+        text_csv_obj.detach()
+        csv_obj.seek(0)
 
         job.complete_with(filename, File(csv_obj))
         job.save()
