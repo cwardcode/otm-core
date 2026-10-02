@@ -28,6 +28,9 @@ var $ = require('jquery'),
         isCurrent: function (jobId) { return _activeJob === jobId; }
     };
 
+// Export dialog uses Bootstrap's modal plugin.
+require('bootstrap');
+
 ////////////////////////////////////////
 // ajax / job mgmt
 ////////////////////////////////////////
