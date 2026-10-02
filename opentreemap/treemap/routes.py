@@ -168,6 +168,15 @@ map_feature_search_ids = do(
     json_api_call,
     feature_views.map_feature_search_ids)
 
+map_feature_tags = do(
+    login_or_401,
+    instance_request,
+    creates_instance_user,
+    json_api_call,
+    route(
+        POST=feature_views.add_tag_to_map_feature,
+        DELETE=feature_views.remove_tag_from_map_feature))
+
 canopy_popup = do(
     instance_request,
     feature_views.canopy_popup)

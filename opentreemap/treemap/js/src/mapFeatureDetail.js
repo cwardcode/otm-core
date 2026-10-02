@@ -30,8 +30,7 @@ var $ = require('jquery'),
     comments = require('otm_comments/lib/comments.js'),
     $editPanel = '#edit-tags-panel',
     addTagInput = '#add-tag-input',
-    $addTagInputSection = $(addTagInput),
-    moment = require('moment');
+    $addTagInputSection = $(addTagInput);
 
 // Placed onto the jquery object
 require('bootstrap-datepicker');
@@ -102,66 +101,43 @@ function init() {
     var tagsPanelStream = editTagsPanel.init({
         updateUrl: detailUrl
     });
-    var sig_alg = 'sha256';
-    var secret = 'OO1TR6t8z5X8r8uXUH_khx_5O0f_w5WoLcIuJyDfKphNKd42UIUf-XxVz2y-TmquChSo3-U-PkWv_D5OWKWywQ==';
-    
-    function getPlotId(url) {
-        var splitUrl = url.split('/');
-        var endOfSplit = splitUrl[splitUrl.length - 1];
-        var plotId = '';
-
-        if (endOfSplit === '') {
-            plotId = splitUrl[splitUrl.length - 2];
-        } else {
-            plotId = endOfSplit;
-        }
-        return plotId;
-    }
-
-    tagsPanelStream.saveStream.onValue(function(inputData) {
-        if($addTagInputSection.val()) {
-            var plotId = getPlotId(detailUrl);
-            var data = $addTagInputSection.val();
-            var req = { "name": data };
-            var baseReq = base64EncodeUtf8(JSON.stringify(req));
-            hmacSha256Base64(secret, baseReq)
-                .then(function(sig) {
-                    var timestamp = moment.utc(new Date()).format("Y-M-DTHH:MM:ss");
-                    return Bacon.fromPromise($.ajax({
-                        url: '/api/v4/instance/wcu/tags/feature/' + plotId + '?access_key=LiUMH1KKT4y9SX15_qKAiA&timestamp=' + timestamp + '&signature=' + encodeURIComponent(sig),
-                        type: 'POST',
-                        contentType: "application/json",
-                        data: JSON.stringify(req)
-                    }))
-                    .onValue(function(resp) {
-                        var modalBodyDiv = $('#tag-modal-content');
-                        modalBodyDiv.css('text-align', 'center');
-                        modalBodyDiv[0].innerHTML = '';
-                        modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
-                        document.location.reload();
-                    });
-                });
-        }
+    var mapFeatureTagsUrl = reverse.map_feature_tags({
+        instance_url_name: config.instance.url_name,
+        feature_id: window.otm.mapFeature.featureId
     });
 
-    tagsPanelStream.deleteStream.onValue(function (event) {
-        var plotId = getPlotId(detailUrl);
-        var tagToDelete =  event.currentTarget.id.split('delete-button-')[1];
-        hmacSha256Base64(secret, '')
-            .then(function(sig) {
-                var timestamp = moment.utc(new Date()).format("Y-M-DTHH:MM:ss");
-                return Bacon.fromPromise($.ajax({
-                    url: '/api/v4/instance/wcu/tags/feature/' + plotId + '/' + tagToDelete + '?access_key=LiUMH1KKT4y9SX15_qKAiA&timestamp=' + timestamp + '&signature=' + encodeURIComponent(sig),
-                    type: 'DELETE'
-                }))
-                .onValue(function (resp){
-                    var modalBodyDiv = $('#tag-modal-content');
-                    modalBodyDiv.css('text-align', 'center');
-                    modalBodyDiv[0].innerHTML = '';
-                    modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
-                    document.location.reload();
-                });
-            });
+    function reloadTagModalWithSpinner() {
+        var modalBodyDiv = $('#tag-modal-content');
+        modalBodyDiv.css('text-align', 'center');
+        modalBodyDiv[0].innerHTML = '';
+        modalBodyDiv[0].innerHTML = '<i class="fa fa-spinner fa-spin" style="font-size:5rem"></i>';
+        document.location.reload();
+    }
+
+    tagsPanelStream.saveStream.onValue(function() {
+        var tagName = $addTagInputSection.val();
+
+        if (!tagName) {
+            return;
+        }
+
+        Bacon.fromPromise($.ajax({
+            url: mapFeatureTagsUrl,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ name: tagName })
+        })).onValue(reloadTagModalWithSpinner);
+    });
+
+    tagsPanelStream.deleteStream.onValue(function(event) {
+        var tagToDelete = event.currentTarget.id.split('delete-button-')[1];
+
+        Bacon.fromPromise($.ajax({
+            url: mapFeatureTagsUrl,
+            type: 'DELETE',
+            contentType: 'application/json',
+            data: JSON.stringify({ name: tagToDelete })
+        })).onValue(reloadTagModalWithSpinner);
     });
 
     function initDetailAfterRefresh() {
@@ -284,65 +260,6 @@ function init() {
         imageFinishedStream: imageFinishedStream
     });
 }
-
-function base64EncodeUtf8(input) {
-    return btoa(unescape(encodeURIComponent(input)));
-}
-
-function normalizeBase64(input) {
-    var normalized = (input || '')
-        .replace(/-/g, '+')
-        .replace(/_/g, '/'),
-        remainder = normalized.length % 4;
-
-    if (remainder > 0) {
-        normalized += '===='.slice(remainder);
-    }
-
-    return normalized;
-}
-
-function base64ToUint8Array(base64) {
-    var binary = atob(normalizeBase64(base64)),
-        bytes = new Uint8Array(binary.length),
-        i;
-
-    for (i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-
-    return bytes;
-}
-
-function arrayBufferToBase64(buffer) {
-    var bytes = new Uint8Array(buffer),
-        binary = '',
-        i;
-
-    for (i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-
-    return btoa(binary);
-}
-
-function hmacSha256Base64(secretBase64, message) {
-    var secretBytes = base64ToUint8Array(secretBase64),
-        messageBytes = new TextEncoder().encode(message);
-
-    return window.crypto.subtle.importKey(
-        'raw',
-        secretBytes,
-        { name: 'HMAC', hash: 'SHA-256' },
-        false,
-        ['sign']
-    ).then(function(key) {
-        return window.crypto.subtle.sign('HMAC', key, messageBytes);
-    }).then(function(signature) {
-        return arrayBufferToBase64(signature);
-    });
-}
-
 
 function isFavoriteNow() {
     return $(dom.favoriteLink).attr('data-is-favorited') === 'True';

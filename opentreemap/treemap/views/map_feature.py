@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.contrib.gis.geos import Point, MultiPolygon, Polygon
 from django.contrib.gis.db.models import GeometryField
@@ -17,7 +18,7 @@ from django.contrib.gis.measure import D
 from django.utils.translation import gettext as _
 from django_tinsel.exceptions import HttpBadRequestException
 
-from opentreemap.util import dotted_split
+from opentreemap.util import dotted_split, json_from_request
 from treemap.lib.hide_at_zoom import (update_hide_at_zoom_after_move,
                                       update_hide_at_zoom_after_delete)
 
@@ -36,6 +37,7 @@ from treemap.lib.map_feature import (get_map_feature_or_404,
 from treemap.search import Filter
 from treemap.models import Plot
 from treemap.views.misc import add_map_info_to_context
+from tagging.models import Tag, TaggedItem
 
 
 def map_feature_search_ids(request, instance):
@@ -47,6 +49,46 @@ def map_feature_search_ids(request, instance):
         'plot_ids': list(filter_obj.get_objects(Plot)
                          .values_list('pk', flat=True))
     }
+
+
+def _get_tree_for_tag_edit(instance, feature_id):
+    feature = get_map_feature_or_404(feature_id, instance, 'Plot')
+    tree = feature.safe_get_current_tree()
+
+    if tree is None:
+        raise HttpBadRequestException('Cannot edit tags for an empty plot')
+
+    return tree
+
+
+def add_tag_to_map_feature(request, instance, feature_id):
+    payload = json_from_request(request) or {}
+    tag_name = (payload.get('name') or '').strip()
+
+    if not tag_name:
+        raise HttpBadRequestException('The tag name is required')
+
+    tree = _get_tree_for_tag_edit(instance, feature_id)
+    Tag.objects.add_tag(tree, tag_name)
+
+    return {'ok': True, 'tag': tag_name}
+
+
+def remove_tag_from_map_feature(request, instance, feature_id):
+    payload = json_from_request(request) or {}
+    tag_name = (payload.get('name') or '').strip()
+
+    if not tag_name:
+        raise HttpBadRequestException('The tag name is required')
+
+    tree = _get_tree_for_tag_edit(instance, feature_id)
+    tree_content_type = ContentType.objects.get_for_model(Tree)
+
+    TaggedItem.objects.filter(content_type=tree_content_type,
+                              object_id=tree.id,
+                              tag__name=tag_name).delete()
+
+    return {'ok': True, 'tag': tag_name}
 
 
 def _request_to_update_map_feature(request, feature):
