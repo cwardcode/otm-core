@@ -3,6 +3,7 @@
 
 from django.conf import settings
 from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 
 from django_tinsel.exceptions import HttpBadRequestException
@@ -22,7 +23,7 @@ def polygon_for_point(request, instance):
         raise HttpBadRequestException(
             'The distance parameter must be a number')
 
-    features = PolygonalMapFeature.objects.distance(point)\
+    features = PolygonalMapFeature.objects.annotate(distance=Distance('polygon', point))\
         .filter(instance=instance)\
         .filter(polygon__distance_lte=(point, D(m=distance)))\
         .order_by('distance')[0:1]

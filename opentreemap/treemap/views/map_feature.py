@@ -12,6 +12,7 @@ from django.conf import settings
 from django.db import transaction
 from django.contrib.gis.geos import Point, MultiPolygon, Polygon
 from django.contrib.gis.db.models import GeometryField
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.utils.translation import gettext as _
 from django_tinsel.exceptions import HttpBadRequestException
@@ -449,7 +450,7 @@ def map_feature_for_point(request, instance):
     for Model in classes:
         feature = filter_obj.get_objects(Model)\
             .filter(feature_type__in=restrict_types)\
-            .distance(point)\
+            .annotate(distance=Distance('geom', point))\
             .filter(geom__distance_lte=(point, D(m=distance)))\
             .order_by('distance')\
             .first()

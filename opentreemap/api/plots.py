@@ -7,6 +7,7 @@ from functools import wraps
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 
 from django_tinsel.exceptions import HttpBadRequestException
@@ -53,7 +54,7 @@ def plots_closest_to_point(request, instance, lat, lng):
         raise HttpBadRequestException(
             'The distance parameter must be a number')
 
-    plots = Plot.objects.distance(point)\
+    plots = Plot.objects.annotate(distance=Distance('geom', point))\
                         .filter(instance=instance)\
                         .filter(geom__distance_lte=(point, D(m=distance)))\
                         .order_by('distance')[0:max_plots]
