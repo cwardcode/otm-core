@@ -749,8 +749,8 @@ pip install -r dev-requirements.txt   # dev only
 
 Notable dependency changes in `requirements.txt`:
 - `Django==1.11` → `Django==4.2`
-- `psycopg2==2.7.3.2` → `psycopg[binary]>=3.2.0` + `psycopg2-binary>=2.9.0`
 - `celery`, `boto3` (replacing `boto`), `jsonschema`, `Pillow`, `redis`,
+- `psycopg2==2.7.3.2` → `psycopg[binary]>=3.2.0` + `psycopg2-binary>=2.9.0`
   `rollbar`, `python-dateutil`, `pytz`, `urllib3`, etc. are now unpinned
   (`>=`) or pinned to current majors — expect newer versions than before.
 - `six`, `functools32`, `anyjson`, `olefile`, `wsgiref`, `modgrammar-py2` and

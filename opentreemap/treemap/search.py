@@ -67,7 +67,7 @@ class Filter(object):
             q = _apply_tree_display_filter(q, self.display_filter,
                                            DEFAULT_MAPPING)
 
-        models = q.basekeys
+        models = getattr(q, 'basekeys', set())
 
         if _is_valid_models_list_for_model(models, model_name, ModelClass,
                                            self.instance):
@@ -123,8 +123,9 @@ class FilterContext(Q):
         super(FilterContext, self).__init__(*args, **kwargs)
 
     def add(self, thing, conn):
-        if thing.basekeys:
-            self.basekeys = self.basekeys | thing.basekeys
+        thing_basekeys = getattr(thing, 'basekeys', set())
+        if thing_basekeys:
+            self.basekeys = self.basekeys | thing_basekeys
 
         return super(FilterContext, self).add(thing, conn)
 
@@ -643,11 +644,17 @@ def _apply_combinator(combinator, predicates):
     q = predicates[0]
     if combinator == 'AND':
         for p in predicates[1:]:
+            left_basekeys = getattr(q, 'basekeys', set())
+            right_basekeys = getattr(p, 'basekeys', set())
             q = q & p
+            q.basekeys = left_basekeys | right_basekeys
 
     elif combinator == 'OR':
         for p in predicates[1:]:
+            left_basekeys = getattr(q, 'basekeys', set())
+            right_basekeys = getattr(p, 'basekeys', set())
             q = q | p
+            q.basekeys = left_basekeys | right_basekeys
     else:
         raise ParseException(
             'Only AND and OR combinators supported, not "%s"' %
