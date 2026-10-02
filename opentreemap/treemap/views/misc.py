@@ -76,7 +76,7 @@ def index(request, instance):
 
 
 def get_map_view_context(request, instance):
-    if request.user and not request.user.is_anonymous():
+    if request.user and not request.user.is_anonymous:
         iuser = request.user.get_effective_instance_user(instance)
         resource_classes = [resource for resource in instance.resource_classes
                             if model_is_creatable(iuser, resource)]

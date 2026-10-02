@@ -9,6 +9,11 @@
 # WARNING: !!! DO NOT ADD SETTINGS TO THIS FILE !!!
 # WARNING: !!! USE THIS FILE EXCLUSIVELY TO MANAGE SETTING IMPORTS !!!
 
+# Apply compatibility aliases regardless of entry-point/module path behavior.
+from opentreemap.compat import apply_django_compat_shims
+
+apply_django_compat_shims()
+
 STORAGE_UNITS = {}
 DISPLAY_DEFAULTS = {}
 MIDDLEWARE = ()

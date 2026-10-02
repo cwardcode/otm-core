@@ -785,7 +785,7 @@ post_delete.connect(invalidate_adjuncts, sender=FieldPermission)
 class RoleManager(models.Manager):
     @staticmethod
     def get_role(instance, user=None):
-        if user is None or user.is_anonymous():
+        if user is None or user.is_anonymous:
             return instance.default_role
         return user.get_role(instance)
 

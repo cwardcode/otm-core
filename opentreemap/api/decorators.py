@@ -97,7 +97,7 @@ def _check_signature(view_f, require_login):
             else:
                 user = parse_user_from_request(request)
 
-            if require_login and user is None or user.is_anonymous():
+            if require_login and user is None or user.is_anonymous:
                 return create_401unauthorized()
 
             if user is None:
@@ -117,7 +117,7 @@ def login_required(view_f):
     def wrapperf(request, *args, **kwargs):
         user = parse_user_from_request(request) or request.user
 
-        if user is not None and not user.is_anonymous():
+        if user is not None and not user.is_anonymous:
             request.user = user
             return view_f(request, *args, **kwargs)
 
