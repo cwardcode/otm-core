@@ -114,7 +114,10 @@ class TreeBenefitsCalculator(BenefitCalculator):
         # Returning a unicode SQL string ensures that any string
         # replacements done to query string will not raise
         # UnicodeDecodeError
-        return str(cursor.mogrify(sql, params), 'utf-8')
+        rendered_sql = cursor.mogrify(sql, params)
+        if isinstance(rendered_sql, bytes):
+            return rendered_sql.decode('utf-8')
+        return rendered_sql
 
     def benefits_for_filter(self, instance, item_filter):
         from treemap.models import Plot, Tree
