@@ -1162,7 +1162,7 @@ class Auditable(UserTrackable):
 
         string_to_hash = '%s:%s:%s' % (self._model_name, self.pk, audit_string)
 
-        return hashlib.md5(string_to_hash).hexdigest()
+        return hashlib.md5(string_to_hash.encode('utf-8')).hexdigest()
 
     @classmethod
     def action_format_string_for_audit(clz, audit):

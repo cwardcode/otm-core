@@ -437,11 +437,11 @@ class Instance(models.Model):
 
     @property
     def geo_rev_hash(self):
-        return hashlib.md5(str(self.geo_rev)).hexdigest()
+        return hashlib.md5(str(self.geo_rev).encode('utf-8')).hexdigest()
 
     @property
     def universal_rev_hash(self):
-        return hashlib.md5(str(self.universal_rev)).hexdigest()
+        return hashlib.md5(str(self.universal_rev).encode('utf-8')).hexdigest()
 
     @property
     def center_lat_lng(self):

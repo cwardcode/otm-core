@@ -372,10 +372,12 @@ def map_feature_hash(request, instance, feature_id, edit=False, tree_id=None):
     """
     feature = get_map_feature_or_404(feature_id, instance)
 
+    pk = ''
     if request.user:
         pk = request.user.pk or ''
 
-    return hashlib.md5(feature.hash + ':' + str(pk)).hexdigest()
+    digest_input = (feature.hash + ':' + str(pk)).encode('utf-8')
+    return hashlib.md5(digest_input).hexdigest()
 
 
 @get_photo_context_and_errors
