@@ -885,9 +885,14 @@ class MapFeature(Convertible, UDFModel, PendingAuditable):
             return getattr(self.polygonalmapfeature, ft.lower())
 
     def safe_get_current_tree(self):
-        if hasattr(self, 'current_tree'):
+        if not hasattr(self, 'current_tree') or not getattr(self, 'pk', None):
+            return None
+
+        try:
             return self.current_tree()
-        else:
+        except ValueError:
+            # Django 4 raises if reverse relations are accessed before the
+            # parent instance has a primary key.
             return None
 
     def nearby_map_features(self, distance_in_meters=None):
@@ -1041,6 +1046,9 @@ class Plot(MapFeature, ValidationMixin):
         select the 'current tree'. Right now OTM only supports one
         tree per plot, so this method returns the 'first' tree
         """
+        if not self.pk:
+            return None
+
         trees = list(self.tree_set.all())
         if trees:
             return trees[0]
