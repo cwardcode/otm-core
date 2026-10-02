@@ -6,6 +6,7 @@ from datetime import datetime
 from functools import partial
 from itertools import groupby, chain
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from opentreemap.util import dotted_split
@@ -15,7 +16,7 @@ from treemap.models import Boundary, Tree, Plot, Species, TreePhoto
 from treemap.udf import UDFModel, UserDefinedCollectionValue
 from treemap.units import storage_to_instance_units_factor
 from treemap.util import to_object_name
-from tagging.models import Tag
+from tagging.models import Tag, TaggedItem
 
 
 class ParseException (Exception):
@@ -259,6 +260,9 @@ def _parse_scalar_predicate(query, mapping):
     def parse_scalar_predicate_pair(key, value, mapping):
         model, prefix, search_key = _parse_predicate_key(key, mapping)
 
+        if model == 'tagging_tag':
+            return _parse_tagging_tag_predicate(value)
+
         if not isinstance(value, dict):
             query = {prefix + search_key: value}
         else:
@@ -283,6 +287,30 @@ def _parse_scalar_predicate(query, mapping):
     qs = [parse_scalar_predicate_pair(*kv, mapping=mapping)
           for kv in query.items()]
     return _apply_combinator('AND', qs)
+
+
+def _parse_tagging_tag_predicate(value):
+    tree_content_type = ContentType.objects.get_for_model(Tree)
+    tagged_items = TaggedItem.objects.filter(content_type=tree_content_type)
+
+    if isinstance(value, dict):
+        if 'IS' in value:
+            tag_id = int(_parse_value(value['IS']))
+            tagged_items = tagged_items.filter(tag_id=tag_id)
+        elif 'IN' in value:
+            tag_ids = [int(_parse_value(tag_id)) for tag_id in value['IN']]
+            tagged_items = tagged_items.filter(tag_id__in=tag_ids)
+        elif 'LIKE' in value:
+            tagged_items = tagged_items.filter(
+                tag__name__icontains=_parse_value(value['LIKE']))
+        else:
+            raise ParseException('Unsupported tagging_tag predicate: %s' % value)
+    else:
+        tag_id = int(_parse_value(value))
+        tagged_items = tagged_items.filter(tag_id=tag_id)
+
+    tree_ids = tagged_items.values_list('object_id', flat=True)
+    return FilterContext(basekey='tagging_tag', tree__id__in=tree_ids)
 
 
 def _parse_by_is_collection_udf(query_dict, mapping):
