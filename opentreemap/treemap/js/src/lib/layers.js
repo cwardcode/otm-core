@@ -4,7 +4,6 @@ var $ = require("jquery"),
     _ = require("lodash"),
     L = require('leaflet'),
     urlLib = require('url'),
-    querystring = require('querystring'),
     Search = require("treemap/lib/search.js"),
     config = require("treemap/lib/config.js"),
     format = require('util').format,
@@ -162,7 +161,7 @@ function getUrlMaker(table, extension, tilerArgs) {
                 '%s/functions/%s/{z}/{x}/{y}.pbf?%s',
                 config.tileHost || '',
                 pgTileservFunctionName(table),
-                querystring.stringify(query));
+                makeQueryString(query));
         }
 
         return format(
@@ -170,6 +169,18 @@ function getUrlMaker(table, extension, tilerArgs) {
             config.tileHost || '', rev, table, extension,
             urlLib.format({query: query}));
     };
+}
+
+function makeQueryString(query) {
+    var params = new URLSearchParams();
+
+    _.forOwn(query, function(value, key) {
+        if (!_.isUndefined(value) && !_.isNull(value)) {
+            params.append(key, value);
+        }
+    });
+
+    return params.toString();
 }
 
 // Combine base from `newBaseUrl` with querystring from `url`.

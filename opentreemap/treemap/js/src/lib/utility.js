@@ -1,7 +1,6 @@
 "use strict";
 
 var url = require('url'),
-    QS = require('querystring'),
     $ = require('jquery'),
     L = require('leaflet'),
     _ = require('lodash'),
@@ -13,8 +12,20 @@ exports.getUpdatedQueryString = function (k, v) {
 
     query[k] = v;
 
-    return QS.stringify(query);
+    return makeQueryString(query);
 };
+
+function makeQueryString(query) {
+    var params = new URLSearchParams();
+
+    _.forOwn(query, function(value, key) {
+        if (!_.isUndefined(value) && !_.isNull(value)) {
+            params.append(key, value);
+        }
+    });
+
+    return params.toString();
+}
 
 exports.getLastUrlSegment = function(urlString) {
     var parts = getUrlSegments(urlString);

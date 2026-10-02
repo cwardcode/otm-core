@@ -8,7 +8,6 @@ var $ = require('jquery'),
     isTypeaheadHiddenField = require('treemap/lib/fieldHelpers.js'),
     FH = require('treemap/lib/fieldHelpers.js'),
     config = require('treemap/lib/config.js'),
-    querystring = require('querystring'),
     locationSearchUI = require('treemap/mapPage/locationSearchUI.js');
 
 var DATETIME_FORMAT = FH.DATETIME_FORMAT;
@@ -47,8 +46,20 @@ var makeQueryStringFromFilters = exports.makeQueryStringFromFilters = function(f
     if ( ! displayListIsEmpty(filters.display)) {
         query[config.urls.displayQueryArgumentName] = JSON.stringify(filters.display);
     }
-    return querystring.stringify(query);
+    return makeQueryString(query);
 };
+
+function makeQueryString(query) {
+    var params = new URLSearchParams();
+
+    _.forOwn(query, function(value, key) {
+        if (!_.isUndefined(value) && !_.isNull(value)) {
+            params.append(key, value);
+        }
+    });
+
+    return params.toString();
+}
 
 // ``buildElems`` produces a data structure to be used by a number of
 // functions in this module. The structure is an object, where the

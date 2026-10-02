@@ -5,7 +5,6 @@ var $ = require('jquery'),
     R = require('ramda'),
     L = require('leaflet'),
     Bacon = require('baconjs'),
-    querystring = require('querystring'),
     format = require('util').format,
     U = require('treemap/lib/utility.js'),
     BU = require('treemap/lib/baconUtils.js'),
@@ -517,7 +516,7 @@ function usingPgTileservBackend() {
 }
 
 function makeMapFeatureForPointUrl(lng, lat) {
-    var query = querystring.parse(window.location.search.replace(/^\?/, '')),
+    var query = parseSearchQuery(window.location.search),
         payload = {
             lng: lng,
             lat: lat,
@@ -532,7 +531,30 @@ function makeMapFeatureForPointUrl(lng, lat) {
         payload.show = query.show;
     }
 
-    return config.mapFeatureForPointUrl + '?' + querystring.stringify(payload);
+    return config.mapFeatureForPointUrl + '?' + makeQueryString(payload);
+}
+
+function parseSearchQuery(search) {
+    var params = new URLSearchParams((search || '').replace(/^\?/, '')),
+        query = {};
+
+    params.forEach(function(value, key) {
+        query[key] = value;
+    });
+
+    return query;
+}
+
+function makeQueryString(query) {
+    var params = new URLSearchParams();
+
+    _.forOwn(query, function(value, key) {
+        if (!_.isUndefined(value) && !_.isNull(value)) {
+            params.append(key, value);
+        }
+    });
+
+    return params.toString();
 }
 
 module.exports = MapManager;
