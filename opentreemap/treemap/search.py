@@ -83,6 +83,21 @@ class Filter(object):
 
 def _is_valid_models_list_for_model(models, model_name, ModelClass, instance):
     """Validates everything in models are valid filters for model_name"""
+    def accepted_model_aliases(Model):
+        aliases = {to_object_name(Model.__name__), Model.__name__}
+
+        model_meta = getattr(Model, '_meta', None)
+        if model_meta is not None:
+            aliases.add(model_meta.model_name)
+
+        # Search identifiers in JS/templates use legacy names for these models.
+        if Model is TreePhoto:
+            aliases.add('treePhoto')
+        elif Model is Tag:
+            aliases.add('tagging_tag')
+
+        return aliases
+
     def collection_udf_set_for_model(Model):
         if not issubclass(ModelClass, UDFModel):
             return {}
@@ -104,7 +119,7 @@ def _is_valid_models_list_for_model(models, model_name, ModelClass, instance):
         related_models = {ModelClass}
 
     for Model in related_models:
-        models = models - {to_object_name(Model.__name__)}
+        models = models - accepted_model_aliases(Model)
         if issubclass(Model, UDFModel):
             models = models - collection_udf_set_for_model(Model)
 
