@@ -239,7 +239,15 @@ function pgTileservFunctionName(table) {
         treemap_canopy_boundary: 'otm_treemap_canopy_boundary'
     };
 
-    return functionNames[table] || table;
+    return qualifyPgTileservFunction(functionNames[table] || table);
+}
+
+function qualifyPgTileservFunction(functionName) {
+    if (functionName.indexOf('.') >= 0) {
+        return functionName;
+    }
+
+    return 'public.' + functionName;
 }
 
 function createVectorLayer(url, styles, options) {
