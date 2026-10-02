@@ -5,6 +5,7 @@ var $ = require('jquery'),
     R = require('ramda'),
     L = require('leaflet'),
     Bacon = require('baconjs'),
+    Search = require('treemap/lib/search.js'),
     U = require('treemap/lib/utility.js'),
     BU = require('treemap/lib/baconUtils.js'),
     urlState = require('treemap/lib/urlState.js'),
@@ -352,7 +353,7 @@ MapManager.prototype = {
                 this.map.addLayer(this._allPolygonsLayer);
             }
         }
-        if (_.isEmpty(filter)) {
+        if (Search.isEmpty(filter)) {
             this.map.removeLayer(this._allPlotsLayer);
             if (this._hasPolygons) {
                 this.map.removeLayer(this._allPolygonsLayer);

@@ -38,6 +38,17 @@ from treemap.models import Plot
 from treemap.views.misc import add_map_info_to_context
 
 
+def map_feature_search_ids(request, instance):
+    filter_obj = Filter(request.GET.get('q', ''),
+                        request.GET.get('show', ''),
+                        instance)
+
+    return {
+        'plot_ids': list(filter_obj.get_objects(Plot)
+                         .values_list('pk', flat=True))
+    }
+
+
 def _request_to_update_map_feature(request, feature):
     request_dict = json.loads(request.body)
     feature, tree = update_map_feature(request_dict, request.user, feature)

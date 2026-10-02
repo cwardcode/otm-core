@@ -163,6 +163,11 @@ map_feature_for_point = do(
     json_api_call,
     feature_views.map_feature_for_point)
 
+map_feature_search_ids = do(
+    instance_request,
+    json_api_call,
+    feature_views.map_feature_search_ids)
+
 canopy_popup = do(
     instance_request,
     feature_views.canopy_popup)

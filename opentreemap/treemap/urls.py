@@ -40,6 +40,8 @@ urlpatterns = [
             routes.map_feature_popup, name='map_feature_popup'),
     re_path(r'^features/for-point$',
             routes.map_feature_for_point, name='map_feature_for_point'),
+    re_path(r'^features/search-ids$',
+            routes.map_feature_search_ids, name='map_feature_search_ids'),
     re_path(r'^canopy-popup$', routes.canopy_popup, name='canopy_popup'),
     re_path(r'^features/(?P<feature_id>\d+)/trees/(?P<tree_id>\d+)/$',
             routes.delete_tree, name='delete_tree'),

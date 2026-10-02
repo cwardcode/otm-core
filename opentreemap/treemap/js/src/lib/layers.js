@@ -3,6 +3,7 @@
 var $ = require("jquery"),
     _ = require("lodash"),
     L = require('leaflet'),
+    reverse = require('reverse'),
     Search = require("treemap/lib/search.js"),
     config = require("treemap/lib/config.js"),
 
@@ -196,10 +197,13 @@ function filterableLayer (table, extension, layerOptions) {
     var revToUrl = getUrlMaker(table, extension),
         noSearchUrl = revToUrl(config.instance.geoRevHash),
         searchBaseUrl = revToUrl(config.instance.universalRevHash),
+        styleState = { matchingFeatureIds: null },
         layer;
 
     if (usingPgTileservBackend()) {
-        layer = createVectorLayer(noSearchUrl, getLayerStyles(table), layerOptions);
+        layer = createVectorLayer(noSearchUrl, getLayerStyles(table, styleState), layerOptions);
+        layer._styleState = styleState;
+        layer._searchRequestSeq = 0;
     } else {
         layer = L.tileLayer(noSearchUrl, layerOptions);
     }
@@ -214,17 +218,82 @@ function filterableLayer (table, extension, layerOptions) {
     };
 
     layer.setFilter = function(filters) {
-        var fullUrl;
-        if (Search.isEmpty(filters)) {
+        var fullUrl,
+            isEmptyFilter = Search.isEmpty(filters),
+            isPgTileservPlotLayer = usingPgTileservBackend() && table === 'treemap_mapfeature';
+
+        if (isEmptyFilter) {
             fullUrl = noSearchUrl;
+            clearMatchingFeatureIds(layer);
+        } else if (isPgTileservPlotLayer) {
+            // pg_tileserv table endpoints ignore OpenTreeMap's q/show params,
+            // so fetch matching IDs from Django and filter client-side.
+            fullUrl = searchBaseUrl;
+            setMatchingFeatureIdsForFilter(layer, filters);
         } else {
-            var query = Search.makeQueryStringFromFilters(filters);
-            var suffix = query ? '&' + query : '';
+            var query = Search.makeQueryStringFromFilters(filters),
+                suffix = query ? '&' + query : '';
             fullUrl = searchBaseUrl + suffix;
         }
         layer.setUrl(fullUrl);
     };
     return layer;
+}
+
+function clearMatchingFeatureIds(layer) {
+    if (!layer._styleState) {
+        return;
+    }
+
+    layer._searchRequestSeq += 1;
+    layer._styleState.matchingFeatureIds = null;
+    if (_.isFunction(layer.redraw)) {
+        layer.redraw();
+    }
+}
+
+function setMatchingFeatureIdsForFilter(layer, filters) {
+    if (!layer._styleState) {
+        return;
+    }
+
+    var requestSeq = layer._searchRequestSeq + 1,
+        query = Search.makeQueryStringFromFilters(filters);
+
+    layer._searchRequestSeq = requestSeq;
+
+    $.ajax({
+        url: reverse.map_feature_search_ids(config.instance.url_name),
+        data: query,
+        type: 'GET',
+        dataType: 'json'
+    }).done(function(response) {
+        if (requestSeq !== layer._searchRequestSeq) {
+            return;
+        }
+
+        var ids = _.map(response.plot_ids || [], function(id) {
+                return parseInt(id, 10);
+            }),
+            validIds = _.filter(ids, function(id) {
+                return !_.isNaN(id);
+            });
+
+        layer._styleState.matchingFeatureIds = new Set(validIds);
+        if (_.isFunction(layer.redraw)) {
+            layer.redraw();
+        }
+    }).fail(function() {
+        if (requestSeq !== layer._searchRequestSeq) {
+            return;
+        }
+
+        // Keep map interactive if the match request fails.
+        layer._styleState.matchingFeatureIds = null;
+        if (_.isFunction(layer.redraw)) {
+            layer.redraw();
+        }
+    });
 }
 
 function usingPgTileservBackend() {
@@ -251,7 +320,7 @@ function createVectorLayer(url, styles, options) {
     }));
 }
 
-function getLayerStyles(table) {
+function getLayerStyles(table, styleState) {
     var pointStyle = {
             radius: 4,
             weight: 1,
@@ -260,6 +329,15 @@ function getLayerStyles(table) {
             fillColor: '#46a36f',
             fillOpacity: 1,
             opacity: 1
+        },
+        hiddenPointStyle = {
+            radius: 0,
+            weight: 0,
+            color: '#2f6d4b',
+            fill: true,
+            fillColor: '#46a36f',
+            fillOpacity: 0,
+            opacity: 0
         },
         polygonStyle = {
             weight: 1,
@@ -303,11 +381,37 @@ function getLayerStyles(table) {
             canopyStyle);
     }
 
+    if (table === 'treemap_mapfeature' && styleState) {
+        var searchAwareStyle = function(props) {
+            var matchingIds = styleState.matchingFeatureIds;
+            if (!matchingIds) {
+                return pointStyle;
+            }
+
+            return matchingIds.has(featureIdFromProperties(props))
+                ? pointStyle
+                : hiddenPointStyle;
+        };
+
+        return styleMapForLayer(
+            ['otm_treemap_mapfeature',
+             'treemap_mapfeature',
+             'public.treemap_mapfeature'],
+            searchAwareStyle);
+    }
+
     return styleMapForLayer(
         ['otm_treemap_mapfeature',
          'treemap_mapfeature',
          'public.treemap_mapfeature'],
         pointStyle);
+}
+
+function featureIdFromProperties(props) {
+    var rawId = props && (props.id || props.mapfeature_id || props.feature_id ||
+                          props.objectid || props.gid),
+        parsed = parseInt(rawId, 10);
+    return _.isNaN(parsed) ? null : parsed;
 }
 
 function styleMapForLayer(layerNames, style) {
