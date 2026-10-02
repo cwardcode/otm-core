@@ -319,7 +319,7 @@ def custom_async_csv(csv_rows, job_pk, filename, fields):
         csv_obj = TemporaryFile()
         text_csv_obj = io.TextIOWrapper(csv_obj, encoding='utf-8', newline='')
 
-        writer = csv.DictWriter(text_csv_obj, fields)
+        writer = csv.DictWriter(text_csv_obj, fields, extrasaction='ignore')
         writer.writeheader()
         for row in csv_rows:
             writer.writerow(sanitize_unicode_record(row))
