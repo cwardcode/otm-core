@@ -1610,7 +1610,13 @@ class UDFModel(UserTrackable, models.Model, metaclass=UDFModelBase):
 
     # django.db.models.Model hook, called by Model.full_clean().
     def clean_fields(self, exclude):
-        exclude = exclude + ['udfs']
+        if exclude is None:
+            exclude = ['udfs']
+        elif isinstance(exclude, set):
+            exclude = set(exclude)
+            exclude.add('udfs')
+        else:
+            exclude = list(exclude) + ['udfs']
         errors = {}
         try:
             super(UDFModel, self).clean_fields(exclude)
