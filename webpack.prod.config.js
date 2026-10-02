@@ -2,8 +2,14 @@
 
 const { merge } = require('webpack-merge');
 const webpack = require('webpack');
+const { EsbuildPlugin } = require('esbuild-loader');
+
+// Ensure common config sees production mode while deciding loaders/plugins.
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+
 const config = require('./webpack.common.config.js');
 const reversePath = __dirname + '/assets/js/shim/reverse-shim.js';
+const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP === 'true';
 
 module.exports = merge(config, {
     mode: 'production',
@@ -19,8 +25,16 @@ module.exports = merge(config, {
     resolve: {
         alias: Object.assign({}, config.resolve.alias, { reverse: reversePath })
     },
-    devtool: 'source-map',
+    // Source maps are expensive in production builds.
+    // Enable only when explicitly requested.
+    devtool: shouldUseSourceMap ? 'source-map' : false,
     optimization: {
-        minimize: true
+        minimize: true,
+        minimizer: [
+            new EsbuildPlugin({
+                target: 'es2015',
+                css: true
+            })
+        ]
     }
 });

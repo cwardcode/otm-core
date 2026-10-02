@@ -10,16 +10,19 @@ const autoprefixer = require("autoprefixer");
 
 const isProd = process.env.NODE_ENV === "production";
 
+// Execute globs once per config evaluation to reduce startup I/O.
+const GLOBAL_JS_FILES = globSync("opentreemap/*/js/src/*.js");
+const GLOBAL_DIR_ALIASES = globSync("opentreemap/*/js/src/*/");
+const GLOBAL_VENDOR_MODULES = globSync(path.resolve(__dirname, "opentreemap/*/js/vendor/"));
+
 function d(p) {
   // Turns a relative path into an absolute path from the project root
   return path.resolve(__dirname, p);
 }
 
 function getEntries() {
-  // glob v10 no longer includes './' prefix — use explicit prefix-free pattern
-  const files = globSync("opentreemap/*/js/src/*.js");
   const entries = {};
-  files.forEach(function (file) {
+  GLOBAL_JS_FILES.forEach(function (file) {
     // file = 'opentreemap/treemap/js/src/treeMap.js'
     // parts: ['opentreemap', 'treemap', 'js', 'src', 'treeMap.js']
     const parts = file.split(path.sep);
@@ -31,11 +34,8 @@ function getEntries() {
 }
 
 function getAliases() {
-  // glob v10: returns 'opentreemap/treemap/js/src/lib/'
-  // parts: ['opentreemap', 'treemap', 'js', 'src', 'lib', '']
-  const dirs = globSync("opentreemap/*/js/src/*/");
   const aliases = {};
-  dirs.forEach(function (thePath) {
+  GLOBAL_DIR_ALIASES.forEach(function (thePath) {
     const parts = thePath.split(path.sep);
     const app = parts[1]; // e.g. 'treemap'
     const dir = parts[4]; // e.g. 'lib', 'mapPage'
@@ -61,6 +61,19 @@ const shimmed = {
 };
 
 module.exports = {
+  cache: {
+    type: "filesystem",
+    cacheDirectory: d(".webpack-cache"),
+    compression: false,
+    buildDependencies: {
+      config: [
+        __filename,
+        d("webpack.prod.config.js"),
+        d("webpack.dev.config.js"),
+        d("webpack.test.config.js"),
+      ],
+    },
+  },
   entry: getEntries(),
   output: {
     filename: "[name].js",
@@ -124,7 +137,7 @@ module.exports = {
     alias: getAliases(),
     preferRelative: true,
     modules: [d("assets/js/vendor"), d("node_modules")].concat(
-      globSync(d("opentreemap/*/js/vendor/")),
+      GLOBAL_VENDOR_MODULES,
     ),
     // webpack 5 no longer auto-polyfills Node.js core modules.
     // These built-ins are only used by server-side dependencies; disable them for the browser bundle.
