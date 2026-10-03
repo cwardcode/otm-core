@@ -53,7 +53,7 @@ def api_create_event(request, **kwargs):
     occ_created = request.POST.get("occCreated")
     act_plot_id = None
 
-    if tree_id is not None:
+    if tree_id not in (None, ''):
         act_plot_id = Tree.objects.get(pk=tree_id).plot.id
 
     if (color_event == "white"):
@@ -96,21 +96,29 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
         tree_id = ''
     if color_event is None or color_event == "":
         color_event = '#000000'
+    event_kwargs = dict(
+        start=start,
+        end=end,
+        title=title,
+        calendar=calendar,
+        description=description,
+        plot_id=plot_id,
+        color_event=color_event,
+        tree_id=tree_id,
+    )
+
     if rule:
         repeat_until = dateutil.parser.parse(repeat_until.replace('Z', ''))
-        evt = Event(
-            start=start, end=end, title=title, calendar=calendar,
-            description=description, plot_id=plot_id, color_event=color_event,
-            rule=rule, end_recurring_period=repeat_until, tree_id=tree_id
-        )
-        occs = evt.get_occurrences(start, repeat_until)
+        event_kwargs.update({
+            'rule': rule,
+            'end_recurring_period': repeat_until,
+        })
+        occ_end = repeat_until
     else:
-        evt = Event(
-            start=start, end=end, title=title, calendar=calendar,
-            description=description, plot_id=plot_id, color_event=color_event,
-            tree_id=tree_id
-        )
-        occs = evt.get_occurrences(start, end)
+        occ_end = end
+
+    evt = Event.objects.create(**event_kwargs)
+    occs = evt.get_occurrences(start, occ_end)
 
     for occurrence in occs:
         Occurrence.objects.create(
