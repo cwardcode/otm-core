@@ -441,11 +441,18 @@ function getBasemapLayers(type) {
     }
 
     function makeGoogleLayer(layer) {
-        return L.gridLayer.googleMutant(
-            _.extend({}, options, {
-                type: layer,
-                styles: getGoogleMapStyles()
-            }));
+        var layerOptions = _.extend({}, options, {
+            type: layer
+        });
+
+        // Custom map styles are intended for vector-style base maps.
+        // Applying them to hybrid/satellite can produce blank/gray output
+        // with GoogleMutant on newer Google Maps runtimes.
+        if (layer === 'roadmap' || layer === 'terrain') {
+            layerOptions.styles = getGoogleMapStyles();
+        }
+
+        return L.gridLayer.googleMutant(layerOptions);
     }
 
     function makeBingLayer(layer) {
