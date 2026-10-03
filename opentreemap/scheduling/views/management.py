@@ -3,6 +3,7 @@
 from django.shortcuts import redirect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
+from django.utils import timezone
 
 import dateutil.parser
 from schedule.models import Event, Calendar, Rule, Occurrence
@@ -11,6 +12,17 @@ from schedule.utils import (
 )
 from django.http import JsonResponse
 from treemap.models import Tree
+
+
+def _parse_event_datetime(value):
+    dt = dateutil.parser.parse(value.replace('Z', ''))
+
+    # django-schedule expects naive datetimes for recurrence generation.
+    # Normalize aware inputs (e.g. +00:00) to local naive datetimes.
+    if timezone.is_aware(dt):
+        dt = timezone.localtime(dt).replace(tzinfo=None)
+
+    return dt
 
 
 def management_root(request, instance_url_name):
@@ -79,8 +91,8 @@ def api_create_event(request, **kwargs):
 def _api_create_event(start, end, calendar_slug, title, description, plot_id,
                       color_event, frequency, repeat_until, tree_id,
                       occ_created):
-    start = dateutil.parser.parse(start.replace('Z', ''))
-    end = dateutil.parser.parse(end.replace('Z', ''))
+    start = _parse_event_datetime(start)
+    end = _parse_event_datetime(end)
     rule = None
     evt = None
     event_freq = frequency
@@ -108,7 +120,7 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
     )
 
     if rule:
-        repeat_until = dateutil.parser.parse(repeat_until.replace('Z', ''))
+        repeat_until = _parse_event_datetime(repeat_until)
         event_kwargs.update({
             'rule': rule,
             'end_recurring_period': repeat_until,
