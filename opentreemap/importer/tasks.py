@@ -157,10 +157,10 @@ def commit_import_event(import_type, import_event_id):
     ie = _get_import_event(import_type, import_event_id)
 
     commit_tasks = [
-        _commit_rows(import_type, import_event_id, i)
+        _commit_rows.s(import_type, import_event_id, i)
         for i in range(0, ie.row_count, settings.IMPORT_BATCH_SIZE)]
 
-    finalize_task = _finalize_commit(import_type, import_event_id)
+    finalize_task = _finalize_commit.s(import_type, import_event_id)
 
     async_result = chord(commit_tasks, finalize_task)
     # Protect against a race condition where finalize_task's ie
