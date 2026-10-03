@@ -162,13 +162,13 @@ def commit_import_event(import_type, import_event_id):
 
     finalize_task = _finalize_commit.s(import_type, import_event_id)
 
-    async_result = chord(commit_tasks, finalize_task)
+    async_result = chord(commit_tasks, finalize_task).apply_async()
     # Protect against a race condition where finalize_task's ie
     # may have already been updated to FINISHED_CREATING and saved to the db,
     # rendering this instance of the ie model obsolete.
     ie.refresh_from_db()
     if async_result:
-        ie.task_id = async_result.id
+        ie.task_id = getattr(async_result, 'id', '') or ''
         ie.save()
 
 
