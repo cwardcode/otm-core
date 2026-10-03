@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 import dateutil.parser
+from dateutil.relativedelta import relativedelta
 from schedule.models import Event, Calendar, Rule, Occurrence
 from schedule.utils import (
     check_calendar_permissions,
@@ -23,6 +24,31 @@ def _parse_event_datetime(value):
         dt = timezone.localtime(dt).replace(tzinfo=None)
 
     return dt
+
+
+def _generate_occurrence_ranges(start, end, frequency, repeat_until):
+    if frequency in (None, '', 'Once'):
+        return [(start, end)]
+
+    step_map = {
+        'Daily': relativedelta(days=1),
+        'Weekly': relativedelta(weeks=1),
+        'Monthly': relativedelta(months=1),
+        'Yearly': relativedelta(years=1),
+    }
+    step = step_map.get(frequency)
+    if step is None:
+        return [(start, end)]
+
+    ranges = []
+    cur_start = start
+    cur_end = end
+    while cur_start <= repeat_until:
+        ranges.append((cur_start, cur_end))
+        cur_start = cur_start + step
+        cur_end = cur_end + step
+
+    return ranges
 
 
 def management_root(request, instance_url_name):
@@ -125,20 +151,24 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
             'rule': rule,
             'end_recurring_period': repeat_until,
         })
-        occ_end = repeat_until
     else:
-        occ_end = end
+        repeat_until = None
 
     evt = Event.objects.create(**event_kwargs)
-    occs = evt.get_occurrences(start, occ_end)
+    occurrence_ranges = _generate_occurrence_ranges(
+        start,
+        end,
+        event_freq,
+        repeat_until,
+    )
 
-    for occurrence in occs:
+    for occurrence_start, occurrence_end in occurrence_ranges:
         Occurrence.objects.create(
             occ_created=occ_created,
             title=title,
             description=description,
-            start=occurrence.start,
-            end=occurrence.end,
+            start=occurrence_start,
+            end=occurrence_end,
             original_start=evt.start,
             original_end=evt.end,
             plot_id=plot_id,
