@@ -1,30 +1,40 @@
 "use strict";
 
-var webpack = require('webpack'),
-    config = require('./webpack.common.config.js'),
-    reversePath = __dirname + '/assets/js/shim/reverse.js';
+const { merge } = require('webpack-merge');
+const webpack = require('webpack');
+const { EsbuildPlugin } = require('esbuild-loader');
 
-config.output.filename = '[name]-[chunkhash].js';
+// Ensure common config sees production mode while deciding loaders/plugins.
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
-// Allows require-ing the static file created by django-js-reverse
-config.resolve.alias.reverse = reversePath;
+const config = require('./webpack.common.config.js');
+const reversePath = __dirname + '/assets/js/shim/reverse-shim.js';
+const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP === 'true';
 
-config.devtool = 'source-map';
-
-config.module.loaders.push({
-    include: reversePath,
-    loader: 'imports?this=>window!exports?Urls'
+module.exports = merge(config, {
+    mode: 'production',
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify('production')
+        })
+    ],
+    output: {
+        filename: '[name]-[contenthash].js',
+        publicPath: '/static/'
+    },
+    resolve: {
+        alias: Object.assign({}, config.resolve.alias, { reverse: reversePath })
+    },
+    // Source maps are expensive in production builds.
+    // Enable only when explicitly requested.
+    devtool: shouldUseSourceMap ? 'source-map' : false,
+    optimization: {
+        minimize: true,
+        minimizer: [
+            new EsbuildPlugin({
+                target: 'es2015',
+                css: true
+            })
+        ]
+    }
 });
-
-config.plugins.concat([
-    new webpack.optimize.UglifyJsPlugin({
-        mangle: {
-            except: ['Urls', 'otm', 'google']
-        }
-    }),
-    new webpack.optimize.OccurrenceOrderPlugin()
-]);
-
-config.output.publicPath = '/static/';
-
-module.exports = config;

@@ -1,8 +1,6 @@
 'use strict';
 
 var _ = require('lodash'),
-    url = require('url'),
-    util = require('util'),
     F = require('modeling/lib/func.js'),
     config = require('treemap/lib/config.js');
 
@@ -15,14 +13,18 @@ function ModelingUrls(urls) {
     // Override getter methods for urls that require parameters.
     result = _.extend(result, {
         planUrl: function(planId) {
-            return url.resolve(
-                instanceUrl,
-                util.format('modeling/plans/%d/', planId)
-            );
+            return joinPath(instanceUrl, 'modeling/plans/' + planId + '/');
         }
     });
 
     return result;
+}
+
+function joinPath(base, suffix) {
+    var normalizedBase = (base || '').replace(/\/?$/, '/'),
+        normalizedSuffix = (suffix || '').replace(/^\//, '');
+
+    return normalizedBase + normalizedSuffix;
 }
 
 module.exports = ModelingUrls;

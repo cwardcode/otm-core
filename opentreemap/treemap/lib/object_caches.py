@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from django.conf import settings
 from django.db.models import F
@@ -27,6 +25,7 @@ def field_permissions(user, instance, model_name=None):
         return _get_adjuncts(instance).permissions(user, model_name)
     else:
         return _permissions_from_db(user, instance, model_name)
+
 
 permissions = field_permissions
 

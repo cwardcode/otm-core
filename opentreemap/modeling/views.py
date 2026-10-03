@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -11,7 +9,7 @@ from django.db import transaction
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.contrib.gis.geos import Point
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 import json
 import logging
@@ -41,7 +39,7 @@ def get_modeling_context(request, instance):
 
     return {
         'instance_bounds': list(instance.bounds.geom.extent),
-        'species_for_planting':  json.dumps(species_for_planting),
+        'species_for_planting': json.dumps(species_for_planting),
         'diameter_units': get_units(instance, 'tree', 'diameter'),
         'has_boundaries': instance.scope_model(Boundary).exists(),
         'default_model_params': json.dumps(model_params),
@@ -307,7 +305,7 @@ def _run_model(instance, growth_model, scenario, region_code):
         'currency_axis_label': "%s %s" % (currency_symbol, _('saved')),
         'eco_csv_header': _eco_csv_header(year_headers),
         'growth_csv_data': growth_csv_data,
-        }
+    }
 
 
 def _list_for_display(benefits):
@@ -352,7 +350,7 @@ def _growth_csv_data(instance, year_headers, planted_trees):
         _('Common Name'),
         _('Scientific Name'),
         _('Year 0 Diameter (%(unit)s)' % {'unit': diameter_unit}),
-        ]
+    ]
     header.extend(year_headers)
     rows = [header]
 

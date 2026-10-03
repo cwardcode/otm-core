@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
 
-import urllib2
-import urllib
+
+import urllib.request
+import urllib.error
+import urllib.parse
+import urllib.request
+import urllib.parse
+import urllib.error
 import json
 import re
 import sys
@@ -89,10 +91,13 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
                 # the associated ST_XXX call
                 if isinstance(v, PostGISAdapter):
                     bytestring = v.ewkb
-                    hexstring = ''.join('%02X' % ord(x) for x in bytestring)
+                    if isinstance(bytestring, bytes):
+                        hexstring = ''.join('%02X' % x for x in bytestring)
+                    else:
+                        hexstring = ''.join('%02X' % ord(x) for x in bytestring)
 
                     v = "ST_GeomFromEWKT('%s')" % GEOSGeometry(hexstring).ewkt
-                elif not isinstance(v, unicode):
+                elif not isinstance(v, str):
                     v = str(v)
 
                 if k == "param":
@@ -103,15 +108,15 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
                 else:
                     paramdata[k] = v
 
-            data = json.dumps(paramdata)
+            data = json.dumps(paramdata).encode('utf-8')
         else:
-            data = json.dumps(params)
-        req = urllib2.Request(url,
-                              data,
-                              {'Content-Type': 'application/json'})
+            data = json.dumps(params).encode('utf-8')
+        req = urllib.request.Request(url,
+                                     data,
+                                     {'Content-Type': 'application/json'})
     else:
-        paramString = "&".join(["%s=%s" % (urllib.quote_plus(str(name)),
-                                           urllib.quote_plus(str(val)))
+        paramString = "&".join(["%s=%s" % (urllib.parse.quote_plus(str(name)),
+                                           urllib.parse.quote_plus(str(val)))
                                 for (name, val) in params])
 
         # A get request is assumed by urllib2
@@ -124,15 +129,20 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
     general_unhandled_struct = (None, UNKNOWN_ECO_FAILURE)
 
     try:
-        result = urllib2.urlopen(req).read()
+        result = urllib.request.urlopen(req).read()
         if result:
             result = json.loads(result)
         return result, None
-    except urllib2.HTTPError as e:
+    except urllib.error.HTTPError as e:
         error_body = e.fp.read()
-        for code, patterns in ECOBENEFIT_FAILURE_CODES_AND_PATTERNS.items():
+        if isinstance(error_body, bytes):
+            error_body_text = error_body.decode('utf-8', errors='replace')
+        else:
+            error_body_text = error_body
+        for code, patterns in list(
+                ECOBENEFIT_FAILURE_CODES_AND_PATTERNS.items()):
             for pattern in patterns:
-                match = re.match(pattern, error_body)
+                match = re.match(pattern, error_body_text)
                 if match:
                     # When you pass a dictionary to a Python logger's
                     # `extra` kwarg, each key in the dictionary is
@@ -143,6 +153,7 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
                     extra = {
                         'extra_data': {
                             'ecobenefit_message': error_body,
+                            'ecobenefit_message_text': error_body_text,
                             'ecobenefit_matched_message_pattern': pattern,
                             'ecobenefit_failure_code': code
                         }
@@ -152,15 +163,18 @@ def json_benefits_call(endpoint, params, post=False, convert_params=True):
                     # fully detailed message so that Rollbar can group
                     # and count similar failures.
                     LOG_FUNCTION_FOR_FAILURE_CODE[code](
-                        "ECOBENEFIT FAILURE: %s %s ", code, pattern, extra=extra)
+                        "ECOBENEFIT FAILURE: %s %s ",
+                        code,
+                        pattern,
+                        extra=extra)
                     return (None, code)
         else:
             # If we did not break out of the loop by returning early
             # that means we received an unknown response from the
             # ecoservice.
             LOG_FUNCTION_FOR_FAILURE_CODE[UNKNOWN_ECO_FAILURE](
-                "ECOBENEFIT FAILURE: " + error_body)
+                "ECOBENEFIT FAILURE: " + error_body_text)
             return general_unhandled_struct
-    except urllib2.URLError:
+    except urllib.error.URLError:
         logger.error("Error connecting to ecoservice", exc_info=sys.exc_info())
         return general_unhandled_struct

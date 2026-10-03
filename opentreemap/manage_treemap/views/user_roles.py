@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.paginator import Paginator, EmptyPage
@@ -9,7 +7,7 @@ from django.contrib.auth import login, authenticate
 from django.db import transaction
 from django.dispatch import receiver
 from django.http import HttpResponse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.shortcuts import get_object_or_404
 
 from registration.signals import user_registered, user_activated
@@ -34,7 +32,7 @@ def _extract_role_updates(post):
     mapping them to the values
     """
     updates = {}
-    for key, value in post.iteritems():
+    for key, value in post.items():
         if key.startswith("iuser_") and key.endswith("_role"):
             iuser_id = key[6:-5]
             updates[iuser_id] = value
@@ -123,10 +121,10 @@ def user_roles_list(request, instance):
         'paged_instance_users': paged_instance_users,
         'invited_users': invite_context(invited),
         'instance_roles': Role.objects.filter(instance_id=instance.pk),
-        'page_url': urlizer.url('invite_sort', 'user_sort', 'query'),
-        'invite_sort_url': urlizer.url('page', 'user_sort', 'query'),
-        'user_sort_url': urlizer.url('invite_sort', 'query'),
-        'search_url': urlizer.url('invite_sort', 'user_sort'),
+        'page_url': urlizer.re_path('invite_sort', 'user_sort', 'query'),
+        'invite_sort_url': urlizer.re_path('page', 'user_sort', 'query'),
+        'user_sort_url': urlizer.re_path('invite_sort', 'query'),
+        'search_url': urlizer.re_path('invite_sort', 'user_sort'),
         'invite_sort': invite_sort,
         'user_sort': user_sort,
     }
@@ -190,7 +188,7 @@ def update_user_roles(request, instance):
                        (InstanceInvitation, 'invites')):
         updates = role_updates.get(key, {})
 
-        for pk, updated_info in updates.iteritems():
+        for pk, updated_info in updates.items():
             model = Model.objects.get(pk=pk)
 
             updated_role = int(updated_info.get('role', model.role_id))

@@ -1,0 +1,123 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    env:
+      DJANGO_SETTINGS_MODULE: "opentreemap.settings"
+      POSTGRES_DB: ci
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: 5432
+      PGPASSWORD: password
+
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install PostgreSQL 18, PostGIS, and GIS libraries
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          ca-certificates curl gnupg lsb-release software-properties-common \
+          build-essential libffi-dev libssl-dev libldap2-dev libxml2-dev libxslt1-dev \
+          gdal-bin libgdal-dev libgeos-dev libproj-dev libpq-dev \
+          postgresql-client-common
+        curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+        echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+        sudo apt-get update
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+          postgresql-18 postgresql-client-18 postgresql-18-postgis-3 postgresql-18-postgis-3-scripts postgis
+        sudo service postgresql stop || true
+        sudo pg_dropcluster 18 main --stop || true
+        sudo pg_createcluster 18 main --start --locale=C.UTF-8 --port 5432 || true
+        sudo pg_ctlcluster 18 main start || true
+        sudo pg_lsclusters
+
+        for attempt in $(seq 1 10); do
+          if sudo -u postgres psql -h 127.0.0.1 -p 5432 -tAc "SELECT 1" >/dev/null 2>&1; then
+            echo "connected!"
+            break
+          fi
+          echo "Waiting for PostgreSQL 18 to accept TCP connections..."
+          sleep 2
+        done
+
+        sudo -u postgres psql -c "SELECT version();"
+        dpkg -l | grep -E 'postgresql-18|postgis|postgresql-18-postgis' || true
+        if ! ls /usr/share/postgresql/18/extension/postgis* 2>/dev/null | grep -q .; then
+          echo "PostGIS extension files for PostgreSQL 18 were not installed" >&2
+          exit 1
+        fi
+        if ! sudo -u postgres psql -c "SELECT version();" | grep -q 'PostgreSQL 18'; then
+          echo "PostgreSQL 18 is not the active server" >&2
+          sudo journalctl -u postgresql@18-main -n 100 --no-pager || true
+          exit 1
+        fi
+        sudo -u postgres psql -c "ALTER USER postgres PASSWORD '${POSTGRES_PASSWORD}';"
+        sudo -u postgres env PGPASSWORD="${POSTGRES_PASSWORD}" psql -h 127.0.0.1 -p 5432 -c "SELECT version();"
+        sudo -u postgres env PGPASSWORD="${POSTGRES_PASSWORD}" createdb -h 127.0.0.1 -p 5432 -O postgres "${POSTGRES_DB}" || true
+        sudo -u postgres env PGPASSWORD="${POSTGRES_PASSWORD}" psql -h 127.0.0.1 -p 5432 -d "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS hstore;" || true
+        sudo -u postgres env PGPASSWORD="${POSTGRES_PASSWORD}" psql -h 127.0.0.1 -p 5432 -d "${POSTGRES_DB}" -c "CREATE EXTENSION IF NOT EXISTS postgis;" || true
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Set up Node.js 24
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: 'npm'
+
+    - name: Install Python dependencies
+      run: |
+        sudo python -m pip install  --break-system-packages --upgrade pip setuptools wheel
+        sudo pip install  --break-system-packages -r requirements.txt
+        sudo pip install  --break-system-packages -r test-requirements.txt
+        sudo pip install  --break-system-packages coveralls
+
+    - name: Install JS dependencies
+      run: |
+        npm install yarn
+        yarn install
+
+    - name: Configure local settings
+      run: |
+        cp ci/local_settings.py opentreemap/opentreemap/settings/local_settings.py
+
+    - name: Setup Database
+      run: |
+        python opentreemap/manage.py migrate --noinput
+        mkdir -p /tmp/otm/static /tmp/otm/media
+        python opentreemap/manage.py collectstatic_js_reverse
+        npm run build
+        python opentreemap/manage.py collectstatic --noinput
+
+    - name: Run Tests
+      run: |
+        flake8 --exclude migrations,opentreemap/settings/local_settings.py,*.pyc opentreemap
+        npm run check
+        npm run test
+        cd opentreemap && coverage run --rcfile=../.coveragerc --source=. manage.py test && cd -
+        cd opentreemap && python manage.py test
+
+    - name: Coveralls
+      run: coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

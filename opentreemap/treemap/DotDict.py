@@ -14,6 +14,7 @@ class DotDict(dict):
         config = DotDict({})
         config.fruit.apple.type = 'macoun'
     """
+
     def __init__(self, value=None):
 
         if value is None:
@@ -83,4 +84,11 @@ class DotDict(dict):
         return DotDict(deepcopy(dict(self), memo))
 
     __setattr__ = __setitem__
-    __getattr__ = __getitem__
+
+    def __getattr__(self, key):
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            # Django internals (and Python's hasattr) expect missing
+            # attributes to raise AttributeError, not KeyError.
+            raise AttributeError(key)

@@ -1,10 +1,8 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
 
-from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ugettext_noop
+
+from django.utils.encoding import force_str
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
 
 import copy
 import re
@@ -46,26 +44,26 @@ DEFAULT_SEARCH_FIELDS = DotDict({
 })
 
 DEFAULT_MOBILE_API_FIELDS = (
-    {'header': ugettext_noop('Tree Information'),
+    {'header': gettext_noop('Tree Information'),
      'model': 'tree',
      'field_keys': ['tree.species', 'tree.diameter',
                     'tree.height', 'tree.date_planted']},
-    {'header': ugettext_noop('Planting Site Information'),
+    {'header': gettext_noop('Planting Site Information'),
      'model': 'plot',
      'field_keys': ['plot.width', 'plot.length']},
-    {'header': ugettext_noop('Stewardship'),
+    {'header': gettext_noop('Stewardship'),
      'collection_udf_keys': ['plot.udf:Stewardship', 'tree.udf:Stewardship'],
      'sort_key': 'Date'}
 )
 
 DEFAULT_WEB_DETAIL_FIELDS = (
-    {'header': ugettext_noop('Tree Information'),
+    {'header': gettext_noop('Tree Information'),
      'model': 'tree',
      'field_keys': ['tree.id', 'tree.species', 'tree.diameter', 'tree.height',
                     'tree.canopy_height', 'tree.date_planted',
                     'tree.date_removed'],
      'collection_udf_keys': ['tree.udf:Stewardship']},
-    {'header': ugettext_noop('Planting Site Information'),
+    {'header': gettext_noop('Planting Site Information'),
      'model': 'plot',
      'field_keys': ['plot.width', 'plot.length', 'plot.address_street',
                     'plot.address_city', 'plot.address_zip',
@@ -150,7 +148,7 @@ def advanced_search_fields(instance, user):
 
     fields = copy.deepcopy(instance.search_config)
     fields = {category: get_visible_fields(field_infos, user)
-              for category, field_infos in fields.iteritems()}
+              for category, field_infos in fields.items()}
 
     for field_info in fields.get('missing', []):
         _set_missing_search_label(instance, field_info)
@@ -164,7 +162,7 @@ def advanced_search_fields(instance, user):
         for feature in sorted(instance.map_feature_types) if feature != 'Plot']
 
     num = 0
-    for filters in fields.itervalues():
+    for filters in fields.values():
         for field in filters:
             # It makes styling easier if every field has an identifier
             id = "%s_%s" % (field.get('identifier', ''), num)
@@ -257,10 +255,10 @@ def get_search_field_label(instance, field_info):
     else:
         __, label, __, __ = field_type_label_choices(Model, field_name, '')
         if hasattr(Model, 'terminology'):
-            prefix = force_text(Model.terminology(instance)['singular'])
+            prefix = force_str(Model.terminology(instance)['singular'])
         else:
-            prefix = force_text(Model._meta.verbose_name)
-        label = force_text(label)
+            prefix = force_str(Model._meta.verbose_name)
+        label = force_str(label)
         if not label.startswith(prefix):
             label = "%s %s" % (prefix, label)
     return label
@@ -289,7 +287,7 @@ def get_udfc_search_fields(instance, user):
         model_name = clz.__name__
         if model_name not in ['Tree'] + instance.map_feature_types:
             continue
-        for k, v in clz.collection_udf_settings.items():
+        for k, v in list(clz.collection_udf_settings.items()):
             udfds = (u for u in udf_defs(instance, model_name) if u.name == k)
             for udfd in udfds:
                 if udf_write_level(iu, udfd) in (READ, WRITE):
@@ -321,7 +319,7 @@ def get_alert_field_info(identifier, instance):
         model_name, pk = alert_match.groups()
         Model = get_model_for_instance(model_name, instance)
         udf_def = next(udf for udf in udf_defs(instance) if udf.pk == int(pk))
-        display_name = force_text(Model.terminology(instance)['singular'])
+        display_name = force_str(Model.terminology(instance)['singular'])
         return {
             'identifier': identifier,
             'search_type': 'DEFAULT',

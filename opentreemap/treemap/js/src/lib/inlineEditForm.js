@@ -90,8 +90,8 @@ exports.init = function(options) {
             $("table[data-udf-id] .placeholder").css('display', 'none');
 
             // Hide the UDF filter and reset back to 'All' so no values are lost
-            $("#filterSection").css('display', 'none')
-            $("#treeActionFilter").val('All').trigger('change')
+            $("#filterSection").css('display', 'none');
+            $("#treeActionFilter").val('All').trigger('change');
         },
 
         getDataToSave = options.getDataToSave || function() {

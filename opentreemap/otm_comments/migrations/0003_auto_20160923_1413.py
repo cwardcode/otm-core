@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
 
@@ -13,6 +13,14 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='enhancedthreadedcomment',
-            options={'ordering': ('submit_date',), 'verbose_name': 'comment', 'verbose_name_plural': 'comments', 'permissions': [('can_moderate', 'Can moderate comments')]},
+            options={
+                'ordering': (
+                    'submit_date',
+                ),
+                'verbose_name': 'comment',
+                'verbose_name_plural': 'comments',
+                'permissions': [
+                    ('can_moderate',
+                     'Can moderate comments')]},
         ),
     ]

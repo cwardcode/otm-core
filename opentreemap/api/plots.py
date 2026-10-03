@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import json
 from functools import wraps
@@ -9,6 +7,7 @@ from functools import wraps
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 
 from django_tinsel.exceptions import HttpBadRequestException
@@ -42,7 +41,7 @@ def plots_closest_to_point(request, instance, lat, lng):
     try:
         max_plots = int(request.GET.get('max_plots', '1'))
 
-        if max_plots not in xrange(1, 501):
+        if max_plots not in range(1, 501):
             raise ValueError()
     except ValueError:
         raise HttpBadRequestException(
@@ -55,7 +54,7 @@ def plots_closest_to_point(request, instance, lat, lng):
         raise HttpBadRequestException(
             'The distance parameter must be a number')
 
-    plots = Plot.objects.distance(point)\
+    plots = Plot.objects.annotate(distance=Distance('geom', point))\
                         .filter(instance=instance)\
                         .filter(geom__distance_lte=(point, D(m=distance)))\
                         .order_by('distance')[0:max_plots]
@@ -80,7 +79,7 @@ def update_or_create_plot(request, instance, plot_id=None):
 
     for model in ["plot", "tree"]:
         if model in request_dict:
-            for key, val in request_dict[model].iteritems():
+            for key, val in request_dict[model].items():
                 data["%s.%s" % (model, key)] = val
 
     # We explicitly disallow setting a plot's tree id.

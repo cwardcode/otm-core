@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from django.http import Http404
 
@@ -40,7 +38,7 @@ def add_tree_photo_helper(request, instance, feature_id, tree_id=None):
         raise Http404('Tree id %s not found on plot %s'
                       % (tree_id, feature_id))
 
-    #TODO: Auth Error
+    # TODO: Auth Error
     data = get_image_from_request(request)
     treephoto = tree.add_photo(data, request.user)
 

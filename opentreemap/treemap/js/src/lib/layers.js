@@ -3,10 +3,9 @@
 var $ = require("jquery"),
     _ = require("lodash"),
     L = require('leaflet'),
-    urlLib = require('url'),
+    reverse = require('reverse'),
     Search = require("treemap/lib/search.js"),
     config = require("treemap/lib/config.js"),
-    format = require('util').format,
 
     MAX_ZOOM_OPTION = exports.MAX_ZOOM_OPTION = {maxZoom: 21},
     // Min zoom level for detail layers
@@ -34,6 +33,8 @@ var $ = require("jquery"),
     // Tree dots (all and searched) and their UTF grids
     FEATURE_LAYER_OPTION = {zIndex: 4};
 
+require('leaflet.vectorgrid');
+
 ////////////////////////////////////////////////
 // public functions
 ////////////////////////////////////////////////
@@ -49,6 +50,10 @@ exports.createBoundariesTileLayer = function () {
     var revToUrl = getUrlMaker('treemap_boundary', 'png'),
         url = revToUrl(config.instance.geoRevHash),
         options = _.extend({}, MAX_ZOOM_OPTION, MIN_ZOOM_OPTION, BOUNDARY_LAYER_OPTION);
+    if (usingPgTileservBackend()) {
+        return createVectorLayer(url, getLayerStyles('boundary'), options);
+    }
+
     return L.tileLayer(url, options);
 };
 
@@ -60,6 +65,11 @@ exports.getCanopyBoundariesTileLayerUrl = function(tilerArgs) {
 exports.createCanopyBoundariesTileLayer = function () {
     var url = exports.getCanopyBoundariesTileLayerUrl(),
         options = _.extend({}, MAX_ZOOM_OPTION, CANOPY_BOUNDARY_LAYER_OPTION);
+
+    if (usingPgTileservBackend()) {
+        return createVectorLayer(url, getLayerStyles('canopy'), options);
+    }
+
     return L.tileLayer(url, options);
 };
 
@@ -76,6 +86,10 @@ exports.createPolygonTileLayer = function () {
 };
 
 exports.createPlotUTFLayer = function () {
+    if (usingPgTileservBackend()) {
+        return null;
+    }
+
     var layer,
         revToUrl = getUrlMaker('treemap_mapfeature', 'grid.json'),
         url = revToUrl(config.instance.geoRevHash),
@@ -133,18 +147,37 @@ function getUrlMaker(table, extension, tilerArgs) {
     return function revToUrl(rev) {
         var query = {
             'instance_id': config.instance.id,
-            'restrict': JSON.stringify(config.instance.mapFeatureTypes)
+            'restrict': JSON.stringify(config.instance.mapFeatureTypes),
+            'rev': rev
         };
 
         if (tilerArgs) {
             _.extend(query, tilerArgs);
         }
 
-        return format(
-            '%s/tile/%s/database/otm/table/%s/{z}/{x}/{y}.%s%s',
-            config.tileHost || '', rev, table, extension,
-            urlLib.format({query: query}));
+        if (usingPgTileservBackend()) {
+            return (config.tileHost || '') +
+                '/' + pgTileservLayerName(table) +
+                '/{z}/{x}/{y}.pbf?' + makeQueryString(query);
+        }
+
+        var queryString = makeQueryString(query);
+        return (config.tileHost || '') +
+            '/tile/' + rev + '/database/otm/table/' + table +
+            '/{z}/{x}/{y}.' + extension + (queryString ? '?' + queryString : '');
     };
+}
+
+function makeQueryString(query) {
+    var params = new URLSearchParams();
+
+    _.forOwn(query, function(value, key) {
+        if (!_.isUndefined(value) && !_.isNull(value)) {
+            params.append(key, value);
+        }
+    });
+
+    return params.toString();
 }
 
 // Combine base from `newBaseUrl` with querystring from `url`.
@@ -164,7 +197,16 @@ function filterableLayer (table, extension, layerOptions) {
     var revToUrl = getUrlMaker(table, extension),
         noSearchUrl = revToUrl(config.instance.geoRevHash),
         searchBaseUrl = revToUrl(config.instance.universalRevHash),
+        styleState = { matchingFeatureIds: null },
+        layer;
+
+    if (usingPgTileservBackend()) {
+        layer = createVectorLayer(noSearchUrl, getLayerStyles(table, styleState), layerOptions);
+        layer._styleState = styleState;
+        layer._searchRequestSeq = 0;
+    } else {
         layer = L.tileLayer(noSearchUrl, layerOptions);
+    }
 
     layer.setHashes = function(response) {
         noSearchUrl = revToUrl(response.geoRevHash);
@@ -176,15 +218,208 @@ function filterableLayer (table, extension, layerOptions) {
     };
 
     layer.setFilter = function(filters) {
-        var fullUrl;
-        if (Search.isEmpty(filters)) {
+        var fullUrl,
+            isEmptyFilter = Search.isEmpty(filters),
+            isPgTileservPlotLayer = usingPgTileservBackend() && table === 'treemap_mapfeature';
+
+        if (isEmptyFilter) {
             fullUrl = noSearchUrl;
+            clearMatchingFeatureIds(layer);
+        } else if (isPgTileservPlotLayer) {
+            // pg_tileserv table endpoints ignore OpenTreeMap's q/show params,
+            // so fetch matching IDs from Django and filter client-side.
+            fullUrl = searchBaseUrl;
+            setMatchingFeatureIdsForFilter(layer, filters);
         } else {
-            var query = Search.makeQueryStringFromFilters(filters);
-            var suffix = query ? '&' + query : '';
+            var query = Search.makeQueryStringFromFilters(filters),
+                suffix = query ? '&' + query : '';
             fullUrl = searchBaseUrl + suffix;
         }
         layer.setUrl(fullUrl);
     };
     return layer;
+}
+
+function clearMatchingFeatureIds(layer) {
+    if (!layer._styleState) {
+        return;
+    }
+
+    layer._searchRequestSeq += 1;
+    layer._styleState.matchingFeatureIds = null;
+    if (_.isFunction(layer.redraw)) {
+        layer.redraw();
+    }
+}
+
+function setMatchingFeatureIdsForFilter(layer, filters) {
+    if (!layer._styleState) {
+        return;
+    }
+
+    var requestSeq = layer._searchRequestSeq + 1,
+        query = Search.makeQueryStringFromFilters(filters);
+
+    layer._searchRequestSeq = requestSeq;
+
+    $.ajax({
+        url: reverse.map_feature_search_ids(config.instance.url_name),
+        data: query,
+        type: 'GET',
+        dataType: 'json'
+    }).done(function(response) {
+        if (requestSeq !== layer._searchRequestSeq) {
+            return;
+        }
+
+        var ids = _.map(response.plot_ids || [], function(id) {
+                return parseInt(id, 10);
+            }),
+            validIds = _.filter(ids, function(id) {
+                return !_.isNaN(id);
+            });
+
+        layer._styleState.matchingFeatureIds = new Set(validIds);
+        if (_.isFunction(layer.redraw)) {
+            layer.redraw();
+        }
+    }).fail(function() {
+        if (requestSeq !== layer._searchRequestSeq) {
+            return;
+        }
+
+        // Keep map interactive if the match request fails.
+        layer._styleState.matchingFeatureIds = null;
+        if (_.isFunction(layer.redraw)) {
+            layer.redraw();
+        }
+    });
+}
+
+function usingPgTileservBackend() {
+    return config.tileBackend === 'pg_tileserv';
+}
+
+function pgTileservLayerName(table) {
+    return qualifyPgTileservLayer(table);
+}
+
+function qualifyPgTileservLayer(layerName) {
+    if (layerName.indexOf('.') >= 0) {
+        return layerName;
+    }
+
+    return 'public.' + layerName;
+}
+
+function createVectorLayer(url, styles, options) {
+    return L.vectorGrid.protobuf(url, _.extend({}, options, {
+        interactive: true,
+        maxNativeZoom: options.maxNativeZoom || 21,
+        vectorTileLayerStyles: styles
+    }));
+}
+
+function getLayerStyles(table, styleState) {
+    var pointStyle = {
+            radius: 4,
+            weight: 1,
+            color: '#2f6d4b',
+            fill: true,
+            fillColor: '#46a36f',
+            fillOpacity: 1,
+            opacity: 1
+        },
+        hiddenPointStyle = {
+            radius: 0,
+            weight: 0,
+            color: '#2f6d4b',
+            fill: true,
+            fillColor: '#46a36f',
+            fillOpacity: 0,
+            opacity: 0
+        },
+        polygonStyle = {
+            weight: 1,
+            color: '#3f6f8e',
+            fillColor: '#6ba5cb',
+            fillOpacity: 0.45
+        },
+        boundaryStyle = {
+            weight: 1,
+            color: '#4b5d6a',
+            fill: false
+        },
+        canopyStyle = {
+            weight: 1,
+            color: '#4c7f3d',
+            fillColor: '#8acb6d',
+            fillOpacity: 0.4
+        };
+
+    if (table === 'stormwater_polygonalmapfeature') {
+        return styleMapForLayer(
+            ['otm_stormwater_polygonalmapfeature',
+             'stormwater_polygonalmapfeature',
+             'public.stormwater_polygonalmapfeature'],
+            polygonStyle);
+    }
+
+    if (table === 'treemap_boundary' || table === 'boundary') {
+        return styleMapForLayer(
+            ['otm_treemap_boundary',
+             'treemap_boundary',
+             'public.treemap_boundary'],
+            boundaryStyle);
+    }
+
+    if (table === 'treemap_canopy_boundary' || table === 'canopy') {
+        return styleMapForLayer(
+            ['otm_treemap_canopy_boundary',
+             'treemap_canopy_boundary',
+             'public.treemap_canopy_boundary'],
+            canopyStyle);
+    }
+
+    if (table === 'treemap_mapfeature' && styleState) {
+        var searchAwareStyle = function(props) {
+            var matchingIds = styleState.matchingFeatureIds;
+            if (!matchingIds) {
+                return pointStyle;
+            }
+
+            return matchingIds.has(featureIdFromProperties(props))
+                ? pointStyle
+                : hiddenPointStyle;
+        };
+
+        return styleMapForLayer(
+            ['otm_treemap_mapfeature',
+             'treemap_mapfeature',
+             'public.treemap_mapfeature'],
+            searchAwareStyle);
+    }
+
+    return styleMapForLayer(
+        ['otm_treemap_mapfeature',
+         'treemap_mapfeature',
+         'public.treemap_mapfeature'],
+        pointStyle);
+}
+
+function featureIdFromProperties(props) {
+    var rawId = props && (props.id || props.mapfeature_id || props.feature_id ||
+                          props.objectid || props.gid),
+        parsed = parseInt(rawId, 10);
+    return _.isNaN(parsed) ? null : parsed;
+}
+
+function styleMapForLayer(layerNames, style) {
+    var styles = {'default': style};
+
+    _.each(layerNames, function(name) {
+        styles[name] = style;
+    });
+
+    return styles;
 }

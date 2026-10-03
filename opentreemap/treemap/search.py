@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from json import loads
 from datetime import datetime
 from functools import partial
 from itertools import groupby, chain
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from opentreemap.util import dotted_split
@@ -17,7 +16,7 @@ from treemap.models import Boundary, Tree, Plot, Species, TreePhoto
 from treemap.udf import UDFModel, UserDefinedCollectionValue
 from treemap.units import storage_to_instance_units_factor
 from treemap.util import to_object_name
-from tagging.models import Tag
+from tagging.models import Tag, TaggedItem
 
 
 class ParseException (Exception):
@@ -69,7 +68,7 @@ class Filter(object):
             q = _apply_tree_display_filter(q, self.display_filter,
                                            DEFAULT_MAPPING)
 
-        models = q.basekeys
+        models = getattr(q, 'basekeys', set())
 
         if _is_valid_models_list_for_model(models, model_name, ModelClass,
                                            self.instance):
@@ -85,6 +84,21 @@ class Filter(object):
 
 def _is_valid_models_list_for_model(models, model_name, ModelClass, instance):
     """Validates everything in models are valid filters for model_name"""
+    def accepted_model_aliases(Model):
+        aliases = {to_object_name(Model.__name__), Model.__name__}
+
+        model_meta = getattr(Model, '_meta', None)
+        if model_meta is not None:
+            aliases.add(model_meta.model_name)
+
+        # Search identifiers in JS/templates use legacy names for these models.
+        if Model is TreePhoto:
+            aliases.add('treePhoto')
+        elif Model is Tag:
+            aliases.add('tagging_tag')
+
+        return aliases
+
     def collection_udf_set_for_model(Model):
         if not issubclass(ModelClass, UDFModel):
             return {}
@@ -106,7 +120,7 @@ def _is_valid_models_list_for_model(models, model_name, ModelClass, instance):
         related_models = {ModelClass}
 
     for Model in related_models:
-        models = models - {to_object_name(Model.__name__)}
+        models = models - accepted_model_aliases(Model)
         if issubclass(Model, UDFModel):
             models = models - collection_udf_set_for_model(Model)
 
@@ -125,8 +139,13 @@ class FilterContext(Q):
         super(FilterContext, self).__init__(*args, **kwargs)
 
     def add(self, thing, conn):
-        if thing.basekeys:
-            self.basekeys = self.basekeys | thing.basekeys
+        self_basekeys = getattr(self, 'basekeys', set())
+        if not hasattr(self, 'basekeys'):
+            self.basekeys = self_basekeys
+
+        thing_basekeys = getattr(thing, 'basekeys', set())
+        if thing_basekeys:
+            self.basekeys = self.basekeys | thing_basekeys
 
         return super(FilterContext, self).add(thing, conn)
 
@@ -136,7 +155,7 @@ def convert_filter_units(instance, filter_dict):
     Convert the values in a filter dictionary from display units to database
     units. Mutates the `filter_dict` argument and returns it.
     """
-    for field_name, value in filter_dict.iteritems():
+    for field_name, value in filter_dict.items():
         if field_name not in ['tree.diameter', 'tree.height',
                               'tree.canopy_height', 'plot.width',
                               'plot.length', 'bioswale.drainage_area',
@@ -241,6 +260,9 @@ def _parse_scalar_predicate(query, mapping):
     def parse_scalar_predicate_pair(key, value, mapping):
         model, prefix, search_key = _parse_predicate_key(key, mapping)
 
+        if model == 'tagging_tag':
+            return _parse_tagging_tag_predicate(value)
+
         if not isinstance(value, dict):
             query = {prefix + search_key: value}
         else:
@@ -248,7 +270,7 @@ def _parse_scalar_predicate(query, mapping):
 
             query = {}
 
-            for pred, props in props_by_pred.iteritems():
+            for pred, props in props_by_pred.items():
 
                 lookup_tail, rhs = _parse_prop(props, value, pred, value[pred])
 
@@ -263,8 +285,32 @@ def _parse_scalar_predicate(query, mapping):
         return FilterContext(basekey=model, **query)
 
     qs = [parse_scalar_predicate_pair(*kv, mapping=mapping)
-          for kv in query.iteritems()]
+          for kv in query.items()]
     return _apply_combinator('AND', qs)
+
+
+def _parse_tagging_tag_predicate(value):
+    tree_content_type = ContentType.objects.get_for_model(Tree)
+    tagged_items = TaggedItem.objects.filter(content_type=tree_content_type)
+
+    if isinstance(value, dict):
+        if 'IS' in value:
+            tag_id = int(_parse_value(value['IS']))
+            tagged_items = tagged_items.filter(tag_id=tag_id)
+        elif 'IN' in value:
+            tag_ids = [int(_parse_value(tag_id)) for tag_id in value['IN']]
+            tagged_items = tagged_items.filter(tag_id__in=tag_ids)
+        elif 'LIKE' in value:
+            tagged_items = tagged_items.filter(
+                tag__name__icontains=_parse_value(value['LIKE']))
+        else:
+            raise ParseException('Unsupported tagging_tag predicate: %s' % value)
+    else:
+        tag_id = int(_parse_value(value))
+        tagged_items = tagged_items.filter(tag_id=tag_id)
+
+    tree_ids = tagged_items.values_list('object_id', flat=True)
+    return FilterContext(basekey='tagging_tag', tree__id__in=tree_ids)
 
 
 def _parse_by_is_collection_udf(query_dict, mapping):
@@ -287,7 +333,7 @@ def _parse_by_is_collection_udf(query_dict, mapping):
     }
     '''
     query_dict_list = [dict(value=v, **_parse_by_key_type(k, mapping=mapping))
-                       for k, v in query_dict.items()]
+                       for k, v in list(query_dict.items())]
     grouped = groupby(sorted(query_dict_list, key=lambda qd: qd['type']),
                       lambda qd: qd['type'])
     rtnVal = {k: list(v) for k, v in grouped}
@@ -311,8 +357,8 @@ def _parse_by_key_type(key, mapping):
 
 
 def _unparse_scalars(scalars):
-    return dict(zip([qd['key'] for qd in scalars],
-                    [qd['value'] for qd in scalars]))
+    return dict(list(zip([qd['key'] for qd in scalars],
+                         [qd['value'] for qd in scalars])))
 
 
 def _parse_collections(by_type, mapping):
@@ -339,7 +385,7 @@ def _parse_collections(by_type, mapping):
 
     return _apply_combinator(
         'AND', [parse_collection_subquery(identifier, field_parts, mapping)
-                for identifier, field_parts in by_type.items()])
+                for identifier, field_parts in list(by_type.items())])
 
 
 def _parse_udf_collection(udfd_id, query_parts):
@@ -359,7 +405,7 @@ def _parse_udf_collection(udfd_id, query_parts):
         if isinstance(value, dict):
             preds = parse_udf_dict_value(value)
             query = {_lookup_key('data__', field, k):
-                     v for (k, v) in preds.iteritems()}
+                     v for (k, v) in preds.items()}
         else:
             query = {_lookup_key('data__', field): value}
         return query
@@ -420,7 +466,7 @@ def _parse_predicate_key(key, mapping):
     if mapping_model not in mapping:
         raise ModelParseException(
             'Valid models are: %s or a collection UDF, not "%s"' %
-            (mapping.keys(), model))
+            (list(mapping.keys()), model))
 
     return model, mapping[mapping_model], field
 
@@ -513,6 +559,7 @@ def _simple_pred(key):
 def _hstore_exact_predicate(val):
     return {'__exact': val}
 
+
 # a predicate_builder takes a value for the
 # corresponding predicate type and returns
 # a singleton dictionary with a mapping of
@@ -598,7 +645,7 @@ def _parse_props(props, valuesdict):
 
     params = {}
 
-    for key, val in valuesdict.items():
+    for key, val in list(valuesdict.items()):
         lookup, rhs = _parse_prop(props[key], valuesdict, key, val)
         params[lookup] = rhs
 
@@ -606,16 +653,16 @@ def _parse_props(props, valuesdict):
 
 
 def _parse_prop(predicate_props, valuesdict, key, val):
-        valid_values = predicate_props['combines_with'].union({key})
-        if not valid_values.issuperset(set(valuesdict.keys())):
-            raise ParseException(
-                'Cannot use these keys together: %s vs %s' %
-                (valuesdict.keys(), valid_values))
+    valid_values = predicate_props['combines_with'].union({key})
+    if not valid_values.issuperset(set(valuesdict.keys())):
+        raise ParseException(
+            'Cannot use these keys together: %s vs %s' %
+            (list(valuesdict.keys()), valid_values))
 
-        predicate_builder = predicate_props['predicate_builder']
-        param_pair = predicate_builder(val)
-        # Return a 2-tuple rather than a single-key dict
-        return param_pair.items()[0]
+    predicate_builder = predicate_props['predicate_builder']
+    param_pair = predicate_builder(val)
+    # Return a 2-tuple rather than a single-key dict
+    return list(param_pair.items())[0]
 
 
 def _parse_dict_props_for_mapping(mapping, valuesdict):
@@ -644,11 +691,17 @@ def _apply_combinator(combinator, predicates):
     q = predicates[0]
     if combinator == 'AND':
         for p in predicates[1:]:
+            left_basekeys = getattr(q, 'basekeys', set())
+            right_basekeys = getattr(p, 'basekeys', set())
             q = q & p
+            q.basekeys = left_basekeys | right_basekeys
 
     elif combinator == 'OR':
         for p in predicates[1:]:
+            left_basekeys = getattr(q, 'basekeys', set())
+            right_basekeys = getattr(p, 'basekeys', set())
             q = q | p
+            q.basekeys = left_basekeys | right_basekeys
     else:
         raise ParseException(
             'Only AND and OR combinators supported, not "%s"' %

@@ -1,18 +1,55 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from django.shortcuts import redirect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
+from django.utils import timezone
 
 import dateutil.parser
+from dateutil.relativedelta import relativedelta
 from schedule.models import Event, Calendar, Rule, Occurrence
 from schedule.utils import (
     check_calendar_permissions,
 )
 from django.http import JsonResponse
 from treemap.models import Tree
+
+
+def _parse_event_datetime(value):
+    dt = dateutil.parser.parse(value.replace('Z', ''))
+
+    # django-schedule expects naive datetimes for recurrence generation.
+    # Normalize aware inputs (e.g. +00:00) to local naive datetimes.
+    if timezone.is_aware(dt):
+        dt = timezone.localtime(dt).replace(tzinfo=None)
+
+    return dt
+
+
+def _generate_occurrence_ranges(start, end, frequency, repeat_until):
+    if frequency in (None, '', 'Once'):
+        return [(start, end)]
+
+    step_map = {
+        'Daily': relativedelta(days=1),
+        'Weekly': relativedelta(weeks=1),
+        'Monthly': relativedelta(months=1),
+        'Yearly': relativedelta(years=1),
+    }
+    step = step_map.get(frequency)
+    if step is None:
+        return [(start, end)]
+
+    ranges = []
+    cur_start = start
+    cur_end = end
+    while cur_start <= repeat_until:
+        ranges.append((cur_start, cur_end))
+        cur_start = cur_start + step
+        cur_end = cur_end + step
+
+    return ranges
+
 
 def management_root(request, instance_url_name):
     return redirect('calendars', instance_url_name=instance_url_name)
@@ -53,25 +90,35 @@ def api_create_event(request, **kwargs):
     repeat_until = request.POST.get("repeat")
     occ_created = request.POST.get("occCreated")
     act_plot_id = None
-    
-    if tree_id is not None:
-        act_plot_id=Tree.objects.get(pk=tree_id).plot.id
+
+    if tree_id not in (None, ''):
+        act_plot_id = Tree.objects.get(pk=tree_id).plot.id
 
     if (color_event == "white"):
         color_event = '#ffffff'
     elif (color_event == "black"):
         color_event = '#000000'
 
-    response_data = _api_create_event(start, end, calendar_slug, title,
-                    description, act_plot_id, color_event, frequency, 
-                    repeat_until, tree_id, occ_created)
+    response_data = _api_create_event(
+        start,
+        end,
+        calendar_slug,
+        title,
+        description,
+        act_plot_id,
+        color_event,
+        frequency,
+        repeat_until,
+        tree_id,
+        occ_created)
     return JsonResponse(response_data)
+
 
 def _api_create_event(start, end, calendar_slug, title, description, plot_id,
                       color_event, frequency, repeat_until, tree_id,
                       occ_created):
-    start = dateutil.parser.parse(start.replace('Z',''))
-    end = dateutil.parser.parse(end.replace('Z',''))
+    start = _parse_event_datetime(start)
+    end = _parse_event_datetime(end)
     rule = None
     evt = None
     event_freq = frequency
@@ -85,32 +132,43 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
         plot_id = ''
     if (tree_id is None):
         tree_id = ''
-    if (color_event is None and color_event is not ""):
+    if color_event is None or color_event == "":
         color_event = '#000000'
-    if rule:
-        repeat_until = dateutil.parser.parse(repeat_until.replace('Z',''))
-        evt = Event(
-            start=start, end=end, title=title, calendar=calendar,
-            description=description, plot_id=plot_id, color_event=color_event,
-            rule=rule, end_recurring_period=repeat_until, tree_id=tree_id
-        )
-        occs = evt.get_occurrences(start, repeat_until)
-    else:
-        evt = Event(
-            start=start, end=end, title=title, calendar=calendar,
-            description=description, plot_id=plot_id, color_event=color_event,
-            tree_id=tree_id
-        )
-        occs = evt.get_occurrences(start, end)
-    
+    event_kwargs = dict(
+        start=start,
+        end=end,
+        title=title,
+        calendar=calendar,
+        description=description,
+        plot_id=plot_id,
+        color_event=color_event,
+        tree_id=tree_id,
+    )
 
-    for occurrence in occs:
+    if rule:
+        repeat_until = _parse_event_datetime(repeat_until)
+        event_kwargs.update({
+            'rule': rule,
+            'end_recurring_period': repeat_until,
+        })
+    else:
+        repeat_until = None
+
+    evt = Event.objects.create(**event_kwargs)
+    occurrence_ranges = _generate_occurrence_ranges(
+        start,
+        end,
+        event_freq,
+        repeat_until,
+    )
+
+    for occurrence_start, occurrence_end in occurrence_ranges:
         Occurrence.objects.create(
             occ_created=occ_created,
             title=title,
             description=description,
-            start=occurrence.start,
-            end=occurrence.end,
+            start=occurrence_start,
+            end=occurrence_end,
             original_start=evt.start,
             original_end=evt.end,
             plot_id=plot_id,
@@ -119,9 +177,9 @@ def _api_create_event(start, end, calendar_slug, title, description, plot_id,
             calendar=calendar
         )
 
-    
     response_data = {"status": "OK"}
     return response_data
+
 
 @require_POST
 @check_calendar_permissions
@@ -137,27 +195,48 @@ def api_edit_event(request, **kwargs):
     frequency = request.POST.get("frequency")
     repeat_until = request.POST.get("repeat")
     occ_created = request.POST.get("occCreated")
-    act_plot_id=None
- 
+    act_plot_id = None
+
     if tree_id is not None and tree_id != '':
-        act_plot_id=Tree.objects.get(pk=tree_id).plot.id
+        act_plot_id = Tree.objects.get(pk=tree_id).plot.id
 
     if (color_event == "white"):
         color_event = '#ffffff'
     elif (color_event == "black"):
         color_event = '#000000'
 
-    response_data = _api_edit_event(start, end, title, description,
-        primary_key, act_plot_id, color_event, frequency, repeat_until,
-        tree_id, occ_created)
+    response_data = _api_edit_event(
+        start,
+        end,
+        title,
+        description,
+        primary_key,
+        act_plot_id,
+        color_event,
+        frequency,
+        repeat_until,
+        tree_id,
+        occ_created)
     return JsonResponse(response_data)
 
-def _api_edit_event(start, end, title, description, primary_key, plot_id,
-    color_event, frequency, repeat_until, tree_id, occ_created):
+
+def _api_edit_event(
+        start,
+        end,
+        title,
+        description,
+        primary_key,
+        plot_id,
+        color_event,
+        frequency,
+        repeat_until,
+        tree_id,
+        occ_created):
     edited_occurrence = Occurrence.objects.get(pk=primary_key)
     start = dateutil.parser.parse(start)
     end = dateutil.parser.parse(end)
-    occurrences = Occurrence.objects.all().filter(Q(occ_created__iexact=occ_created))
+    occurrences = Occurrence.objects.all().filter(
+        Q(occ_created__iexact=occ_created))
 
     if (plot_id is None):
         plot_id = ''
@@ -165,7 +244,7 @@ def _api_edit_event(start, end, title, description, primary_key, plot_id,
     if (tree_id is None):
         tree_id = ''
 
-    if (color_event is None and color_event is not ""):
+    if color_event is None or color_event == "":
         color_event = '#000000'
 
     for occurrence in occurrences:
@@ -184,9 +263,10 @@ def _api_edit_event(start, end, title, description, primary_key, plot_id,
     edited_occurrence.description = description
     edited_occurrence.color_event = color_event
     edited_occurrence.save()
-        
+
     response_data = {"status": "OK"}
     return response_data
+
 
 @require_POST
 @check_calendar_permissions
@@ -196,11 +276,13 @@ def api_delete_event(request, **kwargs):
     response_data = _api_delete_event(event_id)
     return JsonResponse(response_data)
 
+
 def _api_delete_event(event_id):
     Occurrence.objects.get(pk=event_id).delete()
 
     response_data = {"status": "OK"}
     return response_data
+
 
 @require_POST
 @check_calendar_permissions
@@ -210,8 +292,10 @@ def api_delete_all_events(request, **kwargs):
     response_data = _api_delete_all_events(occ_created)
     return JsonResponse(response_data)
 
+
 def _api_delete_all_events(occ_created):
-    occurrences = Occurrence.objects.all().filter(Q(occ_created__iexact=occ_created))
+    occurrences = Occurrence.objects.all().filter(
+        Q(occ_created__iexact=occ_created))
 
     for occurrence in occurrences:
         occurrence.delete()

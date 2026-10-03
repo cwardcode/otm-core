@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-
-
 import hashlib
 import re
 from copy import copy
@@ -20,10 +14,12 @@ from django.contrib.gis.measure import D
 from django.db import IntegrityError, transaction
 from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import (UserManager, AbstractBaseUser,
                                         PermissionsMixin)
 from django.template.loader import get_template
+
+# django-tagging is imported below; it uses modern imports now
 from tagging.registry import register
 
 from treemap.species.codes import ITREE_REGIONS, get_itree_code
@@ -71,7 +67,7 @@ def _action_format_string_for_readonly(action, readonly):
 
 
 class StaticPage(models.Model):
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     content = models.TextField()
 
@@ -236,7 +232,7 @@ class BenefitCurrencyConversion(Dictable, models.Model):
         if config:
             benefits_conversion = cls()
             benefits_conversion.currency_symbol = '$'
-            for field, conversion in config.iteritems():
+            for field, conversion in config.items():
                 setattr(benefits_conversion, field, conversion)
             return benefits_conversion
         else:
@@ -274,7 +270,7 @@ class AbstractUniqueEmailUser(AbstractBaseUser, PermissionsMixin):
             '@/./+/-/_ characters'),
         validators=[
             validators.RegexValidator(
-                re.compile('^[\w.@+-]+$'),
+                re.compile(r'^[\w.@+-]+$'),
                 _('Enter a valid username.'), 'invalid')
         ])
     email = models.EmailField(_('email address'), blank=True, unique=True)
@@ -356,8 +352,8 @@ class User(AbstractUniqueEmailUser, Auditable):
             return Audit.objects.filter(instance=None,
                                         model='User',
                                         model_id=self.pk)\
-                                .order_by('created')[0]\
-                                .created
+                .order_by('created')[0]\
+                .created
         except IndexError:
             # A user has no audit records?
             return None
@@ -440,7 +436,7 @@ class Species(PendingAuditable, models.Model):
     DEFAULT_MAX_HEIGHT = 800
 
     # Base required info
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
     # ``otm_code`` is the key used to link this instance
     # species row to a cannonical species. An otm_code
     # is usually the USDA code, but this is not guaranteed.
@@ -455,17 +451,18 @@ class Species(PendingAuditable, models.Model):
                                           verbose_name='Other Part of Name')
 
     # From original OTM (some renamed) ###
-    is_native = models.NullBooleanField(verbose_name='Native to Region')
+    is_native = models.BooleanField(null=True, verbose_name='Native to Region')
     flowering_period = models.CharField(max_length=255, blank=True,
                                         verbose_name='Flowering Period')
     fruit_or_nut_period = models.CharField(max_length=255, blank=True,
                                            verbose_name='Fruit or Nut Period')
-    fall_conspicuous = models.NullBooleanField(verbose_name='Fall Conspicuous')
-    flower_conspicuous = models.NullBooleanField(
-        verbose_name='Flower Conspicuous')
-    palatable_human = models.NullBooleanField(verbose_name='Edible')
-    has_wildlife_value = models.NullBooleanField(
-        verbose_name='Has Wildlife Value')
+    fall_conspicuous = models.BooleanField(
+        null=True, verbose_name='Fall Conspicuous')
+    flower_conspicuous = models.BooleanField(
+        null=True, verbose_name='Flower Conspicuous')
+    palatable_human = models.BooleanField(null=True, verbose_name='Edible')
+    has_wildlife_value = models.BooleanField(
+        null=True, verbose_name='Has Wildlife Value')
     fact_sheet_url = models.URLField(max_length=255, blank=True,
                                      verbose_name='Fact Sheet URL')
     plant_guide_url = models.URLField(max_length=255, blank=True,
@@ -481,7 +478,7 @@ class Species(PendingAuditable, models.Model):
     updated_at = models.DateTimeField(  # TODO: remove null=True
         null=True, auto_now=True, editable=False, db_index=True)
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
     def __init__(self, *args, **kwargs):
         super(Species, self).__init__(*args, **kwargs)
@@ -548,7 +545,7 @@ class Species(PendingAuditable, models.Model):
         override = ITreeCodeOverride.objects.filter(
             instance_species=self,
             region=ITreeRegion.objects.get(code=region_code),
-            )
+        )
         if override.exists():
             return override[0].itree_code
         else:
@@ -565,9 +562,9 @@ class Species(PendingAuditable, models.Model):
 
 
 class InstanceUser(Auditable, models.Model):
-    instance = models.ForeignKey(Instance)
-    user = models.ForeignKey(User)
-    role = models.ForeignKey(Role)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
     reputation = models.IntegerField(default=0)
     admin = models.BooleanField(default=False)
     last_seen = models.DateField(null=True, blank=True)
@@ -602,6 +599,7 @@ class InstanceUser(Auditable, models.Model):
             return ''
         return '%s %s' % (username, self.instance.name)
 
+
 post_save.connect(invalidate_adjuncts, sender=InstanceUser)
 post_delete.connect(invalidate_adjuncts, sender=InstanceUser)
 
@@ -611,7 +609,7 @@ post_delete.connect(invalidate_adjuncts, sender=InstanceUser)
 # before PendingAuditable.
 class MapFeature(Convertible, UDFModel, PendingAuditable):
     "Superclass for map feature subclasses like Plot, RainBarrel, etc."
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
     geom = models.PointField(srid=3857, db_column='the_geom_webmercator')
 
     address_street = models.CharField(max_length=255, blank=True, null=True,
@@ -628,10 +626,14 @@ class MapFeature(Convertible, UDFModel, PendingAuditable):
     # efficient.
     updated_at = models.DateTimeField(default=timezone.now,
                                       verbose_name=_("Last Updated"))
-    updated_by = models.ForeignKey(User, null=True, blank=True,
-                                   verbose_name=_("Last Updated By"))
+    updated_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        verbose_name=_("Last Updated By"),
+        on_delete=models.CASCADE)
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
     # subclass responsibilities
     area_field_name = None
@@ -826,7 +828,7 @@ class MapFeature(Convertible, UDFModel, PendingAuditable):
         for feature in self.nearby_map_features():
             string_to_hash += "," + str(feature.pk)
 
-        return hashlib.md5(string_to_hash).hexdigest()
+        return hashlib.md5(string_to_hash.encode('utf-8')).hexdigest()
 
     def title(self):
         # Cast allows the map feature subclass to handle generating
@@ -883,9 +885,14 @@ class MapFeature(Convertible, UDFModel, PendingAuditable):
             return getattr(self.polygonalmapfeature, ft.lower())
 
     def safe_get_current_tree(self):
-        if hasattr(self, 'current_tree'):
+        if not hasattr(self, 'current_tree') or not getattr(self, 'pk', None):
+            return None
+
+        try:
             return self.current_tree()
-        else:
+        except ValueError:
+            # Django 4 raises if reverse relations are accessed before the
+            # parent instance has a primary key.
             return None
 
     def nearby_map_features(self, distance_in_meters=None):
@@ -973,7 +980,7 @@ class Plot(MapFeature, ValidationMixin):
     owner_orig_id = models.CharField(max_length=255, null=True, blank=True,
                                      verbose_name=_("Custom ID"))
 
-    objects = models.GeoManager()
+    objects = models.Manager()
     is_editable = True
 
     _terminology = {'singular': _('Planting Site'),
@@ -1039,6 +1046,9 @@ class Plot(MapFeature, ValidationMixin):
         select the 'current tree'. Right now OTM only supports one
         tree per plot, so this method returns the 'first' tree
         """
+        if not self.pk:
+            return None
+
         trees = list(self.tree_set.all())
         if trees:
             return trees[0]
@@ -1070,12 +1080,16 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
     """
     Represents a single tree, belonging to an instance
     """
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
 
-    plot = models.ForeignKey(Plot)
+    plot = models.ForeignKey(Plot, on_delete=models.CASCADE)
 
-    species = models.ForeignKey(Species, null=True, blank=True,
-                                verbose_name=_("Species"))
+    species = models.ForeignKey(
+        Species,
+        null=True,
+        blank=True,
+        verbose_name=_("Species"),
+        on_delete=models.CASCADE)
 
     readonly = models.BooleanField(default=False)
     diameter = models.FloatField(null=True, blank=True,
@@ -1091,7 +1105,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
 
     users_can_delete_own_creations = True
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
     _stewardship_choices = [
         'Watered',
@@ -1220,7 +1234,7 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
         photos = [str(photo.pk) for photo in self.treephoto_set.all()]
         string_to_hash += ":" + ",".join(photos)
 
-        return hashlib.md5(string_to_hash).hexdigest()
+        return hashlib.md5(string_to_hash.encode('utf-8')).hexdigest()
 
     def add_photo(self, image, user):
         tp = TreePhoto(tree=self, instance=self.instance)
@@ -1248,12 +1262,13 @@ class Tree(Convertible, UDFModel, PendingAuditable, ValidationMixin):
         self.instance.update_universal_rev()
         super(Tree, self).delete_with_user(user, *args, **kwargs)
 
+
 register(Tree)
 
 
 class Favorite(models.Model):
-    user = models.ForeignKey(User)
-    map_feature = models.ForeignKey(MapFeature)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    map_feature = models.ForeignKey(MapFeature, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1261,7 +1276,7 @@ class Favorite(models.Model):
 
 
 class MapFeaturePhoto(models.Model, PendingAuditable, Convertible):
-    map_feature = models.ForeignKey(MapFeature)
+    map_feature = models.ForeignKey(MapFeature, on_delete=models.CASCADE)
 
     image = models.ImageField(
         upload_to='trees/%Y/%m/%d', editable=False)
@@ -1269,7 +1284,7 @@ class MapFeaturePhoto(models.Model, PendingAuditable, Convertible):
         upload_to='trees_thumbs/%Y/%m/%d', editable=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    instance = models.ForeignKey(Instance)
+    instance = models.ForeignKey(Instance, on_delete=models.CASCADE)
 
     users_can_delete_own_creations = True
     _terminology = {'singular': _('Photo'), 'plural': _('Photos')}
@@ -1368,7 +1383,7 @@ class MapFeaturePhoto(models.Model, PendingAuditable, Convertible):
 
 
 class TreePhoto(MapFeaturePhoto):
-    tree = models.ForeignKey(Tree)
+    tree = models.ForeignKey(Tree, on_delete=models.CASCADE)
 
     @classproperty
     def always_writable(cls):
@@ -1425,10 +1440,11 @@ class TreePhoto(MapFeaturePhoto):
         return data
 
 
-class BoundaryManager(models.GeoManager):
+class BoundaryManager(models.Manager):
     """
     By default, exclude anonymous boundaries from queries.
     """
+
     def get_queryset(self):
         return super(BoundaryManager, self).get_queryset().exclude(
             name='', category='', searchable=False)
@@ -1463,7 +1479,7 @@ class Boundary(models.Model):
 
     objects = BoundaryManager()
     # Allows access to anonymous boundaries
-    all_objects = models.GeoManager()
+    all_objects = models.Manager()
 
     def __unicode__(self):
         return self.name
@@ -1501,6 +1517,7 @@ class ITreeRegionInMemory(ITreeRegionAbstract):
     into an ITreeRegion-like object and use it with the same interface
     as objects that come out of the database.
     """
+
     def __init__(self, code):
         self.code = code
 
@@ -1509,12 +1526,12 @@ class ITreeRegion(ITreeRegionAbstract, models.Model):
     code = models.CharField(max_length=40, unique=True)
     geometry = models.MultiPolygonField(srid=3857)
 
-    objects = models.GeoManager()
+    objects = models.Manager()
 
 
 class ITreeCodeOverride(models.Model, Auditable):
-    instance_species = models.ForeignKey(Species)
-    region = models.ForeignKey(ITreeRegion)
+    instance_species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    region = models.ForeignKey(ITreeRegion, on_delete=models.CASCADE)
     itree_code = models.CharField(max_length=100)
 
     class Meta:

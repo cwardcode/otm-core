@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import datetime
 from string import Template
@@ -12,7 +10,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.formats import number_format
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.db.models import Q
 
 from treemap.audit import Audit, Role
@@ -234,8 +232,8 @@ def context_dict_for_plot(request, plot, tree_id=None, **kwargs):
         class UrlTemplate(Template):
             delimiter = '#'
             pattern = '''
-            \#(?:
-                (?P<escaped>\#)         |  # escape with repeated delimiter
+            \\#(?:
+                (?P<escaped>\\#)         |  # escape with repeated delimiter
                 (?P<named>(?:{0}))      |  # "#foo" substitutes foo keyword
                 {{(?P<braced>(?:{0}))}} |  # "#{{foo}}" substitutes foo keyword
                 (?P<invalid>{{}})          # requires a name
@@ -278,7 +276,7 @@ def context_dict_for_plot(request, plot, tree_id=None, **kwargs):
                   'feature_id': plot.pk}
     if tree:
         url_name = 'add_photo_to_tree'
-        url_kwargs = dict(url_kwargs.items() + [('tree_id', tree.pk)])
+        url_kwargs = dict(list(url_kwargs.items()) + [('tree_id', tree.pk)])
     else:
         url_name = 'add_photo_to_plot'
 
@@ -386,7 +384,7 @@ def context_dict_for_map_feature(request, feature, edit=False):
     feature.instance = instance  # save a DB lookup
 
     user = request.user
-    if user and user.is_authenticated():
+    if user and user.is_authenticated:
         favorited = Favorite.objects \
             .filter(map_feature=feature, user=user).exists()
     else:
@@ -396,7 +394,7 @@ def context_dict_for_map_feature(request, feature, edit=False):
     # which prevents the Favorite query above from ever returning
     # True. To avoid that we need to do the field masking after
     # setting the favorited flag.
-    if user and user.is_authenticated():
+    if user and user.is_authenticated:
         feature.mask_unauthorized_fields(user)
 
     feature.convert_to_display_units()

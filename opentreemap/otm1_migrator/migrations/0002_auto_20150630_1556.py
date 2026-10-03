@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import models, migrations
 
@@ -15,43 +15,52 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='otm1userrelic',
             name='instance',
-            field=models.ForeignKey(to='treemap.Instance'),
+            field=models.ForeignKey(
+                to='treemap.Instance', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='otm1userrelic',
             name='migration_event',
-            field=models.ForeignKey(blank=True, to='otm1_migrator.MigrationEvent', null=True),
+            field=models.ForeignKey(
+                blank=True, to='otm1_migrator.MigrationEvent', null=True, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='otm1modelrelic',
             name='instance',
-            field=models.ForeignKey(to='treemap.Instance'),
+            field=models.ForeignKey(
+                to='treemap.Instance', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='otm1modelrelic',
             name='migration_event',
-            field=models.ForeignKey(blank=True, to='otm1_migrator.MigrationEvent', null=True),
+            field=models.ForeignKey(
+                blank=True, to='otm1_migrator.MigrationEvent', null=True, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='otm1commentrelic',
             name='instance',
-            field=models.ForeignKey(to='treemap.Instance'),
+            field=models.ForeignKey(
+                to='treemap.Instance', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='otm1commentrelic',
             name='migration_event',
-            field=models.ForeignKey(blank=True, to='otm1_migrator.MigrationEvent', null=True),
+            field=models.ForeignKey(
+                blank=True, to='otm1_migrator.MigrationEvent', null=True, on_delete=models.CASCADE),
         ),
         migrations.AlterUniqueTogether(
             name='otm1userrelic',
-            unique_together=set([('otm2_model_name', 'otm1_model_id', 'instance')]),
+            unique_together=set(
+                [('otm2_model_name', 'otm1_model_id', 'instance')]),
         ),
         migrations.AlterUniqueTogether(
             name='otm1modelrelic',
-            unique_together=set([('otm2_model_name', 'otm1_model_id', 'instance')]),
+            unique_together=set(
+                [('otm2_model_name', 'otm1_model_id', 'instance')]),
         ),
         migrations.AlterUniqueTogether(
             name='otm1commentrelic',
-            unique_together=set([('otm2_model_name', 'otm1_model_id', 'instance')]),
+            unique_together=set(
+                [('otm2_model_name', 'otm1_model_id', 'instance')]),
         ),
     ]

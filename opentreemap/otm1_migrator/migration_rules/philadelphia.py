@@ -70,6 +70,7 @@ def create_override(species_obj, species_dict):
         override.save_with_user(User.system_user())
     return species_obj
 
+
 MIGRATION_RULES['species']['postsave_actions'] = (MIGRATION_RULES['species']
                                                   .get('postsave_actions', [])
                                                   + [create_override])
@@ -89,6 +90,7 @@ def mutate_boundary(boundary_obj, boundary_dict):
         boundary_obj.category = county + ' Township'
         boundary_obj.sort_order = SORT_ORDER_INDEX[county]
     return boundary_obj
+
 
 MIGRATION_RULES['boundary']['presave_actions'] = (MIGRATION_RULES['boundary']
                                                   .get('presave_actions', [])

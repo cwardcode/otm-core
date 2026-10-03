@@ -9,7 +9,7 @@ from treemap.DotDict import DotDict
 class JSONField(models.TextField):
     @staticmethod
     def to_python(value):
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             obj = json.loads(value or "{}")
             return DotDict(obj) if isinstance(obj, dict) else obj
         else:
@@ -29,7 +29,7 @@ class JSONField(models.TextField):
         value = self._get_val_from_obj(obj)
         return self.get_prep_value(value)
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection, context=None):
         return self.to_python(value)
 
 

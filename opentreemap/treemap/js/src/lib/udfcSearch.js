@@ -4,7 +4,6 @@ var $ = require('jquery'),
     Bacon = require('baconjs'),
     R = require('ramda'),
     _ = require('lodash'),
-    format = require('util').format,
     M = require('treemap/lib/BaconModels.js'),
     moment = require('moment'),
     getOptionAttr = M.getOptionAttr,
@@ -133,8 +132,8 @@ function resetAction(state) {
 
     $currentOptions.remove();
     if (shouldEnable) {
-        modelSelector = format('[data-model="%s"]', state.modelName);
-        typeSelector = format('[data-type="%s"]', state.type);
+        modelSelector = '[data-model="' + state.modelName + '"]';
+        typeSelector = '[data-type="' + state.type + '"]';
 
         // Add the relevant options to the select
         $allOptions

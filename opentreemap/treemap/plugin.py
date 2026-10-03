@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from django.conf import settings
 from django.db.models import Q
@@ -12,8 +10,12 @@ from treemap.lib import get_function_by_path
 
 
 # For use in tests, as basic functions to use in override_settings
-always_false = lambda *args, **kwargs: False
-always_true = lambda *args, **kwargs: True
+def always_false(*args, **kwargs):
+    return False
+
+
+def always_true(*args, **kwargs):
+    return True
 
 
 #

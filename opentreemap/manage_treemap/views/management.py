@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import locale
 import re
@@ -11,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import URLValidator, validate_email
 from django.shortcuts import redirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from manage_treemap.views import update_instance_fields
 from manage_treemap.views.photo import get_photos
@@ -34,7 +32,7 @@ def management_root(request, instance_url_name):
 
 
 def admin_counts(request, instance):
-    humanize = lambda n: '' if n == 0 else n if n < 100 else '99+'
+    def humanize(n): return '' if n == 0 else n if n < 100 else '99+'
 
     comment_count = get_comments({}, instance).count()
     photo_count = get_photos(instance).count()
@@ -243,9 +241,9 @@ def benefits_convs(request, instance):
     pfx = ('<span class="currency-value">' +
            conv.currency_symbol + '</span> ')
 
-    for group_title, fields in field_groups.iteritems():
+    for group_title, fields in field_groups.items():
         fields_with_pfx = [((pfx + label), value)
-                           for label, value in fields.iteritems()]
+                           for label, value in fields.items()]
         field_groups[group_title] = fields_with_pfx
 
     return {'benefitCurrencyConversion': conv,
@@ -271,7 +269,7 @@ def update_benefits(request, instance):
 
     updated_values = json_from_request(request)
 
-    for field, value in updated_values.iteritems():
+    for field, value in updated_values.items():
         if field in valid_fields:
             field_part = dotted_split(field, 2)[1]
             setattr(conv, field_part, value)
@@ -345,9 +343,9 @@ def units(request, instance):
             instance.feature_enabled('green_infrastructure'),
          'label_dict': {
              GreenInfrastructureCategory.RAINFALL: _('Annual Rainfall'),
-             GreenInfrastructureCategory.AREA:     _('Area')
-         },
-         'value_names': GreenInfrastructureCategory.GROUPS},
+             GreenInfrastructureCategory.AREA: _('Area')
+        },
+            'value_names': GreenInfrastructureCategory.GROUPS},
     ]
 
     def get_label_getter(attrs):

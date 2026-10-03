@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import csv
 import logging
+import io
 
 from contextlib import contextmanager
 from functools import wraps
@@ -44,7 +43,7 @@ def _job_transaction_manager(job_pk):
     job = ExportJob.objects.get(pk=job_pk)
     try:
         yield job
-    except:
+    except BaseException:
         job.fail()
         job.save()
         raise
@@ -78,7 +77,7 @@ def _values_for_model(
 
         if field_name.startswith('udf:'):
             name = field_name[4:]
-            if name in model_class.collection_udf_settings.keys():
+            if name in list(model_class.collection_udf_settings.keys()):
                 field_definition_id = None
                 for udfd in udf_defs(instance, model):
                     if udfd.iscollection and udfd.name == name:
@@ -127,7 +126,11 @@ def async_users_export(job, data_format):
         filename = 'users.json'
 
     file_obj = TemporaryFile()
-    write_users(data_format, file_obj, instance)
+    text_file_obj = io.TextIOWrapper(file_obj, encoding='utf-8', newline='')
+    write_users(data_format, text_file_obj, instance)
+    text_file_obj.flush()
+    text_file_obj.detach()
+    file_obj.seek(0)
     job.complete_with(filename, File(file_obj))
     job.save()
 
@@ -146,7 +149,7 @@ def async_csv_export(job, model, query, display_filters):
                       filter(instance=instance))
         values = _values_for_model(instance, job, 'treemap_species',
                                    'Species', select, select_params)
-        field_names = values + select.keys()
+        field_names = values + list(select.keys())
         limited_qs = (initial_qs
                       .extra(select=select,
                              select_params=select_params)
@@ -198,7 +201,7 @@ def async_csv_export(job, model, query, display_filters):
             limited_qs = (initial_qs
                           .extra(select=select,
                                  select_params=select_params)
-                          .values(*field_header_map.keys()))
+                          .values(*list(field_header_map.keys())))
         else:
             limited_qs = initial_qs.none()
 
@@ -213,7 +216,7 @@ def async_csv_export(job, model, query, display_filters):
     else:
         csv_file = TemporaryFile()
         write_csv(limited_qs, csv_file,
-                  field_order=field_header_map.keys(),
+                  field_order=list(field_header_map.keys()),
                   field_header_map=field_header_map,
                   field_serializer_map=field_serializer_map)
         filename = generate_filename(limited_qs).replace('plot', 'tree')
@@ -289,7 +292,7 @@ def _csv_field_serializer_map(instance, field_names):
     def make_serializer(factor, digits):
         return lambda x: str(round(factor * x, digits))
 
-    for name, details in convertable_fields.iteritems():
+    for name, details in convertable_fields.items():
         model_name, field = details
         factor = storage_to_instance_units_factor(instance,
                                                   model_name,
@@ -314,11 +317,16 @@ def simple_async_csv(job, qs):
 def custom_async_csv(csv_rows, job_pk, filename, fields):
     with _job_transaction_manager(job_pk) as job:
         csv_obj = TemporaryFile()
+        text_csv_obj = io.TextIOWrapper(csv_obj, encoding='utf-8', newline='')
 
-        writer = csv.DictWriter(csv_obj, fields)
+        writer = csv.DictWriter(text_csv_obj, fields, extrasaction='ignore')
         writer.writeheader()
         for row in csv_rows:
             writer.writerow(sanitize_unicode_record(row))
+
+        text_csv_obj.flush()
+        text_csv_obj.detach()
+        csv_obj.seek(0)
 
         job.complete_with(filename, File(csv_obj))
         job.save()

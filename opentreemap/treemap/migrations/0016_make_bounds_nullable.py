@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
 import django.contrib.gis.db.models.fields
@@ -15,6 +15,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='instance',
             name='bounds',
-            field=django.contrib.gis.db.models.fields.MultiPolygonField(srid=3857, null=True, blank=True),
+            field=django.contrib.gis.db.models.fields.MultiPolygonField(
+                srid=3857,
+                null=True,
+                blank=True),
         ),
     ]

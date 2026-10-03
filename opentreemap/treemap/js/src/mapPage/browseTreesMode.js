@@ -8,7 +8,6 @@ var $ = require('jquery'),
     BU = require('treemap/lib/baconUtils.js'),
     buttonEnabler = require('treemap/lib/buttonEnabler.js'),
     config = require('treemap/lib/config.js'),
-    format = require('util').format,
     plotMarker = require('treemap/lib/plotMarker.js'),
     webMercatorToLeafletLatLng = require('treemap/lib/utility').webMercatorToLeafletLatLng;
 
@@ -38,7 +37,7 @@ function idToPlotDetailUrl(id) {
 }
 
 function initMap(data) {}
-window.initMap = initMap
+window.initMap = initMap;
 function init(options) {
     map = options.map;
     embed = options.embed;
@@ -137,7 +136,7 @@ function getPopupContent(utfGridEvent) {
     } else if (config.instance.canopyEnabled) {
         var latlng = utfGridEvent.latlng;
         return getPopup(reverse.canopy_popup(config.instance.url_name) +
-            format('?lng=%d&lat=%d', latlng.lng, latlng.lat));
+            '?lng=' + latlng.lng + '&lat=' + latlng.lat);
 
     } else {
         return null;

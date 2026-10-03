@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import copy
 from datetime import datetime
@@ -9,7 +7,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.utils.timezone import now
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from opentreemap.util import request_is_embedded
 
@@ -26,7 +24,7 @@ REPLACEABLE_TERMS = {
 
 def global_settings(request):
     last_instance = get_last_visited_instance(request)
-    if hasattr(request, 'user') and request.user.is_authenticated():
+    if hasattr(request, 'user') and request.user.is_authenticated:
         last_effective_instance_user =\
             request.user.get_effective_instance_user(last_instance)
         _update_last_seen(last_effective_instance_user)
@@ -49,7 +47,7 @@ def global_settings(request):
         comment_file_path = finders.find('version.txt')
         with open(comment_file_path, 'r') as f:
             header_comment = f.read()
-    except:
+    except BaseException:
         header_comment = "Version information not available\n"
 
     term = copy.copy(REPLACEABLE_TERMS)

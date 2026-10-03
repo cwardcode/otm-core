@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import csv
 import json
@@ -95,13 +93,13 @@ def _user_as_dict(user, instance):
 
     last_edits = Audit.objects.filter(instance=instance,
                                       user=user)\
-                              .order_by('-updated')[:1]
+        .order_by('-updated')[:1]
 
     if last_edits:
         last_edit = last_edits[0]
 
         modeldata.update({'last_edit_%s' % k: v
-                          for (k, v) in last_edit.dict().iteritems()})
+                          for (k, v) in last_edit.dict().items()})
 
     return sanitize_unicode_record(modeldata)
 

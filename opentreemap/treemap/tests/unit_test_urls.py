@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
 
-from django.conf.urls import include, url
+
+from django.urls import include, re_path
 from django.template import Template, RequestContext
 from django.template.response import HttpResponse
 
@@ -19,6 +17,6 @@ def last_instance(request):
 
 
 urlpatterns = [
-    url(r'^test-last-instance$', last_instance),
-    url(r'', include(urls))
+    re_path(r'^test-last-instance$', last_instance),
+    re_path(r'', include(urls))
 ]

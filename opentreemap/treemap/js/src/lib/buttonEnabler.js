@@ -15,7 +15,6 @@
 
 var $ = require('jquery'),
     _ = require('lodash'),
-    format = require('util').format,
     config = require('treemap/lib/config.js'),
 
 
@@ -63,12 +62,12 @@ function fullyEnable($el, href) {
 function fullyDisable($el, disabledTitle) {
     var wrapperTemplate =
             '<label ' + disabledButtonWrapperAttrPair +
-            ' title="%s"></label>';
+            ' title="' + _.escape(disabledTitle || '') + '"></label>';
 
     $el.off('click');
     removeActionableDataAttributes($el);
     if (disabledTitle && !$el.parent().is(disabledButtonWrapperSelector)) {
-        $el.wrap(format(wrapperTemplate, disabledTitle));
+        $el.wrap(wrapperTemplate);
     }
 }
 

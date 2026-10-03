@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from functools import partial
 
@@ -89,7 +87,7 @@ def edits(request, instance, user_id):
                           .filter(model_in=['Tree', 'Plot'])\
                           .order_by('-created', 'id')
 
-    audits = audits[result_offset:(result_offset+num_results)]
+    audits = audits[result_offset:(result_offset + num_results)]
 
     keys = []
     for audit in audits:
@@ -266,7 +264,7 @@ def remove_current_tree_from_plot(request, instance, plot_id):
             tree.delete_with_user(request.user)
             updated_plot = Plot.objects.get(pk=plot_id)
             return context_dict_for_plot(request, updated_plot)
-        except:
+        except BaseException:
             raise PermissionDenied(
                 '%s does not have permission to the '
                 'current tree from plot %s' %

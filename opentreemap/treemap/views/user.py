@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 import collections
 
@@ -17,7 +15,7 @@ from django.http import HttpResponseRedirect
 from django.http.request import QueryDict
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from opentreemap.util import json_from_request, dotted_split
 
@@ -227,7 +225,7 @@ def user(request, username):
     public_fields = []
     private_fields = []
 
-    for field in USER_PROFILE_FIELDS.values():
+    for field in list(USER_PROFILE_FIELDS.values()):
         field_tuple = (field['label'], field['identifier'],
                        field.get('template', "treemap/field/div.html"))
         if field['visibility'] == 'public' and user.make_info_public is True:
@@ -267,7 +265,7 @@ def users(request, instance):
                        (query + '%',)),
                 Length('user__username'),
                 'user__username'
-            )
+        )
 
     if max_items:
         users_qs = users_qs[:int(max_items)]

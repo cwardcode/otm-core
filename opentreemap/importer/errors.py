@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
 
-from django.utils.translation import ugettext_lazy as _
+
+from django.utils.translation import gettext_lazy as _
 
 _messages_by_code = {}
 
@@ -19,6 +17,7 @@ def get_message(code):
 
 def is_itree_error_code(code):
     return 60 <= code <= 69
+
 
 ######################################
 # FILE LEVEL ERRORS

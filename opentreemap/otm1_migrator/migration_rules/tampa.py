@@ -24,6 +24,7 @@ def set_boundary_fields(boundary_obj, boundary_dict):
     boundary_obj.sort_order = 10
     return boundary_obj
 
+
 MIGRATION_RULES['boundary']['presave_actions'] = (MIGRATION_RULES['boundary']
                                                   .get('presave_actions', [])
                                                   + [set_boundary_fields])
@@ -62,15 +63,16 @@ def create_override(species_obj, species_dict):
     itree_code = species_dict['fields'].get('itree_code', None)
     if not itree_code:
         sci_name = species_dict['fields'].get('scientific_name', '').lower()
-        print('No itree_code for "%d: %s"' % (species_dict['pk'], sci_name))
+        print(('No itree_code for "%d: %s"' % (species_dict['pk'], sci_name)))
         itree_code = meta_species.get(sci_name, '')
-        print('Looked up meta species "%s"' % itree_code)
+        print(('Looked up meta species "%s"' % itree_code))
     override = ITreeCodeOverride(
         instance_species_id=species_obj.pk,
         region=ITreeRegion.objects.get(code=TAMPA_ITREE_REGION_CODE),
         itree_code=itree_code)
     override.save_with_user(User.system_user())
     return species_obj
+
 
 MIGRATION_RULES['species']['postsave_actions'] = (MIGRATION_RULES['species']
                                                   .get('postsave_actions', [])

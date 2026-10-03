@@ -2,7 +2,6 @@
 
 var $ = require('jquery'),
     toastr = require('toastr'),
-    format = require('util').format,
     _ = require('lodash'),
     config = require('treemap/lib/config.js'),
     photoCarousel = require('treemap/lib/photoCarousel.js');
@@ -65,7 +64,7 @@ module.exports.init = function(options) {
     });
 
     function rotateLightboxImage(degrees) {
-        var rotationProperty = format('rotate(%ddeg)', degrees);
+        var rotationProperty = 'rotate(' + degrees + 'deg)';
 
         $lightboxImage.css({
             '-webkit-transform': rotationProperty,

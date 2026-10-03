@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
 
 
 def sanitize_unicode_value(value):
-    # make sure every text value is of type 'str', coercing unicode
-    if isinstance(value, unicode):
-        return value.encode("utf-8")
-    elif isinstance(value, str):
+    # Normalize to text for Python 3 csv/json writers.
+    if value is None:
+        return ''
+    if isinstance(value, str):
         return value
-    else:
-        return str(value).encode("utf-8")
+    if isinstance(value, bytes):
+        return value.decode('utf-8', errors='replace')
+    return str(value)
 
 
 # originally copied from, but now divergent from:
@@ -19,8 +17,7 @@ def sanitize_unicode_value(value):
 # master/djqscsv/djqscsv.py#L123
 def sanitize_unicode_record(record):
     obj = type(record)()
-    for key, val in record.iteritems():
-        if val:
-            obj[sanitize_unicode_value(key)] = sanitize_unicode_value(val)
+    for key, val in record.items():
+        obj[sanitize_unicode_value(key)] = sanitize_unicode_value(val)
 
     return obj

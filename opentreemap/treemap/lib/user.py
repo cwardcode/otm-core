@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
+
 
 from django.db.models import Q
 
@@ -23,10 +21,18 @@ PAGE_DEFAULT = 20
 ALLOWED_MODELS = get_filterable_audit_models()
 
 
-def get_audits(logged_in_user, instance, query_vars, user=None,
-               models=ALLOWED_MODELS, model_id=None, start_id=None,
-               prev_start_ids=None, page_size=PAGE_DEFAULT, exclude_pending=True,
-               should_count=False):
+def get_audits(
+        logged_in_user,
+        instance,
+        query_vars,
+        user=None,
+        models=ALLOWED_MODELS,
+        model_id=None,
+        start_id=None,
+        prev_start_ids=None,
+        page_size=PAGE_DEFAULT,
+        exclude_pending=True,
+        should_count=False):
     if prev_start_ids is None:
         prev_start_ids = []
     if instance:
@@ -188,7 +194,7 @@ def get_audits_params(request):
 
 def user_accessible_instance_filter(logged_in_user):
     public = Q(is_public=True)
-    if logged_in_user is not None and not logged_in_user.is_anonymous():
+    if logged_in_user is not None and not logged_in_user.is_anonymous:
         private_with_access = Q(instanceuser__user=logged_in_user)
 
         instance_filter = public | private_with_access
