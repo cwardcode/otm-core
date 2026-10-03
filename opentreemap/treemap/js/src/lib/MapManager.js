@@ -489,8 +489,13 @@ function getBasemapLayers(type) {
     } else {
         return {
             'Streets': makeGoogleLayer('roadmap'),
-            'Hybrid': makeGoogleLayer('hybrid'),
-            'Satellite': makeGoogleLayer('satellite'),
+            // GoogleMutant hybrid/satellite rendering can fail (gray canvas)
+            // with newer Google Maps runtimes. Use ESRI imagery as fallback.
+            'Hybrid': L.layerGroup([
+                makeEsriLayer("Imagery"),
+                makeEsriLayer("ImageryTransportation")
+            ]),
+            'Satellite': makeEsriLayer("Imagery"),
             'Terrain': makeGoogleLayer('terrain')
         };
     }
