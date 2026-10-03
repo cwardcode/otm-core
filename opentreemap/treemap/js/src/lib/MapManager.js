@@ -445,6 +445,10 @@ function getBasemapLayers(type) {
             type: layer
         });
 
+        // Google Maps now enforces styles to be an array when provided.
+        // GoogleMutant defaults can otherwise yield `{}` and trigger errors.
+        layerOptions.styles = [];
+
         // Custom map styles are intended for vector-style base maps.
         // Applying them to hybrid/satellite can produce blank/gray output
         // with GoogleMutant on newer Google Maps runtimes.
