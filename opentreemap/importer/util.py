@@ -40,8 +40,7 @@ def _as_utf8(f):
 
 
 def _guess_dialect_and_reset_read_pointer(f):
-    wrapped = _as_utf8(f)
-    sample = wrapped.read(4096)
+    sample = f.read(4096)
     if not sample:
         raise ValueError("File is empty")
     dialect = csv.Sniffer().sniff(sample, delimiters=',\t')
@@ -50,6 +49,7 @@ def _guess_dialect_and_reset_read_pointer(f):
 
 
 def utf8_file_to_csv_dictreader(f):
-    dialect = _guess_dialect_and_reset_read_pointer(f)
+    wrapped = _as_utf8(f)
+    dialect = _guess_dialect_and_reset_read_pointer(wrapped)
     dialect.doublequote = True
-    return csv.DictReader(_as_utf8(f), dialect=dialect)
+    return csv.DictReader(wrapped, dialect=dialect)

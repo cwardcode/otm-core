@@ -6,6 +6,7 @@ import tempfile
 import csv
 import json
 import psycopg2
+import io
 
 from datetime import date
 from io import StringIO
@@ -30,10 +31,12 @@ from treemap.udf import UserDefinedFieldDefinition
 
 from importer import errors, fields
 from importer.tasks import _create_rows_for_event
+from importer.util import utf8_file_to_csv_dictreader
 from importer.models.trees import TreeImportEvent, TreeImportRow
 from importer.models.species import SpeciesImportEvent, SpeciesImportRow
 from importer.views import (process_status,
-                            commit, merge_species, start_import)
+                            commit, merge_species, start_import,
+                            download_import_template)
 
 
 class MergeTest(OTMTestCase):
@@ -975,6 +978,27 @@ class FileLevelTreeValidationTest(ValidationTest):
         self.assertTrue(len(ierrors), 1)
         self.assertHasError(ie, errors.UNMATCHED_FIELDS)
         self.assertEqual(set(ierrors[0]['data']), {'name', 'age'})
+
+
+class ImportCsvCompatibilityTest(OTMTestCase):
+    def test_template_headers_are_plain_csv_text(self):
+        instance = make_instance()
+        request = HttpRequest()
+
+        response = download_import_template(request, instance, 'tree')
+        header = response.content.decode('utf-8').splitlines()[0]
+
+        self.assertIn('Point X', header)
+        self.assertNotIn("b'Point X'", header)
+
+    def test_utf8_reader_handles_wrapped_stream_without_closing(self):
+        raw = io.BytesIO(b'point x,point y\n1,2\n')
+
+        reader = utf8_file_to_csv_dictreader(raw)
+        rows = list(reader)
+
+        self.assertEqual(rows[0]['point x'], '1')
+        self.assertEqual(rows[0]['point y'], '2')
 
 
 @override_settings(TREE_LIMIT_FUNCTION=None)
